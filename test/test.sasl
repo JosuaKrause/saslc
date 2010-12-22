@@ -1,0 +1,3 @@
+main
+  = take 10 @ map {x -> x * x} @ cycle [x ; x <- [1,3..20], x < 8]
+  ;

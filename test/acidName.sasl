@@ -1,0 +1,18 @@
+####################
+#  Name-Acid-File  #
+#                  #
+# @author: Joschi  #
+####################
+
+# cat w/o foldr and flip
+cat xs ys
+    = if xs == []
+    then ys
+    else hd xs : cat (tl xs) ys
+    ;
+
+# example from leo -> no error
+main = let hd = "720p" in cat "I watched the movie in " hd;
+
+# cat redefinition -> error
+cat = "miau";

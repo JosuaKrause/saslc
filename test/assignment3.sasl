@@ -1,0 +1,197 @@
+# University Konstanz                        Exercises for the Course
+# Database & Information Systems Group          Compiler Construction
+# Marc Scholl, Stefan Klinger                             Winter 2010
+
+# Exercise 3
+
+
+#####################################################################
+
+# Definitions used below:
+add x y = y + x; sub x y = y - x; even x = x % 2 == 0;
+
+#--------------------------------------------------------------------
+
+
+# Lists are the paramount data structure in most functional
+# programming languages. This exercise focuses on “list folding”, a
+# very common technique for working with lists.
+
+# A note for the people from the Haskell lecture: Do not look into
+# the Haskell lecture script, you'll find the solutions there. For
+# you it should be especially easy to solve these exercises without
+# cheating ;-)
+
+
+#--------------------------------------------------------------------
+
+
+# The following function is called “fold-right”. What does it do?
+# During your argumentation, justify why you believe which arguments
+# have to be lists, functions, etc.
+# Try to evaluate 'foldr add 42 [1,2]' to get a clue.
+
+foldr f z xs
+    = if xs == []
+      then z
+      else f (hd xs) @ foldr f z @ tl xs
+    ;
+
+# What does the following function do?
+
+sum = foldr add 0;
+
+# Why is the above function called “fold-*right*”? Can you define
+# “fold-left”, so that
+#
+#     foldl sub 0 [20,10,3]              # sub is defined above
+#   →
+#     sub (sub (sub 0 20) 10) 3
+#   →
+#     13
+
+foldl f z xs
+    = if xs==[]
+      then z
+      else foldl f (f z (hd xs)) @ tl xs
+    ;
+
+
+#--------------------------------------------------------------------
+
+
+# Reformulate the following functions to be an instance of either
+# 'foldl' or 'foldr'. Proceed as follows: Find out what the function
+# does (and write it down). Think about whether 'foldl' or 'foldr'
+# is more appropriate. Sometimes it don't matter. Find suitable
+# implementations of the arguments 'f' and 'z' of the fold-function.
+# An example is given for the 'length' function.
+
+length xs
+    = if xs==[]
+      then 0
+      else 1 + length (tl xs)
+    ;
+
+lengthR
+    = let f x n = 1 + n       # f = λx. λn. add n 1
+      in foldr f 0            # z=0
+    ;
+
+lengthL
+    = let f n x = 1 + n
+      in foldl f 0
+    ;
+
+
+and xs                                # note that '&' and '|' are
+    = xs==[] | (hd xs & and (tl xs))  # strict in the first argument.
+    ;                                 # Why is this important here?
+                                      # Why are the (outer)
+                                      # parenthesis required?
+
+# If '|' would be strict in the second argument, an arror occurs if 'xs' is
+# empty, since 'hd []' would be evaluated.
+# The outer parenthesis are required for the same reason, since '|' and '&'
+# have the same priority, and associate to the left
+
+# What's the difference between these two?
+
+andR
+    = let f a b = b & a
+      in foldr f true
+    ;
+andL
+    = let f a b = b & a
+      in foldl f true
+    ;
+
+# '&' is strict in its first argument.
+# andR [a,b,c] → ((true & c) & b) & a -- descends to the bottom of the list
+# andL [a,b,c] → ((true & a) & b) & c -- checks the head first
+
+# It's important whether the combining function is strict in one of its
+# arguments. Consider the following examples:
+#
+#   andR [err, true, false] → false
+#   andL [err, true, false] → false
+#   andR [true, false, err] → error
+#   andL [true, false, err] → error
+#
+# Note, that trading 'foldl' for 'foldr' does not change the result.
+# Changing the order of the arguments, i.e, making 'f' strict in its first
+# arguent, does make a difference:
+#
+#   let f a b = a & b in foldr f true [true, false, err] → false
+#   let f a b = a & b in foldl f true [true, false, err] → false
+
+
+
+product xs
+    = if xs == []
+      then 1
+      else (hd xs) * product (tl xs)
+    ;
+
+productR xs
+    = let f x y = y * x in
+      foldr f 1 xs
+    ;
+
+
+filter p xs
+    = if xs==[]
+      then []
+      else let h = hd xs
+             , t = filter p @ tl xs
+           in if p h
+              then h:t
+              else t
+    ;
+
+filterR p
+    = let f x xs = if p x then x:xs else xs
+      in foldr f []
+    ;
+
+# what does this one do?
+
+filterL p
+    = let f xs x = if p x then x:xs else xs
+      in foldl f []
+    ;
+
+# filterL even [1,2,3,4,5,6,7,8,9,10]  →  [10,8,6,4,2]
+
+
+
+takeWhile p xs
+    = if xs == []
+      then []
+      else let h = hd xs
+           in if p h
+              then h : takeWhile p (tl xs)
+              else []
+    ;
+
+
+# This is the version with 'foldr'.
+
+takeWhileR p
+    = let f x xs = if p x then x:xs else []
+      in foldr f []
+    ;
+
+# what does this one do?
+
+takeWhileL p
+    = let f xs x = if p x then x:xs else []
+      in foldl f []
+    ;
+
+
+# takeWhileL even [2,4,6,7,8,0]  →  [0,8]
+
+
+
+#####################################################################
