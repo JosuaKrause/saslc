@@ -1,0 +1,267 @@
+####################
+# Prelude for SASL #
+#                  #
+# @author Joschi   #
+####################
+
+### basic functions ###
+
+# the fixed point combinator
+fix = { x y -> x y x } { y x -> y (x y x) };
+y = { f -> { x -> f (x x) } { x -> f (x x) } };
+fix2 a = a (fix2 a);
+
+# the identity
+id x = x;
+
+# function composition
+compose f g = f . g;
+
+# applies a function twice
+# f: the function to apply
+# x: the target
+twice f = f . f;
+
+# checks whether the input is even
+# x: the number to check
+even x = x % 2 == 0;
+
+# checks whether the input is odd
+# x: the number to check
+odd x = !(even x);
+# alternative (point-free):
+# odd = not . even;
+
+# flips the arguments of a function
+# f: the function
+# x: the first argument
+# y: the second argument
+flip f x y = f y x;
+
+# the constant function, ignoring its second argument and returning the first
+# x: first argument, returned unchanged
+# y: second argument, ignored
+const x y = x;
+
+### folding functions ###
+
+# folds a list from the right
+# f: the folding function
+# z: the default value
+# xs: the list
+foldr f z xs
+    = if xs == []
+      then z
+      else f (hd xs) @ foldr f z @ tl xs
+    ;
+
+# folds a list from the left
+# f: the folding function
+# z: the default value
+# xs: the list
+foldl f z xs
+    = if xs==[]
+      then z
+      else foldl f (f z (hd xs)) @ tl xs
+    ;
+
+### applied folding ###
+
+# calculates the sum of the members of a list
+sum = foldr { x n -> n + x } 0;
+
+# calculates the product of the members of a list
+product = foldr { x n -> n * x } 1;
+
+# calculates the length of a list
+length = foldr { x n -> 1 + n } 0;
+
+# filters a list
+# p: the filter to apply
+filter p = foldr { x xs -> if p x then x:xs else xs } [];
+
+# takes the first elements of a list that satisfy the predicate
+# p: the predicate
+takeWhile p = foldr { x xs -> if p x then x:xs else [] } [];
+
+# reverses a list
+reverse = foldl { ys y -> y:ys } [];
+
+### list functions ###
+
+# concatenates two lists
+# xs: the list
+# ys: the list to append
+cat = flip (foldr []);
+
+# takes the first n elements of a list
+# n: the number of elements to take
+# xs: the list
+take n xs =
+    if n <= 0
+    then []
+    else hd xs : take (n-1) @ tl xs
+    ;
+
+# drops the first n elements of a list
+# n: the number of elements to drop
+# xs: the list
+drop n xs =
+    if n <= 0
+    then xs
+    else if xs == []
+    then []
+    else drop (n-1) @ tl xs
+    ;
+
+## maps the function f on the list
+## f: the mapping function
+## list: the list
+#map f list =
+#    if list == []
+#    then []
+#    else let x = hd list
+#           , xs = tl list
+#        in f x : map f xs
+#    ;
+
+## picks the first element that holds p
+## p: the predicate
+## xs: the list
+#first p xs =
+#    let x = hd xs
+#    in if p x then x else first p @ tl xs
+#    ;
+
+## sorts a list via insertion sort
+## the full running time is in O(n^2)
+## lt: the comparison function
+## list: the list to sort
+#isort lt list =
+#    if list == []
+#    then []
+#    else
+#        let ins x xs =
+#            if xs == []
+#            then [x]
+#            else if lt (hd xs) x
+#                then x:xs
+#                else (hd xs):(ins x @ tl xs)
+#        in ins (hd list) (isort lt @ tl list)
+#    ;
+
+# searches for the minimum of the list
+# the runnning time is in O(n)
+# xs: the list
+min xs = hd @ isort lt xs;
+
+# searches for the maximum of the list
+# the runnning time is in O(n)
+# xs: the list
+max xs = hd @ isort gt xs;
+
+### string conversions ###
+
+# converts a single character into a number
+# c: the character
+char2num c = c - '0';
+
+# converts a string into a number
+# xs: the string
+str2num xs
+    = if hd xs == '-'
+    then ~(str2num @ tl xs)
+    else foldl { i x -> i*10 + char2num x } 0 xs;
+
+# converts a positive one-digit number (0-9) into a character
+# n: the number
+num2char n = n + '0';
+
+## converts a number into a string
+## n: the number
+#num2str n
+#    = if n == 0
+#    then "0"
+#    else if n < 0
+#        then '-' : num2str (~n)
+#        else let n2s x xs
+#                = if x == 0
+#                then xs
+#                else n2s (x / 10) ((num2char(x % 10)) : xs)
+#            in n2s n []
+#    ;
+
+### numerical operator functions ###
+
+# adds two numbers
+# a: first number
+# b: second number
+add a b = b + a;
+
+# subtracts two numbers
+# a: the subtrahent
+# b: the minuent
+sub a b = b - a;
+
+# multiplies two numbers
+# a: the first number
+# b: the second number
+mul a b = b * a;
+
+# divides two numbers
+# a: the divisor
+# b: the dividend
+div a b = b / a;
+
+# calculates b modulo a
+# a: the divisor
+# b: the dividend
+mod a b = b % a;
+
+# tests two expression on equality
+# a: the first expression
+# b: the second expression
+eq a b = b == a;
+
+# tests two expression on inequality
+# a: the first expression
+# b: the second expression
+neq a b = b != a;
+
+# checks whether b is smaller than a
+# a: the first number
+# b: the second number
+lt a b = b < a;
+
+# checks whether b is larger than a
+# a: the first number
+# b: the second number
+gt a b = b > a;
+
+# checks whether b is at most a
+# a: the first number
+# b: the second number
+lte a b = b <= a;
+
+# checks whether b is at least a
+# a: the first number
+# b: the second number
+gte a b = b >= a;
+
+# negates a number
+# x: the number
+neg x = ~x;
+
+### boolean operator functions ###
+
+# negates a predicate
+# p: the predicate
+not p = !p;
+
+# returns true if all listitems are true
+# ps: the predicate list
+all = foldr { a b -> a & b } true;
+
+# returns true if at least one listitem is true
+# ps: the predicate list
+any = foldr { a b -> a | b } false;

@@ -1,0 +1,4 @@
+# the fixed point combinator
+#Y = (\x y. x y x) (\y x. y (x y x));
+
+Y = { f -> { x -> f (x x) } { x -> f (x x) } };

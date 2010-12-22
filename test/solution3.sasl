@@ -1,0 +1,176 @@
+# University Konstanz                        Exercises for the Course
+# Database & Information Systems Group          Compiler Construction
+# Marc Scholl, Stefan Klinger                             Winter 2010
+
+# Exercise 3
+
+
+#####################################################################
+
+# Definitions used below:
+add x y = y + x; sub x y = y - x; even x = x % 2 == 0;
+
+#--------------------------------------------------------------------
+
+
+# Lists are the paramount data structure in most functional
+# programming languages. This exercise focuses on “list folding”, a
+# very common technique for working with lists.
+
+# A note for the people from the Haskell lecture: Do not look into
+# the Haskell lecture script, you'll find the solutions there. For
+# you it should be especially easy to solve these exercises without
+# cheating ;-)
+
+
+#--------------------------------------------------------------------
+
+
+# The following function is called “fold-right”. What does it do?
+# During your argumentation, justify why you believe which arguments
+# have to be lists, functions, etc.
+# Try to evaluate 'foldr add 42 [1,2]' to get a clue.
+
+foldr f z xs
+    = if xs == []
+      then z
+      else f (hd xs) @ foldr f z @ tl xs
+    ;
+
+# foldr folds a function "into" a list following the scheme
+# the argument f is the function which is used to fold the list
+# z is the default/start value so its type has to be the same as the result-type
+# and finally xs is the list which is folded
+# 
+#     f x_1 (f x_2 (f ... (f x_n (z) ) ) )
+# 
+#     foldr add 42 [1,2]
+#   = add (1) @ foldr add 42 [2]
+#   = add (1) @ add (2) @ foldr add 42 []
+#   = add (1) @ add (2) @ 42
+#   = 45
+
+# What does the following function do?
+
+sum = foldr add 0;
+
+# sum calculates the sum of all elements in the list.
+
+# Why is the above function called “fold-*right*”? Can you define
+# “fold-left”, so that
+#
+#     foldl sub 0 [20,10,3]              # sub is defined above
+#   →
+#     sub (sub (sub 0 20) 10) 3
+#   →
+#     13
+
+# because the list is folded from right to left, so the rightmost element is
+# folded at first
+
+foldl f z xs
+    = if xs == []
+      then z
+      else foldl f (f z @ hd xs) (tl xs)
+    ;
+
+# more common:
+foldl' f z xs
+    = if xs == []
+      then z
+      else f (foldl' f z @ tl xs) @ hd xs
+    ;
+
+
+#--------------------------------------------------------------------
+
+
+# Reformulate the following functions to be an instance of either
+# 'foldl' or 'foldr'. Proceed as follows: Find out what the function
+# does (and write it down). Think about whether 'foldl' or 'foldr'
+# is more appropriate. Sometimes it doesn't matter. Find suitable
+# implementations of the arguments 'f' and 'z' of the fold-function.
+# An example is given for the 'length' function.
+
+length xs
+    = if xs == []
+      then 0
+      else 1 + length (tl xs)
+    ;
+    
+# Calculates list cardinality.
+
+lengthR
+    = let f x n = 1 + n       # f = λx. λn. add n 1
+      in foldr f 0            # z=0
+    ;
+
+lengthL
+    = let f n x = 1 + n
+      in foldl f 0
+    ;
+
+and xs                                  # note that '&' and '|' are
+    = xs == [] | (hd xs & and (tl xs))  # strict in the first arg.
+    ;                                   # Why is this important here?
+                                        # Because empty lists would otherwise evaluated too -> undefined
+                                        # And there is the possibility of short-cuts when hd xs evaluates to false
+                                        # Why are the (outer)
+                                        # parenthesis required?
+                                        # Shouldn't there also be parenthesises around xs == []?
+andR = let a x y = (x & y)
+       in foldr a true;    # has to be foldr for shortcutting
+
+product xs
+    = if xs == []
+      then 1
+      else (hd xs) * product (tl xs)
+    ;
+
+mul x y = y * x;
+
+productR = foldr mul 1;
+productL = foldl mul 1;
+
+# The following two are a bit more difficult, but they follow the
+# same pattern:
+
+filter p xs
+    = if xs == []
+      then []
+      else let h = hd xs
+             , t = filter p @ tl xs
+           in if p h
+              then h:t
+              else t
+    ;
+
+# with foldr
+filterR p = let f x xs = if p x then x:xs else xs
+            in foldr f []
+            ;
+
+# with foldl -- not very efficient and should be avoided...
+reverse xs = let rev as bs = if as == [] then bs else rev (tl as) (hd as:bs)
+             in rev xs []
+             ;
+filterL p xs = let f ys y = if p y then y:ys else ys
+               in reverse (foldl f [] xs)
+               ;
+
+takeWhile p xs
+    = if xs == []
+      then []
+      else let h = hd xs
+           in if p h
+              then h : takeWhile p (tl xs)
+              else []
+    ;
+
+# only possible with foldr because the list creation ends with the first
+# element from the left not holding p but foldx goes through the complete list
+takeWhileR p = let acc x xs = if p x then x:xs else []
+               in foldr acc []
+               ;
+
+#####################################################################

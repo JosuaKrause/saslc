@@ -1,0 +1,129 @@
+####################
+# Prelude for SASL #
+#                  #
+# @author Joschi   #
+####################
+
+### basic functions ###
+
+# the fixed point combinator
+y = \f . (\x . f (x x)) (\x . f (x x));
+fix a = a (fix a);
+
+# the identity
+id x = x;
+
+# applies a function twice
+# f: the function to apply
+# x: the target
+twice f x = f @ f x;
+
+# checks whether the input is even
+# x: the number to check
+even x = x % 2 == 0;
+
+# checks whether the input is odd
+# x: the number to check
+odd = !even;
+
+# flips the arguments of a function
+# f: the function
+# x: the first argument
+# y: the second argument
+flip f x y = f y x;
+
+# the constant function, ignoring its second argument and returning the first
+# x: first argument, returned unchanged
+# y: second argument, ignored
+const x y = x;
+
+### folding functions ###
+
+# folds a list from the right
+# f: the folding function
+# z: the default value
+# xs: the list
+foldr f z xs
+    = if xs == []
+      then z
+      else f (hd xs) @ foldr f z @ tl xs
+    ;
+
+# folds a list from the left
+# f: the folding function
+# z: the default value
+# xs: the list
+foldl f z xs
+    = if xs==[]
+      then z
+      else foldl f (f z (hd xs)) @ tl xs
+    ;
+
+### applied folding ###
+
+# calculates the sum of the members of a list
+sum = foldr (\x n. n + x) 0;
+
+# calculates the product of the members of a list
+product = foldr (\x n. n * x) 1;
+
+# calculates the length of a list
+length = foldr (\x n. 1 + n) 0;
+
+# filters a list
+# p: the filter to apply
+filter p = foldr (\x xs. if p x then x:xs else xs) [];
+
+# takes the first elements of a list that satisfy the predicate
+# p: the predicate
+takeWhile p = foldr (\x xs. if p x then x:xs else []) [];
+
+# reverses a list
+reverse = foldl (\ys y. y:ys) [];
+
+### list functions ###
+
+# concatenates two lists
+# xs: the list
+# ys: the list to append
+cat = flip (foldr []);
+
+# takes the first n elements of a list
+# n: the number of elements to take
+# xs: the list
+take n xs =
+    if n <= 0
+    then []
+    else hd xs : take (n-1) @ tl xs
+    ;
+
+# drops the first n elements of a list
+# n: the number of elements to drop
+# xs: the list
+drop n xs =
+    if n <= 0
+    then xs
+    else if xs == []
+    then []
+    else drop (n-1) @ tl xs
+    ;
+
+# maps the function f on the list
+# f: the mapping function
+# list: the list
+map f list =
+    if list == []
+    then []
+    else let x = hd list
+           , xs = tl list
+        in f x : map f xs
+    ;
+
+# picks the first element that holds p
+# p: the predicate
+# xs: the list
+first p xs =
+    let x = hd xs
+    in if p x then x else first p @ tl xs
+    ;
+
