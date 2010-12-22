@@ -1,0 +1,206 @@
+# University Konstanz                        Solutions for the Course
+# Database & Information Systems Group          Compiler Construction
+# Jens Erat, Josua Krause, Leonard Wörteler               Winter 2010
+
+# Solution for Exercise 1
+
+
+#####################################################################
+
+# Remarks:
+
+# In the following, and during the lecture, we will use the
+# symbol '→' to denote the process of evaluating an expression:
+#
+#   3 + 4  →  7
+#
+# We pronounce this “three plus four evaluates to seven” or
+# “...reduces to seven”. 
+
+# Although you don't have a syntax checker, try to stick to the
+# syntax rules when answering the questions below. This helps you
+# thinking about the SASL language.
+
+
+#--------------------------------------------------------------------
+
+
+# Write the identity function 'id', so that  id 4 → 4.
+
+# Solution:
+id x = x ;
+
+
+#--------------------------------------------------------------------
+
+
+# Write a function 'even' that returns whether its numeric argument
+# is even.
+#
+#   even 3  →  false
+#   even 4  →  true
+
+# Solution:
+even x = (x / 2) * 2 == x ;                             # no mod/%
+
+#--------------------------------------------------------------------
+
+
+# Write a function 'twice' which applies its first argument two times
+# to its second.
+#
+#   twice sqrt 81  →  sqrt (sqrt 81)  →  sqrt 9  →  3
+
+# Solution:
+twice f x = f @ f x ;
+
+
+#--------------------------------------------------------------------
+
+
+# Write a function that calculates the lenght of a list.
+#
+#   length [] → 0
+#   length ["bla",1,2] → 3
+
+# Solution:
+length xs =
+  if   xs == []
+  then 0
+  else 1 + length (tl xs)
+  ;
+
+
+#--------------------------------------------------------------------
+
+
+# SASL syntax: Why is a semicolon required at the end of each
+# definition?
+
+# As arguments are only separated by spaces, the semicolons are
+# needed so the parser can distinguish a new definition from further
+# arguments to the preceding one.
+# Example:
+# a = b c d = e
+# could be either parsed as
+# a = b; c d = e
+# or
+# a = b c; d = e
+
+#--------------------------------------------------------------------
+
+
+# Write a function 'fib' that calculates the 'n'-th Fibonacci number.
+#
+#   fib 6 → 8
+
+# Solution:
+fib n =
+  if   n == 2 | n == 1
+  then 1
+  else fib (n-1) + fib (n-2)
+  ;
+
+#--------------------------------------------------------------------
+
+
+# Write a function 'take' that returns the first 'n' elements of a
+# list. Do this without looking into the SASL manual ;-)
+#
+#   take 5 one → [1,2,1,2,1]
+
+one = 1 : two;
+two = 2 : one;
+
+# Solution:
+take n xs =
+  if   n <= 0
+  then []
+  else hd xs : take (n-1) @ tl xs
+  ;
+
+
+# Write the analoguous function 'drop' which drops the first 'n'
+# elements of a list.
+#
+#   drop 3 [1,2,3,4,5]  →  [4,5]
+
+# Solution:
+drop n xs =
+  if   n <= 0
+  then xs
+  else if xs == []
+  then []
+  else drop (n-1) @ tl xs
+  ;
+
+#---------------------------------------------------------------------
+
+
+# Write a function 'nfib' that calculates the first 'n' Fibonacci
+# numbers, and returns them all.
+
+# Solution:
+# we're assuming that "the first 'n' Fibonacci numbers" are [f_1 .. f_n]
+nfib n =
+  let
+    start = [1, 1]
+  , snd p = hd @ tl p
+  , run i fs =
+      if i == n
+      then fs
+      else run (i+1) @ (hd fs + snd fs) : fs
+  in
+    if n <= 2
+    then take n start
+    else run 2 start
+  ;
+
+# can you write a more elegant version of 'fib' from above?
+
+# Solution:
+fib' n = hd @ nfib n ;
+
+#--------------------------------------------------------------------
+
+
+# What does the following function do?
+
+map f list =
+  if list == []
+  then []
+  else let x = hd list
+         , xs = tl list
+       in f x : map f xs
+  ;
+
+# What result would you expect the expression
+#
+#   map even [1,2,3,4,5]
+#
+# to evaluate to? If you don't “see” the answer by looking at the
+# function, try to evaluate 'map f []', 'map f [1]', 'map f [1,2]',
+# and so on by hand.
+
+# Solution:
+# The function 'map' applies a given function to all elements of a
+# list, generating a new one.
+# The result to the given example would be [false, true, false, true, false]
+
+#--------------------------------------------------------------------
+
+
+# Write a function 'first' that returns the first element from a
+# list, for which a provided predicate holds. The result may be
+# undefined if no such element exists.
+#
+#   first even [1,7,9,5,3,6,4,5,8,7,9]  →  6
+
+# Solution:
+first pred xs =
+  let x = hd xs
+  in if pred x then x else first pred @ tl xs
+  ;
+
+######################################################################
+

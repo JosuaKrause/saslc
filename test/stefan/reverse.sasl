@@ -1,0 +1,4 @@
+reverse l
+    = let shunt r l = if empty l then r else shunt (hd l:r) (tl l)
+      in shunt [] l
+    ;

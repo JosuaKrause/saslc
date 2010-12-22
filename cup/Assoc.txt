@@ -1,0 +1,11 @@
+#==================+=======+=====================================#
+|        ! ~       | right |  prefix negations                   |
+|                  | left  |  juxtaposition as in f a, see below |
+|       * / %      | left  |  infix arithmetics                  |
+|        - +       | left  |  infix arithmetics                  |
+|  == != < > <= >= | left  |  comparison                         |
+|        & |       | left  |  boolean infix operators            |
+|         :        | right |  list construction                  |
+|         @        | right |  application                        |
+| if _ then _ else | none  |  extends to end of expression       |
+#==================+=======+=====================================#

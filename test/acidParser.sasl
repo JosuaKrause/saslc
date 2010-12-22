@@ -1,0 +1,35 @@
+####################
+# Parser-Acid-File #
+#                  #
+# @author: Joschi  #
+####################
+
+# TODO: single tests in junit and error-list
+# wrong definitions
+f a 4 = b;
+if;
+let;
+f;
+f a;
+f a =;
+f = 2 + 3 = 5;
+# empty statement
+;
+# wrong expressions
+f = (1;
+f = i);
+f a b = a+;
+f a b = +b;
+# wrong let
+f = let x;
+f = let x = 3 in;
+f = let let x in;
+f a = let x = in a;
+f=let if x then a else b in c;
+# wrong if
+f a b c = if a then else c;
+f a b c = if then else;
+# wrong strings
+f = "ab\cd";
+# early EOF
+if # EOF

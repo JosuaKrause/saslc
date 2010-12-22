@@ -1,0 +1,184 @@
+package xi.parser;
+
+import xi.ast.*;
+import java.util.LinkedList;
+import java_cup.runtime.Symbol;
+import java.math.BigInteger;
+
+parser code {:
+    public Module parseValue() throws Exception {
+        final Module m = (Module) parse().value;
+        if (!err.isEmpty()) {
+            final StringBuilder sb = new StringBuilder();
+            for (final ParseError pe : err) {
+                final Symbol s = pe.getSymbol();
+                sb.append("Error: ");
+                sb.append(pe.getMessage());
+                sb.append(" for ");
+                sb.append(xi.lexer.Lexer.getPrettySymbol(s));
+                sb.append(" at ");
+                sb.append(xi.lexer.Lexer.getPosition(s));
+                sb.append(xi.util.StringUtils.NL);
+            }
+            throw new Exception(sb.toString());
+        }
+        return m;
+    }
+
+    public Module addDefinition(final Module m, final String nm, final Expr e) {
+    	final Name n = Name.valueOf(nm);
+        if (e == ParseError.expr) {
+            return m;
+        }
+        try {
+            m.addDefinition(n, e);
+        } catch (final Exception ex) {
+            final java_cup.runtime.Symbol s = symbolFactory.newSymbol("DEF",
+                    Terminal.DEF, m.getForName(n));
+            report_error("Duplicate definition \"" + n + "\"", s);
+        }
+        return m;
+    }
+
+    public final java.util.List<ParseError> err = new LinkedList<ParseError>();
+
+    public ParseError addError(final Symbol sym, final String msg) {
+        final ParseError e = new ParseError(sym, msg);
+        err.add(e);
+        return e;
+    }
+
+    public void report_error(final String message, final Object info) {
+        if (info instanceof Symbol) {
+            final Symbol s = (Symbol) info;
+            addError(s, message);
+            return;
+        }
+        super.report_error(message, info);
+    }
+
+:};
+
+scan with {: return getScanner().next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal            PLUS, MINUS, TIMES, DIV, MOD;
+terminal            EQ, NE, LT, GT, LE, GE, AND, OR;
+terminal            CONS, APP, SEQ;
+terminal            NOT, UMINUS;
+terminal            BRACK_L, BRACK_R, PAR_L, PAR_R, BRACE_L, BRACE_R;
+terminal            IF, THEN, ELSE;
+terminal            LET, IN;
+terminal            TO, FROM, COMMA, SEMI, DEF, COMP, ELLIPSE;
+
+/* Terminals with attached values. */
+terminal BigInteger NUM;
+terminal Boolean    BLN;
+terminal String     NAME, INAME;
+terminal String     STR;
+terminal Character  CHAR;
+
+/* Non terminals */
+non terminal  Module           sasl, module, defs;
+non terminal  Expr             def, expr, condexpr, lambdaexpr, prefixexpr;
+non terminal  Expr             infixexpr, comb, simple, constant, list, s_list, e_to;
+non terminal  Expr[]           c_list;
+non terminal  ListComp         listcmp;
+non terminal  ListComp.Part    sc_part;
+
+/* Precedences */
+precedence right     APP, SEQ, INAME;
+precedence right     CONS;
+precedence left      AND, OR;
+precedence nonassoc  EQ, NE, LT, GT, LE, GE;
+precedence left      PLUS, MINUS;
+precedence left      TIMES, DIV, MOD;
+precedence right     COMP;
+
+/* The grammar */
+sasl        ::= module:m                      {: RESULT = m; :}
+              ;
+module      ::= NAME:n def:d SEMI module:m    {: RESULT = parser.addDefinition(m, n, d); :}
+              | error SEMI module:m           {: RESULT = parser.addDefinition(m, "$ERROR$", ParseError.expr); :}
+              |                               {: RESULT = new Module(true); :}
+              ;
+def         ::= DEF expr:e                    {: RESULT = e; :}
+              | NAME:n def:d                  {: RESULT = new Lambda(n, d); :}
+              ;
+expr        ::= LET defs:ds IN expr:e         {: RESULT = new LetIn(ds, e); :}
+              | condexpr:c                    {: RESULT = c; :}
+              ;
+defs        ::= NAME:n def:d COMMA defs:ds    {: RESULT = parser.addDefinition(ds, n, d); :}
+              | NAME:n def:d                  {: RESULT = parser.addDefinition(new Module(false), n, d); :}
+              ;
+condexpr    ::= IF expr:i THEN expr:t
+                          ELSE expr:e         {: RESULT = BuiltIn.BRANCH.app(i, t, e); :}
+              | prefixexpr:p                  {: RESULT = p; :}
+              | infixexpr:i                   {: RESULT = i; :}
+              | comb:c                        {: RESULT = c; :}
+              ;
+prefixexpr  ::= NOT    condexpr:o             {: RESULT = BuiltIn.NOT.app(o); :}
+              | UMINUS condexpr:o             {: RESULT = BuiltIn.UMINUS.app(o); :}
+              ;
+infixexpr   ::= condexpr:x PLUS    condexpr:y {: RESULT = BuiltIn.PLUS.app(x, y); :}
+              | condexpr:x MINUS   condexpr:y {: RESULT = BuiltIn.MINUS.app(x, y); :}
+              | condexpr:x TIMES   condexpr:y {: RESULT = BuiltIn.TIMES.app(x, y); :}
+              | condexpr:x DIV     condexpr:y {: RESULT = BuiltIn.DIV.app(x, y); :}
+              | condexpr:x MOD     condexpr:y {: RESULT = BuiltIn.MOD.app(x, y); :}
+              | condexpr:x EQ      condexpr:y {: RESULT = BuiltIn.EQ.app(x, y); :}
+              | condexpr:x NE      condexpr:y {: RESULT = BuiltIn.NE.app(x, y); :}
+              | condexpr:x LT      condexpr:y {: RESULT = BuiltIn.LT.app(x, y); :}
+              | condexpr:x GT      condexpr:y {: RESULT = BuiltIn.GT.app(x, y); :}
+              | condexpr:x LE      condexpr:y {: RESULT = BuiltIn.LE.app(x, y); :}
+              | condexpr:x GE      condexpr:y {: RESULT = BuiltIn.GE.app(x, y); :}
+              | condexpr:x AND     condexpr:y {: RESULT = BuiltIn.AND.app(x, y); :}
+              | condexpr:x OR      condexpr:y {: RESULT = BuiltIn.OR.app(x, y); :}
+              | condexpr:x CONS    condexpr:y {: RESULT = BuiltIn.CONS.app(x, y); :}
+              | condexpr:x SEQ     condexpr:y {: RESULT = BuiltIn.SEQ.app(x, y); :}
+              | condexpr:x APP     condexpr:y {: RESULT = App.create(x, y); :}
+              | condexpr:x INAME:n condexpr:y {: RESULT = App.create(Name.valueOf(n), x, y); :}
+              | condexpr:f COMP    condexpr:g {: final Name x = Name.createName();
+                                                 RESULT = new Lambda(x.toString(), App.create(f, App.create(g, x))); :}
+              ;
+comb        ::= comb:c simple:s               {: RESULT = App.create(c, s); :}
+              | simple:s                      {: RESULT = s; :}
+              ;
+simple      ::= NAME:n                        {: RESULT = Name.valueOf(n); :}
+              | constant:c                    {: RESULT = c; :}
+              | BRACE_L lambdaexpr:l BRACE_R  {: RESULT = l; :}
+              | PAR_L expr:e PAR_R            {: RESULT = e; :}
+              ;
+lambdaexpr  ::= NAME:n lambdaexpr:l           {: RESULT = new Lambda(n, l); :}
+              | NAME:n TO expr:e              {: RESULT = new Lambda(n, e); :}
+              ;
+constant    ::= NUM:n                         {: RESULT = Num.valueOf(n); :}
+              | BLN:b                         {: RESULT = Bool.valueOf(b); :}
+              | STR:s                         {: RESULT = Str.fromString(s); :}
+              | CHAR:c                        {: RESULT = Char.valueOf(c); :}
+              | BRACK_L list:l                {: RESULT = l; :}
+              ;
+list        ::= expr:f ELLIPSE e_to:t         {: RESULT = ListComp.enumerate(f, null, t); :}
+              | expr:e COMMA c_list:l         {: RESULT = l.length == 2
+                                                        ? ListComp.enumerate(e, l[0], l[1])
+                                                        : BuiltIn.CONS.app(e, l[0]); :}
+              | expr:v SEMI listcmp:c BRACK_R {: RESULT = c.finish(v); :}
+              | expr:e BRACK_R                {: RESULT = BuiltIn.CONS.app(e, BuiltIn.NIL); :}
+              | BRACK_R                       {: RESULT = BuiltIn.NIL; :}
+              ;
+c_list      ::= expr:e ELLIPSE e_to:l         {: RESULT = new Expr[]{ e, l }; :}
+              | s_list:l                      {: RESULT = new Expr[]{ l }; :}
+              ;
+s_list      ::= expr:e COMMA s_list:l         {: RESULT = BuiltIn.CONS.app(e, l); :}
+              | expr:e BRACK_R                {: RESULT = BuiltIn.CONS.app(e, BuiltIn.NIL); :}
+              | BRACK_R                       {: RESULT = BuiltIn.NIL; :}
+              ;
+e_to        ::= expr:e BRACK_R                {: RESULT = e; :}
+              | BRACK_R                       {: RESULT = null; :}
+              ;
+listcmp     ::= sc_part:p COMMA listcmp:lc    {: RESULT = lc.add(p); :}
+              | sc_part:p                     {: RESULT = new ListComp(p); :}
+              ;
+sc_part     ::= NAME:n DEF expr:e             {: RESULT = ListComp.let(n, e); :}
+              | NAME:n FROM expr:e            {: RESULT = ListComp.prod(n, e); :}
+              | expr:e                        {: RESULT = ListComp.guard(e); :}
+              ;
