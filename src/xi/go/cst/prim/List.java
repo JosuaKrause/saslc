@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
+import xi.go.cst.BlockingNode;
 import xi.go.cst.Thunk;
 
 /**
@@ -40,7 +41,23 @@ public class List extends Value {
 
         @Override
         public boolean eq(final Value n) {
-            return this == n;
+            return this == n || n.equals(this);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj instanceof BlockingNode) {
+                return ((BlockingNode) obj).equals(this);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     };
 
@@ -109,7 +126,7 @@ public class List extends Value {
         boolean isList = false;
         boolean prev = true;
         Value nd = this;
-        while (nd != EMPTY) {
+        while (!nd.equals(EMPTY)) {
             isList = !nd.getHead().wHNF().isChar();
             if (first || isList != prev) {
                 if (first) {
@@ -154,7 +171,7 @@ public class List extends Value {
         if (n == this) {
             return true;
         }
-        if (n == EMPTY) {
+        if (n.equals(EMPTY)) {
             return false;
         }
         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());

@@ -2,6 +2,7 @@ package xi.go.cst;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,117 +11,125 @@ import xi.go.cst.prim.Value;
 
 public class BlockingNode extends Value {
 
-	private volatile Node realNode;
+    private volatile Value realNode;
 
-	public BlockingNode() {
-		realNode = null;
-	}
+    public BlockingNode() {
+        realNode = null;
+    }
 
-	public synchronized void setNode(final Node node) {
-		realNode = node;
-		notifyAll();
-	}
+    public synchronized void setNode(final Value node) {
+        realNode = node;
+        notifyAll();
+    }
 
-	private synchronized void ensureNode() {
-		try {
-			while (realNode == null) {
-				wait();
-			}
-		} catch (final InterruptedException e) {
-			// interrupted
-		}
-	}
+    private synchronized void ensureNode() {
+        try {
+            while (realNode == null) {
+                wait();
+            }
+        } catch (final InterruptedException e) {
+            // interrupted
+        }
+    }
 
-	protected Node getNode() {
-		ensureNode();
-		return realNode;
-	}
+    protected Node getNode() {
+        ensureNode();
+        return realNode;
+    }
 
-	@Override
-	public Thunk getLeft() {
-		ensureNode();
-		return realNode.getLeft();
-	}
+    @Override
+    public Thunk getLeft() {
+        ensureNode();
+        return realNode.getLeft();
+    }
 
-	@Override
-	public Thunk getRight() {
-		ensureNode();
-		return realNode.getRight();
-	}
+    @Override
+    public Thunk getRight() {
+        ensureNode();
+        return realNode.getRight();
+    }
 
-	@Override
-	public int getNum() {
-		ensureNode();
-		return realNode.getNum();
-	}
+    @Override
+    public Function.Def getFunction() {
+        ensureNode();
+        return realNode.getFunction();
+    }
 
-	@Override
-	public int getChar() {
-		ensureNode();
-		return realNode.getChar();
-	}
+    @Override
+    public boolean isApp() {
+        ensureNode();
+        return realNode.isApp();
+    }
 
-	@Override
-	public boolean getBool() {
-		ensureNode();
-		return realNode.getBool();
-	}
+    @Override
+    public Thunk link(final Map<String, Thunk> defs, final Set<String> linked) {
+        ensureNode();
+        return realNode.link(defs, linked);
+    }
 
-	@Override
-	public Node getHead() {
-		ensureNode();
-		return realNode.getHead();
-	}
+    @Override
+    public String toString() {
+        ensureNode();
+        return realNode.toString();
+    }
 
-	@Override
-	public Node getTail() {
-		ensureNode();
-		return realNode.getTail();
-	}
+    @Override
+    public boolean eq(final Value n) {
+        ensureNode();
+        return realNode.eq(n);
+    }
 
-	@Override
-	public Function.Def getFunction() {
-		ensureNode();
-		return realNode.getFunction();
-	}
+    @Override
+    public void eval(final Writer w) throws IOException {
+        ensureNode();
+        realNode.eval(w);
+    }
 
-	@Override
-	public boolean isApp() {
-		ensureNode();
-		return realNode.isApp();
-	}
+    @Override
+    public boolean getBool() {
+        ensureNode();
+        return realNode.getBool();
+    }
 
-	@Override
-	public boolean eq(Node n) {
-		ensureNode();
-		if (n instanceof BlockingNode) {
-			n = ((BlockingNode) n).getNode();
-		}
-		return realNode.eq(n);
-	}
+    @Override
+    public Thunk getHead() {
+        ensureNode();
+        return realNode.getHead();
+    }
 
-	@Override
-	public void eval(final Writer w) throws IOException {
-		ensureNode();
-		realNode.eval(w);
-	}
+    @Override
+    public BigInteger getNum() {
+        ensureNode();
+        return realNode.getNum();
+    }
 
-	@Override
-	public Thunk link(final Map<String, Thunk> defs, final Set<String> linked) {
-		ensureNode();
-		return realNode.link(defs, linked);
-	}
+    @Override
+    public Thunk getTail() {
+        ensureNode();
+        return realNode.getTail();
+    }
 
-	@Override
-	public boolean isValue() {
-		ensureNode();
-		return realNode.isValue();
-	}
+    @Override
+    public boolean isChar() {
+        ensureNode();
+        return realNode.isChar();
+    }
 
-	@Override
-	public String toString() {
-		ensureNode();
-		return realNode.toString();
-	}
+    @Override
+    public boolean isRef() {
+        ensureNode();
+        return realNode.isRef();
+    }
 
+    @Override
+    public boolean equals(final Object obj) {
+        ensureNode();
+        return realNode.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        ensureNode();
+        return realNode.hashCode();
+    }
 }

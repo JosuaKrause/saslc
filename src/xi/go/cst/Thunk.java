@@ -75,56 +75,56 @@ public class Thunk {
      * @return The new node.
      */
     public final Value wHNF() {
-		final BlockingNode bln = new BlockingNode();
-		final Node old = node;
-		final Thread wHNF = new Thread() {
-			@Override
-			public void run() {
-				try {
-					final Stack<Thunk> stack = new Stack<Thunk>();
-					final Thunk start = new Thunk(old);
-					Thunk curr = start;
-			        while (!curr.isValue()) {
-            			if (curr.isApp()) {
-			                stack.push(curr);
-			                curr = curr.node.getLeft();
-            			    pushes++;
-			            } else {
-            			    final Function.Def funDef = curr.node.getFunction();
-			                if (stack.size() < funDef.cardinality) {
-			                    throw new IllegalStateException("Not enough arguments for "
-			                            + funDef);
-			                }
-            			    if (funDef == Function.Def.I) {
-			                    curr = stack.pop().node.getRight();
-            			        continue;
-				                }
-							final Thunk[] args = new Thunk[funDef.cardinality];
-							for (int i = 0; i < funDef.cardinality; i++) {
-								curr = stack.pop();
-								args[i] = curr.node.getRight();
-							}
-							curr.node = funDef.apply(args);
-			                reductions++;
-						}
-					}
-					if (!stack.isEmpty()) {
-			            throw new IllegalStateException("Value '" + curr.node
-            			        + "' can't be applied.");
-			        }
-					final Node res = curr.node;
-					bln.setNode(res);
-					node = res;
-				} catch (final Error e) {
-					e.printStackTrace();
-					System.exit(1);
-				}
-			}
-		};
-		node = bln;
-		wHNF.start();
-		return bln;
-	}
+        final BlockingNode bln = new BlockingNode();
+        final Node old = node;
+        final Thread wHNF = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    final Stack<Thunk> stack = new Stack<Thunk>();
+                    final Thunk start = new Thunk(old);
+                    Thunk curr = start;
+                    while (!curr.isValue()) {
+                        if (curr.isApp()) {
+                            stack.push(curr);
+                            curr = curr.node.getLeft();
+                            pushes++;
+                        } else {
+                            final Function.Def funDef = curr.node.getFunction();
+                            if (stack.size() < funDef.cardinality) {
+                                throw new IllegalStateException(
+                                        "Not enough arguments for " + funDef);
+                            }
+                            if (funDef == Function.Def.I) {
+                                curr = stack.pop().node.getRight();
+                                continue;
+                            }
+                            final Thunk[] args = new Thunk[funDef.cardinality];
+                            for (int i = 0; i < funDef.cardinality; i++) {
+                                curr = stack.pop();
+                                args[i] = curr.node.getRight();
+                            }
+                            curr.node = funDef.apply(args);
+                            reductions++;
+                        }
+                    }
+                    if (!stack.isEmpty()) {
+                        throw new IllegalStateException("Value '" + curr.node
+                                + "' can't be applied.");
+                    }
+                    final Node res = curr.node;
+                    bln.setNode((Value) res);
+                    node = res;
+                } catch (final Error e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        };
+        node = bln;
+        wHNF.start();
+        return bln;
+    }
 
     private boolean isApp() {
         return node.isApp();
