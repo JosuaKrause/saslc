@@ -20,8 +20,7 @@ public abstract class Value extends Prim {
     }
 
     /**
-     * Evaluates and dismounts the node, so that the node itself cannot be used
-     * after the call to this method.
+     * Evaluates the node.
      * 
      * @param w
      *            The output will be written to this Writer.

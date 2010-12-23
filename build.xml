@@ -88,9 +88,27 @@ class CUP$Parser$actions]]></replacevalue>
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
         </jar>
 	</target>
+	<target name="sasln">
+		<jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="xi.linker.Linker"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}" />
+        </jar>
+	</target>
+	<target name="sk">
+		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="xi.go.VM"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}" />
+        </jar>
+	</target>
     <!-- builds the targets in the given order -->
     <target name="all"
-            depends="compileCup,compileFlex,compileRest,saslc_jar,run"
+            depends="compileCup,compileFlex,compileRest,saslc_jar,run,sasln,sk"
             description="Build all jars"
             />
 </project>

@@ -96,5 +96,4 @@ public abstract class Node {
      * @return Whether the node should be shared for visualization.
      */
     public abstract boolean shareNode();
-
 }

@@ -64,6 +64,7 @@ public class Outputter {
 
     public static void runDotty(final String out) throws IOException,
             InterruptedException {
+        System.out.println();
         final File dir = new File(out).getParentFile();
         final FilenameFilter ff = new FilenameFilter() {
 

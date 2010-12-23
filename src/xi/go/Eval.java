@@ -1,133 +1,76 @@
 package xi.go;
 
-import static xi.go.cst.Thunk.num;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Stack;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import stefan.CommonNode;
 import stefan.Cout;
 import xi.ast.Node;
 import xi.ast.stefan.LazyTree;
+import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
-import xi.go.cst.prim.Bool;
-import xi.go.cst.prim.Function;
-import xi.go.cst.prim.List;
-import xi.go.cst.prim.Ref;
 import xi.go.cst.stefan.Outputter;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
+import xi.parser.sk.SKParser;
+import xi.util.GlueReader;
 
 /**
  * Evaluator.
  * 
  * @author Leo
  */
-public class Eval extends AbstractInterpreter {
+public class Eval {
 
-    /** Main thunk. */
-    private Thunk main = null;
+    public static Map<String, Thunk> parse(final Reader r) {
 
-    @Override
-    protected final void read() {
-        final Stack<Thunk> stack = new Stack<Thunk>();
-        while (hasNext()) {
-            final char c = current();
-            switch (c) {
-            case 'i':
-                next();
-                stack.push(num(nextInt()));
-                continue;
-            case '=':
-                final String function = getDef();
-                getFunctionTable().put(function, stack.pop());
-                continue;
-            case '"':
-                stack.push(Thunk.listFromStr(getString()));
-                continue;
-            case '<':
-                stack.push(Ref.get(getName()));
-                continue;
-            case '\'':
-                final char chr = next();
-                int cp;
-                if (Character.isHighSurrogate(chr)) {
-                    cp = Character.toCodePoint(chr, next());
-                } else {
-                    cp = chr;
+        final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
+        final SKParser<Thunk> parser = new CstSKParser() {
+            @Override
+            public void def(final String name, final Thunk body) {
+                if (fTable.put(name, body) != null) {
+                    throw new IllegalArgumentException("Duplicate definition '"
+                            + name + "'.");
                 }
-                stack.push(Thunk.chr(cp));
-                break;
-            case '@':
-                final Thunk left = stack.pop();
-                final Thunk right = stack.pop();
-                stack.push(Thunk.app(left, right));
-                break;
-            case 'T':
-                stack.push(Bool.TRUE.thunk);
-                break;
-            case 'F':
-                stack.push(Bool.FALSE.thunk);
-                break;
-            case '_':
-                stack.push(List.EMPTY.thunk);
-                break;
-            case ',':
-                final Thunk x = stack.pop();
-                final Thunk xs = stack.pop();
-                stack.push(List.get(x, xs));
-                break;
-            case ' ':
-            case '\r':
-            case '\n':
-            case '\t':
-                // ignore new-lines or white-spaces
-                break;
-            default:
-                final Function.Def fun = Function.forChar(c);
-                if (fun == null) {
-                    throw new IllegalStateException("Illegal character: " + c);
-                }
-                stack.push(fun.thunk);
             }
-            next();
-        }
-        if (!getFunctionTable().containsKey("main")) {
-            throw new IllegalArgumentException("No main method found.");
-        }
+        };
 
-        for (final Entry<String, Thunk> e : getFunctionTable().entrySet()) {
+        parser.read(r);
+
+        return fTable;
+    }
+
+    public static Thunk link(final Map<String, Thunk> fns, final String entry) {
+
+        if (!fns.containsKey(entry)) {
+            throw new IllegalArgumentException("Entry point '" + entry
+                    + "' not found.");
+        }
+        for (final Entry<String, Thunk> e : fns.entrySet()) {
             final Thunk th = e.getValue();
             if (th.isRef()) {
                 final String name = th.toString();
-                if (!getFunctionTable().containsKey(name)) {
+                if (!fns.containsKey(name)) {
                     throw new IllegalArgumentException("Function '" + name
                             + "' not found.");
                 }
                 if (!name.equals(e.getKey())) {
-                    e.setValue(getFunctionTable().get(name));
+                    e.setValue(fns.get(name));
                 }
             }
         }
-        main = getFunctionTable().get("main");
+        Thunk main = fns.get(entry);
         System.out.println("SK code: " + main);
-        main = main.link(getFunctionTable());
-        getFunctionTable().clear();
-    }
-
-    /**
-     * Getter for the main node.
-     * 
-     * @return the main node
-     */
-    public final Thunk getMain() {
+        main = main.link(fns);
         return main;
     }
 
@@ -177,22 +120,17 @@ public class Eval extends AbstractInterpreter {
         final CommonNode node = LazyTree.create(n);
         Cout.module(node, writer);
 
-        Eval e = new Eval();
-        e.read(new StringReader(writer.toString()));
-        final Thunk main = e.getMain();
+        final Map<String, Thunk> fTable = Eval.parse(new StringReader(writer
+                .toString()));
+
+        final Thunk main = Eval.link(fTable, "main");
         if (out != null) {
             Outputter.setVerboseMode(main, out);
         }
-        e = null;
 
-        final PrintWriter w = new PrintWriter(System.out);
-        w.append("Result: ");
-        try {
-            main.eval(w);
-            w.append("\nReductions: " + Thunk.reductions).flush();
-        } catch (final Exception io) {
-            io.printStackTrace();
-        }
+        final Writer w = new OutputStreamWriter(System.out);
+        VM.run(main, w);
+
         if (out != null) {
             Outputter.runDotty(out);
         }

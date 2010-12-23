@@ -82,5 +82,4 @@ public class App extends Node {
     public boolean shareNode() {
         return true;
     }
-
 }

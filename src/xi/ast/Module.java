@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 public class Module extends Node {
     /** Module definitions. */
     private final Map<Name, Expr> defs;
-    /** Flag for top leveöl definitions. */
+    /** Flag for top level definitions. */
     private final boolean isTopLevel;
 
     /**

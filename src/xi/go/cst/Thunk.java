@@ -26,6 +26,7 @@ public class Thunk {
 
     private Node node;
 
+    public static int pushes = 0;
     public static int reductions = 0;
 
     public Thunk(final Node nd) {
@@ -87,11 +88,11 @@ public class Thunk {
         final Stack<Thunk> stack = new Stack<Thunk>();
         Thunk curr = this;
         while (!curr.isValue()) {
-            reductions++;
             Outputter.draw(curr, stack);
             if (curr.isApp()) {
                 stack.push(curr);
                 curr = curr.node.getLeft();
+                pushes++;
             } else {
                 final Function.Def funDef = curr.node.getFunction();
                 if (stack.size() < funDef.cardinality) {
@@ -102,12 +103,14 @@ public class Thunk {
                     curr = stack.pop().node.getRight();
                     continue;
                 }
+
                 final Thunk[] args = new Thunk[funDef.cardinality];
                 for (int i = 0; i < funDef.cardinality; i++) {
                     curr = stack.pop();
                     args[i] = curr.node.getRight();
                 }
                 curr.node = funDef.apply(args);
+                reductions++;
             }
         }
         if (!stack.isEmpty()) {

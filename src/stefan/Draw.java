@@ -120,7 +120,7 @@ public class Draw {
 
     }
 
-    static void module(final Map<String, ? extends CommonNode> ds,
+    public static void module(final Map<String, ? extends CommonNode> ds,
             final String name) throws IOException {
 
         final Set<CommonNode> drawn = new HashSet<CommonNode>();
