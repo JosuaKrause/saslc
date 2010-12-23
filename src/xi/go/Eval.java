@@ -2,22 +2,13 @@ package xi.go;
 
 import static xi.go.cst.Thunk.num;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Stack;
 import java.util.Map.Entry;
 
@@ -203,68 +194,8 @@ public class Eval extends AbstractInterpreter {
             io.printStackTrace();
         }
         if (out != null) {
-            final File dir = new File(out).getParentFile();
-            final FilenameFilter ff = new FilenameFilter() {
-
-                @Override
-                public boolean accept(final File dir, final String name) {
-                    return name.endsWith(".dot");
-                }
-            };
-            System.out.println();
-            final File dest = new File(dir, "final.dot");
-            final Writer wrt = new FileWriter(dest);
-            wrt.write("digraph G {\n");
-            for (final File file : dir.listFiles(ff)) {
-                if (file.equals(dest)) {
-                    continue;
-                }
-                execDotty(file, dir);
-                final Reader read = new FileReader(file);
-                int c;
-                int count = 0;
-                while ((c = read.read()) != -1) {
-                    if (count == 0) {
-                        wrt.write("sub");
-                    }
-                    if (count++ < 2) {
-                        continue;
-                    }
-                    wrt.write(c);
-                }
-                read.close();
-                wrt.append('\n');
-                wrt.flush();
-            }
-            wrt.write("}\n");
-            wrt.close();
-            execDotty(dest, dir);
+            Outputter.runDotty(out);
         }
-    }
-
-    private static void execDotty(final File file, final File dir)
-            throws IOException, InterruptedException {
-        final String s = file.getName();
-        final Process proc = Runtime.getRuntime().exec(
-                new String[] { "dot.exe", "-Gcharset=utf8", "-Tpdf", s }, null,
-                dir);
-        final BufferedInputStream b = new BufferedInputStream(proc
-                .getInputStream());
-        int c;
-        final OutputStream fw = new BufferedOutputStream(new FileOutputStream(
-                new File(file.toString() + ".pdf")));
-        while ((c = b.read()) != -1) {
-            fw.write(c);
-        }
-        fw.close();
-        b.close();
-        final InputStream err = proc.getErrorStream();
-        int chr;
-        while ((chr = err.read()) != -1) {
-            System.err.write(chr);
-        }
-        System.err.flush();
-        System.out.println(s + " " + proc.waitFor());
     }
 
 }

@@ -1,6 +1,13 @@
 package xi.go.cst.stefan;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Stack;
 
 import stefan.CommonNode;
@@ -53,5 +60,45 @@ public class Outputter {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void runDotty(final String out) throws IOException,
+            InterruptedException {
+        final File dir = new File(out).getParentFile();
+        final FilenameFilter ff = new FilenameFilter() {
+
+            @Override
+            public boolean accept(final File dir, final String name) {
+                return name.endsWith(".dot");
+            }
+        };
+        for (final File file : dir.listFiles(ff)) {
+            execDotty(file, dir);
+        }
+    }
+
+    private static void execDotty(final File file, final File dir)
+            throws IOException, InterruptedException {
+        final String s = file.getName();
+        final Process proc = Runtime.getRuntime().exec(
+                new String[] { "dot.exe", "-Gcharset=utf8", "-Tpdf", s }, null,
+                dir);
+        final BufferedInputStream b = new BufferedInputStream(proc
+                .getInputStream());
+        int c;
+        final OutputStream fw = new BufferedOutputStream(new FileOutputStream(
+                new File(file.toString() + ".pdf")));
+        while ((c = b.read()) != -1) {
+            fw.write(c);
+        }
+        fw.close();
+        b.close();
+        final InputStream err = proc.getErrorStream();
+        int chr;
+        while ((chr = err.read()) != -1) {
+            System.err.write(chr);
+        }
+        System.err.flush();
+        System.out.println(s + " " + proc.waitFor());
     }
 }
