@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="all" name="Create Runnable Jar for saslc">
-	<!-- important directories -->
-	<property name="src" location="src"/>
-	<property name="bin" location="bin"/>
-	<property name="flexSrc" location="flex/subsasl.flex"/>
-	<property name="flexDest" value="/xi/lexer/"/>
-	<property name="cupSrc" location="cup/subsasl.cup"/>
-	<property name="cupDest" value="/xi/parser/"/>
-	<property name="stefan" value="/stefan"/>
-	<property name="convert" value="/xi/ast/stefan"/>
-	<!-- libraries -->
-	<property name="cup" location="lib/java-cup-11a.jar"/>
-	<property name="jflex" location="lib/JFlex.jar"/>
-	<!-- filetime checks -->
-	<uptodate property="buildLexer"
-	                  srcfile="${flexSrc}"
-	                  targetfile="${src}${flexDest}Lexer.java"/>
-	<uptodate property="buildParser"
-	                      srcfile="${cupSrc}"
-	                      targetfile="${src}${cupDest}Parser.java"/>
-	<!-- the actual targets -->
+  <!-- important directories -->
+  <property name="src" location="src"/>
+  <property name="bin" location="bin"/>
+  <property name="flexSrc" location="flex/subsasl.flex"/>
+  <property name="flexDest" value="/xi/lexer/"/>
+  <property name="cupSrc" location="cup/subsasl.cup"/>
+  <property name="cupDest" value="/xi/parser/"/>
+  <property name="stefan" value="/stefan"/>
+  <property name="convert" value="/xi/ast/stefan"/>
+  <!-- libraries -->
+  <property name="cup" location="lib/java-cup-11a.jar"/>
+  <property name="jflex" location="lib/JFlex.jar"/>
+  <!-- filetime checks -->
+  <uptodate property="buildLexer"
+                    srcfile="${flexSrc}"
+                    targetfile="${src}${flexDest}Lexer.java"/>
+  <uptodate property="buildParser"
+                        srcfile="${cupSrc}"
+                        targetfile="${src}${cupDest}Parser.java"/>
+  <!-- the actual targets -->
     <target name="saslc_jar">
         <jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
             <manifest>
@@ -33,16 +33,16 @@
         </jar>
     </target>
     <target name="compileFlex" unless="buildLexer">
-    	<!--
-    	   build lexer only when needed - otherwise every ANT-build
-    	   would produce a new Lexer.java with other in-file-times.
-    	-->
+      <!--
+         build lexer only when needed - otherwise every ANT-build
+         would produce a new Lexer.java with other in-file-times.
+      -->
         <java jar="${jflex}" fork="true">
             <arg line="-d ${src}${flexDest} ${flexSrc}" />
         </java>
-    	<delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
+      <delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
     </target>
-	<target name="compileCup" unless="buildParser">
+  <target name="compileCup" unless="buildParser">
         <!--
            build lexer only when needed - otherwise every ANT-build
            would produce a new Lexer.java with other in-file-times.
@@ -50,26 +50,26 @@
         <java dir="${src}${cupDest}" jar="${cup}" fork="true">
             <arg line="-nopositions -symbols Terminal -parser Parser ${cupSrc}" />
         </java>
-		<replace file="${src}${cupDest}Parser.java">
-		    <replacetoken>public class Parser</replacetoken> 
-		    <replacevalue><![CDATA[@SuppressWarnings("all")
+    <replace file="${src}${cupDest}Parser.java">
+        <replacetoken>public class Parser</replacetoken>
+        <replacevalue><![CDATA[@SuppressWarnings("all")
 public class Parser]]></replacevalue>
-		</replace>
-		<replace file="${src}${cupDest}Parser.java">
-		    <replacetoken>class CUP$Parser$actions</replacetoken> 
+    </replace>
+    <replace file="${src}${cupDest}Parser.java">
+        <replacetoken>class CUP$Parser$actions</replacetoken>
             <replacevalue><![CDATA[@SuppressWarnings("all")
 class CUP$Parser$actions]]></replacevalue>
-		</replace>
-	</target>
+    </replace>
+  </target>
     <target name="compileRest">
-    	<!-- recompile the whole source folder -->
+      <!-- recompile the whole source folder -->
         <javac srcdir="${src}" destdir="${bin}" verbose="yes">
-        	<classpath>
-        		<pathelement location="${cup}" />
-        	</classpath>
+          <classpath>
+            <pathelement location="${cup}" />
+          </classpath>
         </javac>
-    	<!-- create the parser test jar -->
-    	<jar destfile="StefanParser.jar" filesetmanifest="mergewithoutmain">
+      <!-- create the parser test jar -->
+      <jar destfile="StefanParser.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="stefan.TestParser"/>
                 <attribute name="Class-Path" value="."/>
@@ -78,8 +78,8 @@ class CUP$Parser$actions]]></replacevalue>
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
         </jar>
     </target>
-	<target name="run">
-		<jar destfile="run.jar" filesetmanifest="mergewithoutmain">
+  <target name="run">
+    <jar destfile="run.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="xi.go.Eval"/>
                 <attribute name="Class-Path" value="."/>
@@ -87,25 +87,25 @@ class CUP$Parser$actions]]></replacevalue>
             <fileset dir="${bin}" />
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
         </jar>
-	</target>
-	<target name="sasln">
-		<jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
+  </target>
+  <target name="sasln">
+    <jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="xi.linker.Linker"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
         </jar>
-	</target>
-	<target name="sk">
-		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
+  </target>
+  <target name="sk">
+    <jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="xi.go.VM"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
         </jar>
-	</target>
+  </target>
     <!-- builds the targets in the given order -->
     <target name="all"
             depends="compileCup,compileFlex,compileRest,saslc_jar,run,sasln,sk"
