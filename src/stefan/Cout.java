@@ -102,13 +102,18 @@ public class Cout {
 				break;
 
 			case num:
-				w.append('i').append(Integer.toString(n.getNum()));
+				w.append('i').append(n.getNum().toString());
 				break;
 
 			case str:
 				w.append('"').append(
 						n.getStr().replace("\\", "\\\\").replace("\"", "\\\""))
 						.append('"');
+				break;
+
+			case chr:
+				w.append('\'').append(
+						String.valueOf(Character.toChars(n.getChar())));
 				break;
 
 			case name:

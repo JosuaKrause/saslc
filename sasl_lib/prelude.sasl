@@ -1,0 +1,494 @@
+####################
+# Prelude for SASL #
+#                  #
+# @author Joschi   #
+# @author Leo      #
+####################
+
+### basic functions ###
+
+# the fixed point combinator
+fix a = a (fix a);
+
+# the identity
+id x = x;
+
+# checks whether the input is even
+# x: the number to check
+even x = x % 2 == 0;
+
+# checks whether the input is odd
+# x: the number to check
+odd = not . even;
+
+# flips the arguments of a function
+# f: the function
+# x: the first argument
+# y: the second argument
+flip f x y = f y x;
+
+# the constant function, ignoring its second argument and returning the first
+# x: first argument, returned unchanged
+# y: second argument, ignored
+const x y = x;
+
+# Repeatedly applies f to x until p holds.
+# p: predicate
+# f: function
+# x: value
+#
+# until :: (a -> Bool) -> (a -> a) -> a -> a
+until p f x
+  = if p x
+    then x
+    else until p f @ f x
+  ;
+
+# Creates a cyclic list with the same elements as the given list.
+# xs: list
+cycle xs = let xs' = xs `cat` xs' in xs';
+
+### folding functions ###
+
+# folds a list from the right
+# f: the folding function
+# z: the default value
+# xs: the list
+foldr f z xs
+  = if xs == []
+    then z
+    else f (hd xs) @ foldr f z @ tl xs
+  ;
+
+# folds a list from the left
+# f: the folding function
+# z: the default value
+# xs: the list
+foldl f z xs
+  = if xs==[]
+    then z
+    else foldl f (f z @ hd xs) @ tl xs
+  ;
+
+# folds a list from the left
+# f: the folding function
+# z: the default value
+# xs: the list
+foldl' f z xs
+  = if xs==[]
+    then z
+    else
+      let z' = f z @ hd xs
+      in z' !> foldl' f z' (tl xs)
+  ;
+
+
+### unfolding ###
+
+# unfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+unfoldr f b
+  = let m = f b
+    in if isJust m
+       then let p = fromJust m
+            in fst p : unfoldr f (snd p)
+       else []
+  ;
+
+
+### applied folding ###
+
+# calculates the sum of the members of a list
+sum = foldl' { n x -> n + x } 0;
+
+# calculates the product of the members of a list
+product = foldl' { n x -> n * x } 1;
+
+# calculates the length of a list
+length = foldr { x n -> 1 + n } 0;
+
+# filters a list
+# p: the filter to apply
+filter p = foldr { x xs -> if p x then x:xs else xs } [];
+
+# takes the first elements of a list that satisfy the predicate
+# p: the predicate
+takeWhile p = foldr { x xs -> if p x then x:xs else [] } [];
+
+# reverses a list
+reverse = foldl' { ys y -> y:ys } [];
+
+### list functions ###
+
+# applies the function f repeatedly to the value x and returns a list of
+# intermediate results.
+# f: function
+# x: value
+iterate f x = x : iterate f (f x);
+
+# Replicates the value x n times.
+replicate n x
+    = if n > 0
+      then x : replicate (n - 1) x
+      else []
+    ;
+
+# Enumerates all numbers starting at a given one.
+enumFrom = iterate @ add 1;
+
+# Enumerates all numbers in the range [m .. n].
+# This is equivalent to 'enumFromThenTo m (m + 1) n'.
+enumFromTo m n
+    = if m <= n
+      then m : enumFromTo (m + 1) n
+      else []
+    ;
+
+# Enumerates the sequence [f, f + t, f + 2 * t, ...]
+enumFromThen f t
+  = let
+      diff = t - f,
+      run x = x : run (x + diff)
+    in run f
+  ;
+
+# Enumerates the numbers between a and c, with step size (b - a).
+enumFromThenTo a b c
+  = let
+      diff = b - a,
+      cmp x y = if diff < 0 then x >= y else x <= y,
+      run x
+        = if x `cmp` c
+          then x : run (x + diff)
+          else []
+    in run a
+  ;
+
+# concatenates two lists
+# xs: the list
+# ys: the list to append
+cat xs ys
+    = if xs == []
+      then ys
+      else hd xs : cat (tl xs) ys
+    ;
+
+# Flattens a list of lists.
+# xss: list of lists to be concatenated
+concat xss
+    = if xss == []
+      then []
+      else cat (hd xss) @ concat @ tl xss
+    ;
+
+# Maps the function f over the list xs and concatenates the resulting lists.
+# f: function
+# xs: list
+concatMap f xs
+    = if xs == []
+      then []
+      else cat (f @ hd xs) @ concatMap f @ tl xs;
+
+# takes the first n elements of a list
+# n: the number of elements to take
+# xs: the list
+take n xs =
+    if n <= 0
+    then []
+    else hd xs : take (n-1) (tl xs)
+    ;
+
+# drops the first n elements of a list
+# n: the number of elements to drop
+# xs: the list
+drop n xs =
+    if n <= 0
+    then xs
+    else if xs == []
+    then []
+    else drop (n-1) (tl xs)
+    ;
+
+# maps the function f on the list
+# f: the mapping function
+# list: the list
+map f xs
+    = if xs == []
+      then []
+      else f (hd xs) : map f (tl xs)
+    ;
+
+# picks the first element for which p holds
+# p: the predicate
+# xs: the list
+first p list
+  = let x = hd list, xs = tl list
+    in if p x
+       then x
+       else first p xs
+  ;
+
+### Sorting algorithms ###
+
+quickSort lt xs
+  = if xs == []
+    then []
+    else 
+      let
+        pivot = hd xs,
+        rest = tl xs,
+        partition list
+          = if list == []
+            then [[], []]
+            else
+              let
+                x = hd list, xs = tl list,
+                pr = partition xs,
+                as = fst pr, bs = snd pr
+              in if x `lt` pivot then [x:as, bs] else [as, x:bs]
+          ,
+        pr = partition rest,
+        lts = fst pr,
+        gtes = snd pr
+      in quickSort lt lts `cat` [pivot] `cat` quickSort lt gtes
+  ;
+
+mergeSort lt xs
+  = if xs == []
+    then []
+    else
+      let
+        merge as bs
+          = if as == [] then bs
+            else if bs == [] then as
+            else let
+              a = hd as,
+              b = hd bs
+            in if a `lt` b
+               then a : merge (tl as) bs
+               else b : merge as (tl bs)
+          ,
+        halve xs
+          = if xs == []
+            then [[], []]
+            else
+              let
+                x = hd xs,
+                pr = halve @ tl xs,
+                as = fst pr,
+                bs = snd pr
+              in [x:bs, as]
+          ,
+        hv = halve xs,
+        as = fst hv,
+        bs = snd hv
+      in
+        if bs == []
+        then as
+        else mergeSort lt as `merge` mergeSort lt bs
+  ;
+
+# sorts a list via insertion sort
+# the full running time is in O(n^2)
+# lt: the comparison function
+# list: the list to sort
+insertionSort lt list =
+    if list == []
+    then []
+    else
+        let
+          x = hd list,
+          xs = tl list,
+          ins x xs
+            = if xs == []
+              then [x]
+              else
+                let y = hd xs
+                in if x `lt` y
+                   then x : xs
+                   else y : ins x (tl xs)
+        in x `ins` insertionSort lt xs
+    ;
+
+# bubbleSort :: (a -> Bool) -> [a] -> [a]
+bubbleSort lt list
+  = let
+      # bubble :: Either [a] [a] -> Either [a] [a]
+      bubble e
+        = let list = fromLeft e
+          in
+            if list == [] then Right []
+            else
+              let x = hd list, xs = tl list
+              in
+                if xs == [] then Right list
+                else
+                  let
+                    y = hd xs, ys = tl xs,
+                    getList = either id id
+                  in
+                    if y `lt` x then Left @ y : getList (bubble @ Left @ x:ys)
+                    else
+                      let
+                        res = bubble (Left xs),
+                        changed = isLeft res,
+                        xs' = getList res
+                      in (if changed then Left else Right) @ x:xs'
+    in fromRight @ until isRight bubble @ Left list
+  ;
+
+
+### string conversion ###
+
+# converts a string into a number
+# xs: the string
+str2num xs
+    = if hd xs == '-'
+      then ~(str2num @ tl xs)
+      else
+        let char2num c = c - '0'
+        in  foldl' { i x -> i*10 + char2num x } 0 xs;
+
+
+### monadic list functions ###
+
+# (>>=) :: [a] -> (a -> [b]) -> [b]
+bindList = flip concatMap;
+
+# (>>) :: [a] -> [b] -> [b]
+seqList = flip (concatMap . const);
+
+# return :: a -> [a]
+returnList x = [x];
+
+# guard :: Bool -> [[a]]
+guardList b = if b then [[]] else [];
+
+
+### the Maybe type class ###
+
+Nothing = [];
+Just x = [x];
+isJust = not . isNothing;
+isNothing m = [] == m;
+fromJust = hd;
+
+# maybe :: b -> (a -> b) -> [a] -> b
+maybe z f m
+  = if isJust m
+    then f @ fromJust m
+    else z
+  ;
+
+
+### the Either type class ###
+
+# Either a b = Left a | Right b
+Left  x = [false, x];
+Right y = [true,  y];
+
+# isLeft, isRight :: Either a b -> Bool
+isLeft = not . isRight;
+isRight = fst;
+
+# fromLeft :: Either a b -> a
+fromLeft = snd;
+# fromRight :: Either a b -> b
+fromRight = snd;
+
+# either :: (a -> c) -> (b -> c) -> Either a b -> c
+either f g e
+  = if isLeft e
+    then f @ fromLeft e
+    else g @ fromRight e
+  ;
+
+
+### Pairs ###
+
+# fst :: (a, b) -> a
+fst = hd;
+
+# snd :: (a, b) -> b
+snd = hd . tl;
+
+
+### numerical operator functions ###
+
+gcd x y
+  = if y == 0
+    then x
+    else gcd y (x % y)
+  ;
+
+# adds two numbers
+# a: first number
+# b: second number
+add a b = a + b;
+
+# subtracts two numbers
+# a: the subtrahent
+# b: the minuent
+sub a b = a - b;
+
+# multiplies two numbers
+# a: the first number
+# b: the second number
+mul a b = a * b;
+
+# divides two numbers
+# a: the divisor
+# b: the dividend
+div a b = a / b;
+
+# calculates b modulo a
+# a: the divisor
+# b: the dividend
+mod a b = a % b;
+
+# tests two expression on equality
+# a: the first expression
+# b: the second expression
+eq a b = a == b;
+
+# tests two expression on inequality
+# a: the first expression
+# b: the second expression
+neq a b = a != b;
+
+# checks whether b is smaller than a
+# a: the first number
+# b: the second number
+lt a b = a < b;
+
+# checks whether b is larger than a
+# a: the first number
+# b: the second number
+gt a b = a > b;
+
+# checks whether b is at most a
+# a: the first number
+# b: the second number
+lte a b = a <= b;
+
+# checks whether b is at least a
+# a: the first number
+# b: the second number
+gte a b = a >= b;
+
+# negates a number
+# x: the number
+neg x = ~x;
+
+### boolean operator functions ###
+
+# negates a predicate
+# p: the predicate
+not p = !p;
+
+# returns true if all listitems are true
+# ps: the predicate list
+all = foldr { a b -> a & b } true;
+
+# returns true if at least one listitem is true
+# ps: the predicate list
+any = foldr { a b -> a | b } false;

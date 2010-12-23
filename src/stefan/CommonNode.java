@@ -1,5 +1,6 @@
 package stefan;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 public interface CommonNode {
@@ -28,7 +29,7 @@ public interface CommonNode {
 	 * Valid for Kind: num. Return the value of the literal represented by this
 	 * node.
 	 */
-	int getNum();
+	BigInteger getNum();
 
 	/*
 	 * Valid for Kind: bln. Return the value of the literal represented by this
@@ -81,5 +82,10 @@ public interface CommonNode {
 
 	/* Valid for Kind: lst. Return the tail of a non-empty list. */
 	CommonNode getTail();
+
+	/*
+	 * Returns the code-point of the character.
+	 */
+	int getChar();
 
 }

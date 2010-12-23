@@ -1,86 +1,93 @@
 package xi.ast;
 
+import java.math.BigInteger;
+
 /**
  * Integer literal.
  * 
  * @author Leo
  * @author Joschi
  */
-public class Num extends Value {
+public final class Num extends Value {
 
-	/**
-	 * The beginning of the cached numbers.
-	 */
-	private static final int LOW = -256;
+    /**
+     * The beginning of the cached numbers.
+     */
+    private static final BigInteger LOW = BigInteger.valueOf(-256);
 
-	/**
-	 * The end of the cached numbers.
-	 */
-	private static final int HI = 255;
+    /**
+     * The end of the cached numbers.
+     */
+    private static final BigInteger HI = BigInteger.valueOf(255);
 
-	/**
-	 * Lazy initialized Num-Cache. Used to share certain numbers.
-	 * 
-	 * @author Joschi
-	 * 
-	 */
-	private static class NumCache {
-		private NumCache() {
-			// will never be initialized
-		}
+    /**
+     * Lazy initialized Num-Cache. Used to share certain numbers.
+     * 
+     * @author Joschi
+     */
+    private static final class NumCache {
+        /** Hidden default constructor. */
+        private NumCache() {
+            // will never be initialized
+        }
 
-		/**
-		 * The number cache.
-		 */
-		static final Num cache[] = new Num[HI - LOW + 1];
+        /**
+         * The number cache.
+         */
+        static final Num[] CACHE = new Num[HI.intValue() - LOW.intValue() + 1];
 
-		/**
-		 * Fills the number cache. Is loaded when the first such number is
-		 * loaded.
-		 */
-		static {
-			int i = cache.length;
-			while (i-- > 0) {
-				cache[i] = new Num(i + LOW);
-			}
-		}
-	}
+        /**
+         * Fills the number cache. Is loaded when the first such number is
+         * loaded.
+         */
+        static {
+            int i = CACHE.length;
+            while (i-- > 0) {
+                CACHE[i] = new Num(LOW.add(BigInteger.valueOf(i)));
+            }
+        }
+    }
 
-	/**
-	 * Creates a Number-Node for the given integer. Small values will be cached
-	 * and therefor be shared.
-	 * 
-	 * @param i
-	 *            The integer.
-	 * @return The number.
-	 */
-	public static Num valueOf(final int i) {
-		if (i >= LOW && i <= HI) { // yeah! cache!
-			return NumCache.cache[i - LOW];
-		}
-		return new Num(i);
-	}
+    /**
+     * Creates a Number-Node for the given integer. Small values will be cached
+     * and therefore be shared.
+     * 
+     * @param i
+     *            The integer.
+     * @return The number.
+     */
+    public static Num valueOf(final BigInteger i) {
+        if (i.compareTo(LOW) >= 0 && i.compareTo(HI) <= 0) { // yeah! cache!
+            return NumCache.CACHE[i.intValue() - LOW.intValue()];
+        }
+        return new Num(i);
+    }
 
-	/** Int value. */
-	private final int val;
+    /** Int value. */
+    private final BigInteger val;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param i
-	 *            value
-	 */
-	private Num(final int i) {
-		val = i;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param i
+     *            value
+     */
+    private Num(final BigInteger i) {
+        val = i;
+    }
 
-	public int getValue() {
-		return val;
-	}
+    /**
+     * Getter for this number's BigInteger value.
+     * 
+     * @return BigInteger value
+     */
+    public BigInteger getValue() {
+        return val;
+    }
 
-	@Override
-	public String toString() {
-		return "" + val;
-	}
+    @Override
+    public String toString() {
+        return val.toString();
+    }
 
 }

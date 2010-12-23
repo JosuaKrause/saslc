@@ -26,7 +26,7 @@ public class Draw {
 				break;
 
 			case num:
-				w.append(" [label=\"" + Integer.toString(n.getNum())).append(
+				w.append(" [label=\"" + n.getNum()).append(
 						"\", color=\"#d61e00\", style=filled, "
 								+ "fillcolor=\"#d61e0020\"];\n");
 				break;

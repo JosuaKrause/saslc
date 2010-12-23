@@ -1,27 +1,40 @@
 package xi.go.cst.prim;
 
-import xi.go.cst.Node;
+import java.math.BigInteger;
 
+/**
+ * Number node.
+ * 
+ * @author Leo
+ * @author Joschi
+ */
 public class Num extends Value {
 
-	private final int value;
+    /** Numeric value of this node. */
+    protected BigInteger value;
 
-	public Num(final int value) {
-		this.value = value;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param val
+     *            value of this node
+     */
+    public Num(final BigInteger val) {
+        value = val;
+    }
 
-	@Override
-	public int getNum() {
-		return value;
-	}
+    @Override
+    public final BigInteger getNum() {
+        return value;
+    }
 
-	@Override
-	public String toString() {
-		return Integer.toString(value);
-	}
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 
-	@Override
-	public boolean eq(final Node n) {
-		return value == n.getNum();
-	}
+    @Override
+    public boolean eq(final Value n) {
+        return value.equals(n.getNum());
+    }
 }

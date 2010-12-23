@@ -9,3 +9,4 @@ enumFromTo x y = if x <= y then x : enumFromTo (x + 1) y else [];
 sum = foldl' {n x -> n + x} 0;
 
 main = sum @ enumFromTo 1 100000;
+
