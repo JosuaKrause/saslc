@@ -2,6 +2,7 @@ package xi.ast;
 
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -109,6 +110,19 @@ public final class Name extends Value implements Comparable<Name> {
     @Override
     public Expr inline(final Name name, final Expr val) {
         return equals(name) ? val : this;
+    }
+
+    @Override
+    public Expr alpha(final String name, final String newName,
+            final List<String> args) {
+        if (!name.equals(getName())) {
+            return this;
+        }
+        Expr n = Name.valueOf(newName);
+        for (final String a : args) {
+            n = App.create(n, Name.valueOf(a));
+        }
+        return n;
     }
 
 }

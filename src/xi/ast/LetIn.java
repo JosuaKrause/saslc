@@ -18,6 +18,8 @@ import java.util.Map.Entry;
  */
 public class LetIn extends Expr {
 
+    // TODO: define alpha and unLet and call it before unlambda
+
     /** Name bindings. */
     private final Module defs;
 
@@ -190,5 +192,35 @@ public class LetIn extends Expr {
         }
         expr[0] = expr[0].inline(name, val);
         return this;
+    }
+
+    @Override
+    public Expr unLet(final String fun, final Module m,
+            final List<Expr> globalDefs, final List<String> args) {
+        final Map<Name, Name> alphaMap = new HashMap<Name, Name>();
+        final Map<Expr, Name> exprMap = new HashMap<Expr, Name>();
+        final List<Expr> oldLocals = new LinkedList<Expr>();
+        for (final Entry<Name, Expr> e : defs.getMap().entrySet()) {
+            final Name old = e.getKey();
+            final Name globalName = Name.valueOf(fun + "$" + old.getName());
+            Expr globalExpr = e.getValue();
+            for (final String arg : args) {
+                globalExpr = new Lambda(arg, globalExpr);
+            }
+            alphaMap.put(old, globalName);
+            exprMap.put(globalExpr, globalName);
+            oldLocals.add(globalExpr);
+            expr[0] = expr[0].alpha(old.getName(), globalName.getName(), args);
+        }
+        for (Expr e : oldLocals) {
+            final Name own = exprMap.get(e);
+            for (final Entry<Name, Name> alpha : alphaMap.entrySet()) {
+                e = e.alpha(alpha.getKey().getName(), alpha.getValue()
+                        .getName(), args);
+            }
+            m.addDefinition(own, e);
+            globalDefs.add(e);
+        }
+        return expr[0];
     }
 }

@@ -3,6 +3,8 @@ package xi.ast;
 import static xi.ast.BuiltIn.Y;
 import static xi.util.StringUtils.NL;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -133,5 +135,16 @@ public class Module extends Node {
             res.addDefinition(name, nw);
         }
         return res;
+    }
+
+    public final Module unLetAll() {
+        final List<Expr> exprs = new LinkedList<Expr>(defs.values());
+        for (int i = 0; i < exprs.size(); ++i) {
+            final Expr e = exprs.get(i);
+            final List<String> args = new LinkedList<String>();
+            e.getArgs(args);
+            // exprs may grow...
+            e.unLet(fun, this, exprs, args);
+        }
     }
 }

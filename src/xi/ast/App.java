@@ -106,4 +106,5 @@ public final class App extends Expr {
         expr[1] = expr[1].inline(name, val);
         return this;
     }
+
 }

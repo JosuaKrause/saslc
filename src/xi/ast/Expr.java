@@ -3,6 +3,7 @@ package xi.ast;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -92,4 +93,26 @@ public abstract class Expr extends Node {
      * @return expression with inlined expression
      */
     public abstract Expr inline(final Name name, final Expr val);
+
+    public Expr alpha(final String name, final String newName,
+            final List<String> args) {
+        int i = expr.length;
+        while (i-- > 0) {
+            expr[i] = expr[i].alpha(name, newName, args);
+        }
+        return this;
+    }
+
+    public Expr unLet(final String fun, final Module m, final List<Expr> defs,
+            final List<String> args) {
+        int i = expr.length;
+        while (i-- > 0) {
+            expr[i] = expr[i].unLet(fun, m, defs, args);
+        }
+        return this;
+    }
+
+    public void getArgs(final List<String> args) {
+        // no arguments here...
+    }
 }

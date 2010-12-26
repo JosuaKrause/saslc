@@ -1,6 +1,7 @@
 package xi.ast;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -67,6 +68,21 @@ public class Lambda extends Expr {
             expr[0] = expr[0].inline(n, val);
         }
         return this;
+    }
+
+    @Override
+    public Expr alpha(final String name, final String newName,
+            final List<String> args) {
+        if (!this.name.getName().equals(name)) {
+            expr[0] = expr[0].alpha(name, newName, args);
+        }
+        return this;
+    }
+
+    @Override
+    public void getArgs(final List<String> args) {
+        args.add(name.getName());
+        expr[0].getArgs(args);
     }
 
 }
