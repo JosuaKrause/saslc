@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Map.Entry;
 
+import xi.util.Pair;
+
 /**
  * SASL let-in expression.
  * 
@@ -196,7 +198,7 @@ public class LetIn extends Expr {
 
     @Override
     public Expr unLet(final String fun, final Module m,
-            final List<Expr> globalDefs, final List<String> args) {
+            final List<Pair<Name, Expr>> globalDefs, final List<String> args) {
         final Map<Name, Name> alphaMap = new HashMap<Name, Name>();
         final Map<Expr, Name> exprMap = new HashMap<Expr, Name>();
         final List<Expr> oldLocals = new LinkedList<Expr>();
@@ -219,7 +221,7 @@ public class LetIn extends Expr {
                         .getName(), args);
             }
             m.addDefinition(own, e);
-            globalDefs.add(e);
+            globalDefs.add(new Pair<Name, Expr>(own, e));
         }
         return expr[0];
     }

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import xi.util.Pair;
+
 /**
  * Expressions in subSASL.
  * 
@@ -103,8 +105,8 @@ public abstract class Expr extends Node {
         return this;
     }
 
-    public Expr unLet(final String fun, final Module m, final List<Expr> defs,
-            final List<String> args) {
+    public Expr unLet(final String fun, final Module m,
+            final List<Pair<Name, Expr>> defs, final List<String> args) {
         int i = expr.length;
         while (i-- > 0) {
             expr[i] = expr[i].unLet(fun, m, defs, args);

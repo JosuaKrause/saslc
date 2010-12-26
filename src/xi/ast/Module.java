@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import xi.util.Pair;
+
 /**
  * 
  * @author Leo
@@ -137,14 +139,18 @@ public class Module extends Node {
         return res;
     }
 
-    public final Module unLetAll() {
-        final List<Expr> exprs = new LinkedList<Expr>(defs.values());
+    public final void unLetAll() {
+        final List<Pair<Name, Expr>> exprs = new LinkedList<Pair<Name, Expr>>();
+        for (final Entry<Name, Expr> d : defs.entrySet()) {
+            exprs.add(new Pair<Name, Expr>(d.getKey(), d.getValue()));
+        }
         for (int i = 0; i < exprs.size(); ++i) {
-            final Expr e = exprs.get(i);
+            final Pair<Name, Expr> p = exprs.get(i);
+            final Expr e = p.second;
             final List<String> args = new LinkedList<String>();
             e.getArgs(args);
             // exprs may grow...
-            e.unLet(fun, this, exprs, args);
+            e.unLet(p.first.getName(), this, exprs, args);
         }
     }
 }
