@@ -5,7 +5,7 @@ one = 1 : two;
 two = 2 : one;
 
 fun a b = let
-      one = 3 : two,
+      one = (let two = 7 : one in 3 : two),
       two = 4 : one,
       x b = a * b
       in take

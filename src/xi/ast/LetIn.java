@@ -1,14 +1,11 @@
 package xi.ast;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.Map.Entry;
 
 import xi.util.Pair;
@@ -78,98 +75,7 @@ public class LetIn extends Expr {
 
     @Override
     protected final Expr unLambda(final Name n) {
-        final Map<Name, Expr> map = defs.unLambda().getMap();
-        final LinkedList<Name> sorted = topoSort(map);
-
-        Expr ex = getBody();
-        while (!sorted.isEmpty()) {
-            final Name name = sorted.pollLast();
-            final Expr def = map.get(name);
-            final int uses = ex.numOfUses(name);
-            switch (uses) {
-            case 0:
-                // name unused, ignore it
-                System.err.println("removing unused definition " + name + ": "
-                        + def);
-                break;
-            case 1:
-                // can be inlined
-                System.err.println("inlining " + name + ": " + def);
-                ex = ex.inline(name, def);
-                break;
-            default:
-                ex = App.create(new Lambda(name.toString(), ex), map.get(name));
-                break;
-            }
-        }
-
-        return ex.unLambda(n);
-    }
-
-    /**
-     * Sorts the definitions topologically according to their dependency order.
-     * 
-     * @param map
-     *            map of definitions
-     * @return ordered list of definitions
-     */
-    private LinkedList<Name> topoSort(final Map<Name, Expr> map) {
-
-        final List<Name> names = new ArrayList<Name>(map.keySet());
-        final Map<Name, Set<Name>> refs = new HashMap<Name, Set<Name>>();
-
-        for (final Entry<Name, Expr> e : map.entrySet()) {
-            final Set<Name> ref = new HashSet<Name>(e.getValue().freeVars());
-            ref.retainAll(names);
-            refs.put(e.getKey(), ref);
-        }
-
-        final Set<Name> marked = new HashSet<Name>();
-        final Stack<Name> stack = new Stack<Name>();
-        final LinkedList<Name> out = new LinkedList<Name>();
-        for (final Name n : names) {
-            visit(n, refs, marked, stack, out);
-        }
-
-        return out;
-    }
-
-    /**
-     * Depth-first search on the dependency graph. The correctness of this
-     * algorithm follows from the invariant that a function is only added to the
-     * output after all its dependencies have been added.
-     * 
-     * @param n
-     *            name of the function to be visited
-     * @param refs
-     *            adjacency map
-     * @param marked
-     *            already visited nodes
-     * @param stack
-     *            stack of current nodes
-     * @param out
-     *            output list
-     */
-    private void visit(final Name n, final Map<Name, Set<Name>> refs,
-            final Set<Name> marked, final Stack<Name> stack,
-            final List<Name> out) {
-        if (marked.add(n)) { // name wasn't marked
-            stack.push(n);
-
-            for (final Name name : refs.get(n)) {
-                visit(name, refs, marked, stack, out);
-            }
-
-            stack.pop();
-            out.add(n);
-        } else {
-            final int pos = stack.lastIndexOf(n);
-            if (pos >= 0) {
-                // TODO support mutually recursive functions
-                throw new IllegalArgumentException("found loop: "
-                        + stack.subList(pos, stack.size()));
-            }
-        }
+        throw new IllegalStateException("unresolved let clause");
     }
 
     @Override
@@ -222,6 +128,6 @@ public class LetIn extends Expr {
             m.addDefinition(own, e);
             globalDefs.add(new Pair<Name, Expr>(own, e));
         }
-        return expr[0];
+        return expr[0].unLet(fun, m, globalDefs, args);
     }
 }

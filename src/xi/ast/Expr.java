@@ -96,6 +96,18 @@ public abstract class Expr extends Node {
      */
     public abstract Expr inline(final Name name, final Expr val);
 
+    /**
+     * Renames all symbols given by <code>name</code> to <code>newName</code>
+     * and passing the arguments <code>args</code> to the new symbol.
+     * 
+     * @param name
+     *            The old name.
+     * @param newName
+     *            The new name.
+     * @param args
+     *            The arguments to apply in the given order.
+     * @return The maybe changed node.
+     */
     public Expr alpha(final String name, final String newName,
             final List<String> args) {
         int i = expr.length;
@@ -105,6 +117,20 @@ public abstract class Expr extends Node {
         return this;
     }
 
+    /**
+     * Substitutes all let clauses by creating new private global functions.
+     * 
+     * @param fun
+     *            The parents function name.
+     * @param m
+     *            The top level module.
+     * @param defs
+     *            The definition list of this module. This list may grow during
+     *            the call.
+     * @param args
+     *            The arguments of the parents function.
+     * @return
+     */
     public Expr unLet(final String fun, final Module m,
             final List<Pair<Name, Expr>> defs, final List<String> args) {
         int i = expr.length;
@@ -114,6 +140,13 @@ public abstract class Expr extends Node {
         return this;
     }
 
+    /**
+     * Fills the list with the direct arguments to this node, stopping with the
+     * first non-lambda node.
+     * 
+     * @param args
+     *            The list of arguments.
+     */
     public void getArgs(final List<String> args) {
         // no arguments here...
     }
