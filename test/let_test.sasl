@@ -6,4 +6,5 @@ two = 2 : one;
 
 fun a b = let one = 3 : two, two = 4 : one, x b = a * b in take (x b 2) one;
 
-main = (take 3 one) `cat` fun 3 4;
+main = #(take 3 one) `cat`
+       fun 3 4;
