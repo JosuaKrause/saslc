@@ -128,8 +128,12 @@ public class Eval {
             Outputter.setVerboseMode(main, out);
         }
 
-        final Writer w = new OutputStreamWriter(System.out);
-        VM.run(main, w);
+        try {
+            final Writer w = new OutputStreamWriter(System.out);
+            VM.run(main, w);
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
 
         if (out != null) {
             Outputter.runDotty(out);
