@@ -7,14 +7,11 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import stefan.CommonNode;
 import stefan.Cout;
-import xi.ast.Node;
 import xi.ast.stefan.LazyTree;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
@@ -97,22 +94,16 @@ public class Eval {
             }
             r = g;
         }
-        final Lexer lex = new Lexer(r);
-        final Parser p = new Parser(lex);
-        final StringWriter writer = new StringWriter();
 
-        final Node mod = p.parseValue();
-        final Node n = mod.unLambda();
-        final CommonNode node = LazyTree.create(n);
-        Cout.module(node, writer);
+        final Lexer l = new Lexer(r);
+        final StringWriter w = new StringWriter();
 
-        final Map<String, Thunk> fTable = Eval.parse(new StringReader(writer
-                .toString()));
+        Cout.module(LazyTree.create(new Parser(l).parseValue().unLambda()), w);
 
-        final Thunk main = Eval.link(fTable, "main");
+        final Thunk[] main = { link(parse(new StringReader(w.toString())),
+                "main") };
 
-        final Writer w = new OutputStreamWriter(System.out);
-        VM.run(main, w);
+        VM.run(main, new OutputStreamWriter(System.out));
     }
 
 }
