@@ -7,9 +7,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.BitSet;
+import java.util.Stack;
 
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
+import xi.go.cst.prim.List;
+import xi.go.cst.prim.Value;
 
 /**
  * Front end of the virtual machine.
@@ -17,13 +21,10 @@ import xi.go.cst.Thunk;
  * @author Leo
  * 
  */
-public class VM {
+public final class VM {
 
     /** UTF-8 charset instance. */
-    public static final Charset UTF8;
-    static {
-        UTF8 = Charset.forName("UTF-8");
-    }
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * Runs the given SK program on the VM and writes the output to the given
@@ -36,13 +37,55 @@ public class VM {
      * @throws IOException
      *             from the Writer
      */
-    public static void run(final Thunk prog, final Writer out)
+    public static void run(final Thunk[] prog, final Writer out)
             throws IOException {
         Thunk.pushes = Thunk.reductions = 0;
         out.append("Result: ");
-        prog.eval(out);
+
+        final Stack<Thunk> stack = new Stack<Thunk>();
+        final BitSet inStr = new BitSet();
+        int first = -1;
+        stack.push(prog[0]);
+        prog[0] = null; // no more reference to the root node
+
+        do {
+            final Value val = stack.pop().wHNF();
+            final int depth = stack.size();
+            if (!val.isList()) {
+                // atomic value
+                out.append(val.toString());
+            } else if (val != List.EMPTY) {
+                // CONS cell
+                final Thunk head = val.getHead();
+                final boolean str = head.wHNF().isChar(), old = inStr
+                        .get(depth);
+                inStr.set(depth, str);
+
+                if (first < depth) {
+                    // first element
+                    first++;
+                    out.append(str ? '"' : '[');
+
+                } else if (!old) {
+                    out.append(str ? "] ++ \"" : ",");
+                } else if (!str) {
+                    out.append("\" ++ [");
+                }
+                stack.push(val.getTail());
+                stack.push(head);
+            } else {
+                // empty list
+                if (first < depth) {
+                    out.append("[]");
+                } else {
+                    out.append(inStr.get(depth) ? '"' : ']');
+                    first--;
+                }
+            }
+        } while (!stack.isEmpty());
+
         out.append("\nPushes:     " + Thunk.pushes);
-        out.append("\nReductions: " + Thunk.reductions);
+        out.append("\nReductions: " + Thunk.reductions + "\n");
         out.flush();
     }
 
@@ -80,7 +123,7 @@ public class VM {
             throw new IllegalArgumentException("No main method.");
         }
 
-        VM.run(main[0], new OutputStreamWriter(System.out, UTF8));
+        VM.run(main, new OutputStreamWriter(System.out, UTF8));
     }
 
     /**

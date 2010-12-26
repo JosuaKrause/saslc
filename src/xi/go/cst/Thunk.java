@@ -1,7 +1,5 @@
 package xi.go.cst;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Map;
@@ -118,17 +116,9 @@ public class Thunk {
         return node.isValue();
     }
 
-    public boolean isChar() {
-        return node.isChar();
-    }
-
     @Override
     public String toString() {
         return node.toString();
-    }
-
-    public void eval(final Writer w) throws IOException {
-        wHNF().eval(w);
     }
 
     public Thunk link(final Map<String, Thunk> defs) {
