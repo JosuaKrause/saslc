@@ -1,4 +1,4 @@
-cat xs ys = if xs == [] then ys else hd xs : (tl xs) `cat` ys;
+cat xs ys = if xs == [] then ys else hd xs : ((tl xs) `cat` ys);
 take x xs = if x == 0 then [] else hd xs : take (x - 1) (tl xs);
 
 one = 1 : two;
