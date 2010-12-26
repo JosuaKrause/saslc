@@ -204,8 +204,9 @@ public class LetIn extends Expr {
             final Name old = e.getKey();
             final Name globalName = Name.valueOf(fun + "$" + old.getName());
             Expr globalExpr = e.getValue();
-            for (final String arg : args) {
-                globalExpr = new Lambda(arg, globalExpr);
+            int i = args.size();
+            while (i-- > 0) {
+                globalExpr = new Lambda(args.get(i), globalExpr);
             }
             alphaMap.put(old, globalName);
             exprMap.put(globalExpr, globalName);

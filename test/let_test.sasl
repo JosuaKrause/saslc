@@ -9,7 +9,7 @@ fun a b = let
       two = 4 : one,
       x b = a * b
       in take
-          3#(x b 2)
+          (x 2)
           one;
 
 main = (take 3 one) `cat`
