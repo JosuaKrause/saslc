@@ -1,7 +1,5 @@
 package xi.go.cst.prim;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.math.BigInteger;
 
 import xi.go.cst.Thunk;
@@ -17,18 +15,6 @@ public abstract class Value extends Prim {
     @Override
     public final boolean isValue() {
         return true;
-    }
-
-    /**
-     * Evaluates the node.
-     * 
-     * @param w
-     *            The output will be written to this Writer.
-     * @throws IOException
-     *             If an error occurs.
-     */
-    public void eval(final Writer w) throws IOException {
-        w.append(toString());
     }
 
     /**
@@ -80,4 +66,14 @@ public abstract class Value extends Prim {
     public boolean shareNode() {
         return true;
     }
+
+    /**
+     * Checks whether this values behaves like a list.
+     * 
+     * @return result of the check
+     */
+    public boolean isList() {
+        return false;
+    }
+
 }

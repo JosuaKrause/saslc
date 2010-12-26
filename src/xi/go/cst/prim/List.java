@@ -1,7 +1,5 @@
 package xi.go.cst.prim;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
@@ -108,53 +106,6 @@ public class List extends Value {
     }
 
     @Override
-    public void eval(final Writer w) throws IOException {
-        boolean first = true;
-        boolean begin = false;
-        boolean isList = false;
-        boolean prev = true;
-        Value nd = this;
-        while (nd != EMPTY) {
-            isList = !nd.getHead().wHNF().isChar();
-            if (first || isList != prev) {
-                if (first) {
-                    first = false;
-                } else {
-                    if (prev) {
-                        w.append(']');
-                    } else {
-                        w.append('"');
-                    }
-                    w.append(" ++ ");
-                }
-                if (isList) {
-                    w.append('[');
-                } else {
-                    w.append('"');
-                }
-                begin = true;
-            }
-            if (begin) {
-                begin = false;
-            } else if (isList) {
-                w.append(", ");
-            }
-            nd.getHead().eval(w);
-            // final Value old = nd;
-            nd = nd.getTail().wHNF();
-            // old.dispose();
-            prev = isList;
-        }
-        if (first) {
-            w.append(EMPTY.toString());
-        } else if (isList) {
-            w.append(']');
-        } else {
-            w.append('"');
-        }
-    }
-
-    @Override
     public boolean eq(final Value n) {
         if (n == this) {
             return true;
@@ -164,5 +115,9 @@ public class List extends Value {
         }
         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());
     }
-
+    
+    @Override
+    public boolean isList() {
+        return true;
+    }
 }

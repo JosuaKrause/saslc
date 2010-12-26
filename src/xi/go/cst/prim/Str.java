@@ -51,8 +51,7 @@ public class Str extends Value {
     }
 
     @Override
-    public final boolean isChar() {
+    public boolean isList() {
         return true;
     }
-
 }
