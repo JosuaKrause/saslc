@@ -78,4 +78,8 @@ public class App extends Node {
         return a;
     }
 
+    @Override
+    public boolean shareNode() {
+        return true;
+    }
 }

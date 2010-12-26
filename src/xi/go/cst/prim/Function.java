@@ -371,4 +371,9 @@ public final class Function extends Prim {
         return fun;
     }
 
+    @Override
+    public boolean shareNode() {
+        return false;
+    }
+
 }

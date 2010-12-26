@@ -42,6 +42,11 @@ public class List extends Value {
         public boolean eq(final Value n) {
             return this == n;
         }
+
+        @Override
+        public boolean shareNode() {
+            return false;
+        }
     };
 
     /** Head of the list. */
@@ -159,4 +164,5 @@ public class List extends Value {
         }
         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());
     }
+
 }

@@ -14,6 +14,7 @@ import xi.go.cst.prim.List;
 import xi.go.cst.prim.Num;
 import xi.go.cst.prim.Str;
 import xi.go.cst.prim.Value;
+import xi.go.cst.stefan.Outputter;
 
 /**
  * 
@@ -30,6 +31,15 @@ public class Thunk {
 
     public Thunk(final Node nd) {
         node = nd;
+    }
+
+    /**
+     * Use only for CST creation.
+     * 
+     * @return The internal node.
+     */
+    public Node getNode() {
+        return node;
     }
 
     public static Thunk app(final Thunk f, final Thunk x) {
@@ -78,6 +88,7 @@ public class Thunk {
         final Stack<Thunk> stack = new Stack<Thunk>();
         Thunk curr = this;
         while (!curr.isValue()) {
+            Outputter.draw(curr, stack);
             if (curr.isApp()) {
                 stack.push(curr);
                 curr = curr.node.getLeft();
@@ -107,6 +118,9 @@ public class Thunk {
                     + "' can't be applied.");
         }
         node = curr.node;
+        if (Outputter.isVerboseMode()) {
+            Outputter.draw(this, stack);
+        }
         return (Value) node;
     }
 

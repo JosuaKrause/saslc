@@ -92,4 +92,8 @@ public abstract class Node {
      */
     public abstract Thunk link(Map<String, Thunk> defs, Set<String> linked);
 
+    /**
+     * @return Whether the node should be shared for visualization.
+     */
+    public abstract boolean shareNode();
 }

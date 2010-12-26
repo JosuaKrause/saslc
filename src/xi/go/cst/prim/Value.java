@@ -76,4 +76,8 @@ public abstract class Value extends Prim {
      */
     public abstract boolean eq(final Value n);
 
+    @Override
+    public boolean shareNode() {
+        return true;
+    }
 }

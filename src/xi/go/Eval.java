@@ -18,6 +18,7 @@ import xi.ast.Node;
 import xi.ast.stefan.LazyTree;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
+import xi.go.cst.stefan.Outputter;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.parser.sk.SKParser;
@@ -83,11 +84,24 @@ public class Eval {
      */
     public static void main(final String[] args) throws Exception {
         final Reader r;
+        String out = null;
         if (args.length == 0) {
             r = new InputStreamReader(System.in, "UTF-8");
         } else {
             final GlueReader g = new GlueReader();
+            int output = 0;
             for (final String arg : args) {
+                if (output == 0) {
+                    if (arg.equals("-out")) {
+                        output = 1;
+                        continue;
+                    }
+                    output = 2;
+                } else if (output == 1) {
+                    out = arg;
+                    output = 2;
+                    continue;
+                }
                 final File f = new File(arg);
                 if (f.exists()) {
                     g.addReader(new FileReader(f));
@@ -110,9 +124,16 @@ public class Eval {
                 .toString()));
 
         final Thunk main = Eval.link(fTable, "main");
+        if (out != null) {
+            Outputter.setVerboseMode(main, out);
+        }
 
         final Writer w = new OutputStreamWriter(System.out);
         VM.run(main, w);
+
+        if (out != null) {
+            Outputter.runDotty(out);
+        }
     }
 
 }

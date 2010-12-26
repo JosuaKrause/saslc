@@ -70,4 +70,9 @@ public final class Ref extends Value {
         return true;
     }
 
+    @Override
+    public boolean shareNode() {
+        throw new IllegalStateException("refs should be resolved by now");
+    }
+
 }

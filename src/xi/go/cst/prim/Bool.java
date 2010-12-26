@@ -48,4 +48,8 @@ public final class Bool extends Value {
         return this == n;
     }
 
+    @Override
+    public boolean shareNode() {
+        return false;
+    }
 }

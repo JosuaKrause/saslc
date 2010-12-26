@@ -37,4 +37,5 @@ public class Num extends Value {
     public boolean eq(final Value n) {
         return value.equals(n.getNum());
     }
+
 }
