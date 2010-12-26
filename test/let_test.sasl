@@ -4,6 +4,6 @@ take x xs = if x == 0 then [] else hd xs : take (x - 1) (tl xs);
 one = 1 : two;
 two = 2 : one;
 
-fun a b = let one = 3 : two, two = 4 : one, x b = a * b in take b 2 one;
+fun a b = let one = 3 : two, two = 4 : one, x b = a * b in take (x b 2) one;
 
 main = (take 3 one) `cat` fun 3 4;

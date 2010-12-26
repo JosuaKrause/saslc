@@ -20,8 +20,6 @@ import xi.util.Pair;
  */
 public class LetIn extends Expr {
 
-    // TODO: define alpha and unLet and call it before unlambda
-
     /** Name bindings. */
     private final Module defs;
 
