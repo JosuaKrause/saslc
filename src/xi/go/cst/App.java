@@ -42,7 +42,7 @@ public class App extends Node {
 
     @Override
     public final String toString() {
-        return "(" + left + " " + right + ")";
+        return left + " " + (right.isApp() ? "(" + right + ")" : right);
     }
 
     @Override

@@ -103,11 +103,7 @@ public class Eval {
         final Thunk[] main = { link(parse(new StringReader(w.toString())),
                 "main") };
 
-        try {
-            VM.run(main, new OutputStreamWriter(System.out));
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
+        VM.run(main, new OutputStreamWriter(System.out));
     }
 
 }

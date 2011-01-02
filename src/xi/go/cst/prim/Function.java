@@ -32,6 +32,24 @@ public final class Function extends Prim {
             }
         },
 
+        /** The right-side substitution combinator. */
+        B('B', 3) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk f = args[0], g = args[1], x = args[2];
+                return new App(f, app(g, x));
+            }
+        },
+
+        /** The left-side substitution combinator. */
+        C('C', 3) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk f = args[0], g = args[1], x = args[2];
+                return new App(app(f, x), g);
+            }
+        },
+
         /** The constant combinator. */
         K('K') {
             @Override

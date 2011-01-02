@@ -77,10 +77,11 @@ public class Thunk {
         Thunk curr = this;
         while (!curr.isValue()) {
             if (curr.isApp()) {
+                pushes++;
                 stack.push(curr);
                 curr = curr.node.getLeft();
-                pushes++;
             } else {
+                reductions++;
                 final Function.Def funDef = curr.node.getFunction();
                 if (stack.size() < funDef.cardinality) {
                     throw new IllegalStateException("Not enough arguments for "
@@ -97,7 +98,6 @@ public class Thunk {
                     args[i] = curr.node.getRight();
                 }
                 curr.node = funDef.apply(args);
-                reductions++;
             }
         }
         if (!stack.isEmpty()) {
@@ -108,7 +108,7 @@ public class Thunk {
         return (Value) node;
     }
 
-    private boolean isApp() {
+    boolean isApp() {
         return node.isApp();
     }
 
