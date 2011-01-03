@@ -158,8 +158,7 @@ public class LetIn extends Expr {
                 visit(name, refs, marked, stack, out);
             }
 
-            stack.pop();
-            out.add(n);
+            out.add(stack.pop());
         } else {
             final int pos = stack.lastIndexOf(n);
             if (pos >= 0) {

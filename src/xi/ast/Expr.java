@@ -13,6 +13,9 @@ import java.util.Set;
  */
 public abstract class Expr extends Node {
 
+    /** Only use S, K for Lambda, not B, C. */
+    final static boolean DISABLE_BC = false;
+
     /** Argument array. */
     protected final Expr[] expr;
 
