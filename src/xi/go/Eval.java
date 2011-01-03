@@ -103,7 +103,13 @@ public class Eval {
         final Thunk[] main = { link(parse(new StringReader(w.toString())),
                 "main") };
 
-        VM.run(main, new OutputStreamWriter(System.out));
+        try {
+            VM.run(main, new OutputStreamWriter(System.out));
+        } catch (final Exception e) {
+            // explicit catch block for other versions merge compatibility
+            System.out.println("Execution aborted!");
+            e.printStackTrace();
+        }
     }
 
 }
