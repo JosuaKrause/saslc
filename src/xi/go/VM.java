@@ -82,6 +82,7 @@ public final class VM {
                     first--;
                 }
             }
+            out.flush();
         } while (!stack.isEmpty());
 
         out.append("\nPushes:     " + Thunk.pushes);

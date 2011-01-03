@@ -96,8 +96,7 @@ public class Linker {
                 }
                 start = args[++i];
             } else if ("-out".equals(args[i])) {
-                if (i == args.length - 1
-                        || !new File(args[++i]).createNewFile()) {
+                if (i == args.length - 1) {
                     invalid = true;
                     break;
                 }

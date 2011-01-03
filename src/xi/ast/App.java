@@ -1,5 +1,7 @@
 package xi.ast;
 
+import static xi.ast.BuiltIn.B;
+import static xi.ast.BuiltIn.C;
 import static xi.ast.BuiltIn.K;
 import static xi.ast.BuiltIn.S;
 
@@ -46,7 +48,8 @@ public final class App extends Expr {
 
     @Override
     public String toString() {
-        return "(" + expr[0] + " " + expr[1] + ')';
+        return expr[0] + " "
+                + (expr[1] instanceof App ? "(" + expr[1] + ")" : expr[1]);
     }
 
     /**
@@ -69,24 +72,49 @@ public final class App extends Expr {
 
     @Override
     protected Expr unLambda(final Name n) {
-        final Expr f = getLeft(), x = getRight();
+        final Expr left = getLeft(), right = getRight();
         if (n == null) {
-            return App.create(f.unLambda(), x.unLambda());
+            return App.create(left.unLambda(), right.unLambda());
         }
-        final boolean nf = !f.hasFree(n), nx = !x.hasFree(n);
 
+        final boolean leftFree = left.hasFree(n);
+        final boolean rightFree = right.hasFree(n);
+
+        if (DISABLE_BC) {
+            // (\x . a b) => K (a b), if x is free in neither a nor b
+            if (!leftFree && !rightFree) {
+                return K.app(this);
+            }
+
+            // (\x . f x) => f, if x isn't free in f
+            if (!leftFree && rightFree && right.equals(n)) {
+                return left;
+            }
+
+            return S.app(!leftFree ? K.app(left) : left.unLambda(n),
+                    !rightFree ? K.app(right) : right.unLambda(n));
+        }
+
+        if (leftFree) {
+            if (rightFree) {
+                // (\x . a b) => S (a b), if x is free both a and b
+                return S.app(left.unLambda(n), right.unLambda(n));
+            }
+            // (\x . a b) => C (a b), if x is free in b, but not in a
+            return C.app(left.unLambda(n), right);
+
+        }
+        if (rightFree) {
+            if (right.equals(n)) {
+                // (\x . f x) => f, if x isn't free in f
+                return left;
+            }
+
+            // (\x . a b) => B (a b), if x is free in a, but not in b
+            return B.app(left, right.unLambda(n));
+        }
         // (\x . a b) => K (a b), if x is free in neither a nor b
-        if (nf && nx) {
-            return K.app(this);
-        }
-
-        // (\x . f x) => f, if x isn't free in f
-        if (nf && !nx && x.equals(n)) {
-            return nf ? f : f.unLambda(n);
-        }
-
-        return S.app(nf ? K.app(f) : f.unLambda(n), nx ? K.app(x) : x
-                .unLambda(n));
+        return K.app(this);
     }
 
     @Override
