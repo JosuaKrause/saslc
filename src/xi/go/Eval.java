@@ -123,7 +123,7 @@ public class Eval {
         try {
             VM.run(main, new OutputStreamWriter(System.out));
         } catch (final Exception e) {
-            // explicit catch block for other versions merge compatibility
+            // explicit catch block for other versions compatibility
             System.out.println("Execution aborted!");
             e.printStackTrace();
         }
