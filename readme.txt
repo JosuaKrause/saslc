@@ -32,5 +32,5 @@
 #
 # - run.jar compiles, links and runs given SASL programs.
 #    The arguments can be an arbitrary number of sasl files or code snippets:
-#      java -jar run.jar prelude.sasl "main = take 5 @ iterate {x -> [x]} [];"
+#      java -jar run.jar sasl_lib/prelude.sasl "main = take 5 @ iterate {x -> [x]} [];"
 #
