@@ -110,7 +110,7 @@ public abstract class SKParser<T> {
     /**
      * Reads a function reference from the input.
      * 
-     * @return the functin name
+     * @return the function name
      */
     private final String getName() {
         return capture('<', '>');
@@ -132,7 +132,7 @@ public abstract class SKParser<T> {
      */
     private final String getString() {
         if (current() != '"') {
-            throw new IllegalStateException("Expected '<' got " + current());
+            throw new IllegalStateException("Expected '\"' got " + current());
         }
         char c;
         final StringBuilder sb = new StringBuilder();

@@ -89,6 +89,10 @@ public class Linker {
         Writer out = new OutputStreamWriter(System.out);
         boolean invalid = false;
         for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-help")) {
+                invalid = true;
+                break;
+            }
             if (args[i].equals("-start")) {
                 if (i == args.length - 1) {
                     invalid = true;
@@ -114,7 +118,7 @@ public class Linker {
             }
         }
         if (invalid) {
-            System.err.println("Usage: sasln [-start <start_sym>] "
+            System.err.println("Usage: sasln [-help] [-start <start_sym>] "
                     + "[-out <dest_file>] <sklib>...\n"
                     + "\t<start_sym>: function name used as entry point,"
                     + " default is 'main'.\n"

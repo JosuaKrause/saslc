@@ -1,0 +1,2 @@
+Main-Class: stefan.SKout
+Class-Path: .

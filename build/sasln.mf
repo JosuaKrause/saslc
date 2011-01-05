@@ -1,0 +1,2 @@
+Main-Class: xi.linker.Linker
+Class-Path: .
