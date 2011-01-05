@@ -45,6 +45,16 @@ public class List extends Value {
         public boolean shareNode() {
             return false;
         }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(this);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return this == obj;
+        }
     };
 
     /** Head of the list. */
@@ -115,9 +125,23 @@ public class List extends Value {
         }
         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());
     }
-    
+
     @Override
     public boolean isList() {
         return true;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == EMPTY || !(obj instanceof List)) {
+            return false;
+        }
+        final List other = (List) obj;
+        return head.equals(other.head) && tail.equals(other.tail);
+    }
+
+    @Override
+    public int hashCode() {
+        return (head.hashCode() ^ tail.hashCode()) ^ -1;
     }
 }

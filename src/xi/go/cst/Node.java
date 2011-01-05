@@ -96,4 +96,11 @@ public abstract class Node {
      * @return Whether the node should be shared for visualization.
      */
     public abstract boolean shareNode();
+
+    @Override
+    public abstract boolean equals(Object obj);
+
+    @Override
+    public abstract int hashCode();
+
 }

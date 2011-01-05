@@ -62,7 +62,7 @@ public final class Ref extends Value {
 
     @Override
     public boolean eq(final Value n) {
-        return n instanceof Ref && ((Ref) n).fun.equals(fun);
+        return equals(n);
     }
 
     @Override
@@ -73,6 +73,16 @@ public final class Ref extends Value {
     @Override
     public boolean shareNode() {
         throw new IllegalStateException("refs should be resolved by now");
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Ref && ((Ref) obj).fun.equals(fun);
+    }
+
+    @Override
+    public int hashCode() {
+        return fun.hashCode();
     }
 
 }
