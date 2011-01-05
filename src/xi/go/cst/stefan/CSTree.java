@@ -269,6 +269,10 @@ public class CSTree implements CommonNode {
             return Prim.U;
         case Y:
             return Prim.Y;
+        case B:
+            return Prim.B;
+        case C:
+            return Prim.C;
         }
         throw new InternalError("should never be reached");
     }

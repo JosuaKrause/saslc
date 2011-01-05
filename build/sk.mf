@@ -1,0 +1,2 @@
+Main-Class: xi.go.VM
+Class-Path: .
