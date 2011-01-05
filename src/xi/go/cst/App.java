@@ -78,4 +78,18 @@ public class App extends Node {
         return a;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof App)) {
+            return false;
+        }
+        final App other = (App) obj;
+        return left.equals(other.left) && right.equals(other.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return left.hashCode() ^ right.hashCode();
+    }
+
 }

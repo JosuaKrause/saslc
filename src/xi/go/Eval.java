@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import stefan.Cout;
 import xi.ast.stefan.LazyTree;
@@ -19,6 +20,7 @@ import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.parser.sk.SKParser;
 import xi.util.GlueReader;
+import xi.util.Logging;
 
 /**
  * Evaluator.
@@ -27,10 +29,13 @@ import xi.util.GlueReader;
  */
 public class Eval {
 
+    /** Logger. */
+    static final Logger log = Logging.getLogger(Eval.class);
+
     public static Map<String, Thunk> parse(final Reader r) {
 
         final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
-        final SKParser<Thunk> parser = new CstSKParser() {
+        final SKParser<Thunk> parser = new CstSKParser(false) {
             @Override
             public void def(final String name, final Thunk body) {
                 if (fTable.put(name, body) != null) {
@@ -64,10 +69,9 @@ public class Eval {
                 }
             }
         }
-        Thunk main = fns.get(entry);
+        final Thunk main = fns.get(entry);
         System.out.println("SK code: " + main);
-        main = main.link(fns);
-        return main;
+        return main.link(fns);
     }
 
     /**

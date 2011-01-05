@@ -48,4 +48,14 @@ public final class Bool extends Value {
         return this == n;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
 }

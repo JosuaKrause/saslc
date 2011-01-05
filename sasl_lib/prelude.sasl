@@ -55,7 +55,7 @@ cycle xs = let xs' = xs `cat` xs' in xs';
 # z: the default value
 # xs: the list
 foldr f z xs
-  = if xs == []
+  = if [] == xs
     then z
     else f (hd xs) @ foldr f z @ tl xs
   ;
@@ -167,7 +167,7 @@ enumFromThenTo a b c
 # xs: the list
 # ys: the list to append
 cat xs ys
-    = if xs == []
+    = if [] == xs
       then ys
       else hd xs : cat (tl xs) ys
     ;
@@ -175,7 +175,7 @@ cat xs ys
 # Flattens a list of lists.
 # xss: list of lists to be concatenated
 concat xss
-    = if xss == []
+    = if [] == xss
       then []
       else cat (hd xss) @ concat @ tl xss
     ;
@@ -184,7 +184,7 @@ concat xss
 # f: function
 # xs: list
 concatMap f xs
-    = if xs == []
+    = if [] == xs
       then []
       else cat (f @ hd xs) @ concatMap f @ tl xs;
 
@@ -203,7 +203,7 @@ take n xs =
 drop n xs =
     if n <= 0
     then xs
-    else if xs == []
+    else if [] == xs
     then []
     else drop (n-1) (tl xs)
     ;
@@ -212,7 +212,7 @@ drop n xs =
 # f: the mapping function
 # list: the list
 map f xs
-    = if xs == []
+    = if [] == xs
       then []
       else f (hd xs) : map f (tl xs)
     ;
@@ -230,14 +230,14 @@ first p list
 ### Sorting algorithms ###
 
 quickSort lt xs
-  = if xs == []
+  = if [] == xs
     then []
     else 
       let
         pivot = hd xs,
         rest = tl xs,
         partition list
-          = if list == []
+          = if [] == list
             then [[], []]
             else
               let
@@ -253,13 +253,13 @@ quickSort lt xs
   ;
 
 mergeSort lt xs
-  = if xs == []
+  = if [] == xs
     then []
     else
       let
         merge as bs
-          = if as == [] then bs
-            else if bs == [] then as
+          = if [] == as then bs
+            else if [] == bs then as
             else let
               a = hd as,
               b = hd bs
@@ -268,7 +268,7 @@ mergeSort lt xs
                else b : merge as (tl bs)
           ,
         halve xs
-          = if xs == []
+          = if [] == xs
             then [[], []]
             else
               let
@@ -282,7 +282,7 @@ mergeSort lt xs
         as = fst hv,
         bs = snd hv
       in
-        if bs == []
+        if [] == bs
         then as
         else mergeSort lt as `merge` mergeSort lt bs
   ;
@@ -292,14 +292,14 @@ mergeSort lt xs
 # lt: the comparison function
 # list: the list to sort
 insertionSort lt list =
-    if list == []
+    if [] == list
     then []
     else
         let
           x = hd list,
           xs = tl list,
           ins x xs
-            = if xs == []
+            = if [] == xs
               then [x]
               else
                 let y = hd xs
@@ -316,11 +316,11 @@ bubbleSort lt list
       bubble e
         = let list = fromLeft e
           in
-            if list == [] then Right []
+            if [] == list then Right []
             else
               let x = hd list, xs = tl list
               in
-                if xs == [] then Right list
+                if [] == xs then Right list
                 else
                   let
                     y = hd xs, ys = tl xs,

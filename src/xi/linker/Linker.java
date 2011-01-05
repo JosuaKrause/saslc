@@ -87,41 +87,27 @@ public class Linker {
         String start = "main";
         final ArrayList<Reader> inputs = new ArrayList<Reader>();
         Writer out = new OutputStreamWriter(System.out);
-        boolean invalid = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-start")) {
                 if (i == args.length - 1) {
-                    invalid = true;
-                    break;
+                    usage("No start symbol given\n");
                 }
                 start = args[++i];
             } else if ("-out".equals(args[i])) {
                 if (i == args.length - 1) {
-                    invalid = true;
-                    break;
+                    usage("No output filename given\n");
                 }
-                out = new OutputStreamWriter(new FileOutputStream(args[i]),
+                out = new OutputStreamWriter(new FileOutputStream(args[++i]),
                         UTF8);
             } else if ("-".equals(args[i])) {
                 inputs.add(new InputStreamReader(System.in));
             } else {
                 final File f = new File(args[i]);
                 if (!f.isFile()) {
-                    invalid = true;
-                    break;
+                    usage("Input file not found: '" + f + "'\n");
                 }
                 inputs.add(new InputStreamReader(new FileInputStream(f), UTF8));
             }
-        }
-        if (invalid) {
-            System.err.println("Usage: sasln [-start <start_sym>] "
-                    + "[-out <dest_file>] <sklib>...\n"
-                    + "\t<start_sym>: function name used as entry point,"
-                    + " default is 'main'.\n"
-                    + "\t<dest_file>: File to write to, default is STDOUT.\n"
-                    + "\t<sklib>: a file containing an SK library,"
-                    + " '-' means STDIN.\n");
-            return;
         }
         if (inputs.isEmpty()) {
             inputs.add(new InputStreamReader(System.in));
@@ -132,5 +118,16 @@ public class Linker {
         mod.addDefinition(Name.valueOf("main"), linked);
 
         Cout.module(LazyTree.create(mod), out);
+    }
+
+    private static void usage(final String desc) {
+        System.err.println(desc + "Usage: sasln [-start <start_sym>] "
+                + "[-out <dest_file>] <sklib>...\n"
+                + "\t<start_sym>: function name used as entry point,"
+                + " default is 'main'.\n"
+                + "\t<dest_file>: File to write to, default is STDOUT.\n"
+                + "\t<sklib>: a file containing an SK library,"
+                + " '-' means STDIN.\n");
+        System.exit(1);
     }
 }

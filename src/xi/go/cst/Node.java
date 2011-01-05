@@ -92,4 +92,10 @@ public abstract class Node {
      */
     public abstract Thunk link(Map<String, Thunk> defs, Set<String> linked);
 
+    @Override
+    public abstract boolean equals(Object obj);
+
+    @Override
+    public abstract int hashCode();
+
 }
