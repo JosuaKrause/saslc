@@ -55,18 +55,9 @@ public class List extends Value {
 
         @Override
         public int hashCode() {
-            return super.hashCode();
-        }
-
-        @Override
-        public int hashCode() {
             return System.identityHashCode(this);
         }
 
-        @Override
-        public boolean equals(final Object obj) {
-            return this == obj;
-        }
     };
 
     /** Head of the list. */
