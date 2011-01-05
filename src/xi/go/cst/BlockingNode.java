@@ -1,7 +1,5 @@
 package xi.go.cst;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Set;
@@ -74,15 +72,14 @@ public class BlockingNode extends Value {
     }
 
     @Override
-    public boolean eq(final Value n) {
+    public boolean eq(Value n) {
+        if (n instanceof BlockingNode) {
+            final BlockingNode b = (BlockingNode) n;
+            b.ensureNode();
+            n = b.realNode;
+        }
         ensureNode();
         return realNode.eq(n);
-    }
-
-    @Override
-    public void eval(final Writer w) throws IOException {
-        ensureNode();
-        realNode.eval(w);
     }
 
     @Override
@@ -122,7 +119,12 @@ public class BlockingNode extends Value {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
+        if (obj instanceof BlockingNode) {
+            final BlockingNode b = (BlockingNode) obj;
+            b.ensureNode();
+            obj = b.realNode;
+        }
         ensureNode();
         return realNode.equals(obj);
     }

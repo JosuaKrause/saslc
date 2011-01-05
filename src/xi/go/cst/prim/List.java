@@ -1,7 +1,5 @@
 package xi.go.cst.prim;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
@@ -129,7 +127,7 @@ public class List extends Value {
         }
         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());
     }
-    
+
     @Override
     public boolean isList() {
         return true;
