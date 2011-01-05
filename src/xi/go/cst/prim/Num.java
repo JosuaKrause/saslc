@@ -38,4 +38,13 @@ public class Num extends Value {
         return value.equals(n.getNum());
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Num && value.equals(((Num) obj).value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

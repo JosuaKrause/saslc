@@ -32,12 +32,8 @@ public class Module extends Node {
     public Module(final boolean top) {
         this(top, false);
         if (top) {
-            try {
-                addDefinition(Name.valueOf("hd"), BuiltIn.HD);
-                addDefinition(Name.valueOf("tl"), BuiltIn.TL);
-            } catch (final Exception e) {
-                throw new Error("Internal Error", e);
-            }
+            addDefinition(Name.valueOf("hd"), BuiltIn.HD);
+            addDefinition(Name.valueOf("tl"), BuiltIn.TL);
         }
     }
 
@@ -106,9 +102,6 @@ public class Module extends Node {
         }
         boolean inDefs = false;
         for (final Entry<Name, Expr> def : defs.entrySet()) {
-            if (def.getKey().equals(var)) {
-                return false;
-            }
             inDefs |= def.getValue().hasFree(var);
         }
         return inDefs;
@@ -128,13 +121,13 @@ public class Module extends Node {
         final Module res = new Module(isTopLevel, true);
         for (final Entry<Name, Expr> e : defs.entrySet()) {
             final Name name = e.getKey();
-            Expr nw = e.getValue().unLambda();
+            Expr nw = e.getValue();
 
             // eliminate simple recursion
             if (nw.hasFree(name)) {
-                nw = Y.app(new Lambda(name.toString(), nw).unLambda());
+                nw = Y.app(new Lambda(name.toString(), nw));
             }
-            res.addDefinition(name, nw);
+            res.addDefinition(name, nw.unLambda());
         }
         return res;
     }

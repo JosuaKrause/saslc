@@ -1,5 +1,8 @@
 package xi.ast;
 
+import java.util.logging.Logger;
+
+import xi.util.Logging;
 
 /**
  * Interface for subSASL expressions.
@@ -8,6 +11,9 @@ package xi.ast;
  * @author Joschi
  */
 public abstract class Node {
+
+    /** Logger. */
+    static final Logger log = Logging.getLogger(Node.class);
 
     @Override
     public abstract String toString();
