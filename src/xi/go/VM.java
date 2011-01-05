@@ -54,7 +54,7 @@ public final class VM {
             if (!val.isList()) {
                 // atomic value
                 out.append(val.toString());
-            } else if (val != List.EMPTY) {
+            } else if (!val.equals(List.EMPTY)) {
                 // CONS cell
                 final Thunk head = val.getHead();
                 final boolean str = head.wHNF().isChar(), old = inStr
