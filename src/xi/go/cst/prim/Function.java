@@ -389,4 +389,14 @@ public final class Function extends Prim {
         return fun;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Function && fun == ((Function) obj).fun;
+    }
+
+    @Override
+    public int hashCode() {
+        return fun.hashCode();
+    }
+
 }
