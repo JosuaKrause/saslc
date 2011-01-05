@@ -9,11 +9,14 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.BitSet;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.go.cst.prim.List;
 import xi.go.cst.prim.Value;
+import xi.util.Logging;
 
 /**
  * Front end of the virtual machine.
@@ -22,6 +25,9 @@ import xi.go.cst.prim.Value;
  * 
  */
 public final class VM {
+
+    /** Logger. */
+    static final Logger log = Logging.getLogger(VM.class);
 
     /** UTF-8 charset instance. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
@@ -98,18 +104,34 @@ public final class VM {
      * @throws IOException
      */
     public static void main(final String[] args) throws IOException {
+
         if (args.length == 0) {
-            usage();
+            usage("");
         }
 
-        final File f = new File(args[0]);
+        int pos = -1;
+        boolean shared = false;
+        while (++pos < args.length - 1) {
+            final String arg = args[pos];
+            if ("-cse".equals(arg)) {
+                shared = true;
+            } else if ("-h".equals(arg) || "--help".equals(arg)) {
+                usage("");
+            } else if ("-v".equals(arg)) {
+                Logging.setLevel(Level.INFO);
+            } else {
+                usage("Unknown parameter: '" + arg + "'\n");
+            }
+        }
+
+        final File f = new File(args[pos]);
         if (!f.canRead()) {
-            usage();
+            usage("File doesn't exist!\n");
         }
 
         final Thunk[] main = { null };
 
-        new CstSKParser() {
+        new CstSKParser(shared) {
             @Override
             protected void def(final String name, final Thunk body) {
                 if (main[0] != null || !name.equals("main")) {
@@ -129,9 +151,14 @@ public final class VM {
 
     /**
      * Prints a usage message and exits.
+     * 
+     * @param desc
+     *            error description
      */
-    private static final void usage() {
-        System.err.println("Usage: sk <sk_file> <arg>...");
+    private static final void usage(final String desc) {
+        System.err.println(desc + "Usage: sk [-cse] [-v] <sk_file> <arg>...\n"
+                + "\t-cse: perform common subexpression elimination\n"
+                + "\t-v:   verbose mode, prints info output to STDERR");
         System.exit(1);
     }
 

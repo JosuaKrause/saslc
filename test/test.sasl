@@ -1,11 +1,39 @@
-foldl' f z xs
-    = if xs==[]
-      then z
-      else z !> foldl' f (f z @ hd xs) @ tl xs
-    ;
+main
+  = foldl' { x y -> x+y } 0   # sum
+    .
+    take 100000                 # [1..100]
+    @
+    iterate { x -> x+1 } 1   # [1..]
+  ;
 
-enumFromTo x y = if x <= y then x : enumFromTo (x + 1) y else [];
+  
+toBinary n
+  = let
+      run n ds
+        = if 0 == n
+          then ds
+          else run (n / 2) @ 0 != n % 2 : ds
+    in run n []
+  ;
 
-sum = foldl' {n x -> n + x} 0;
+fromBinary
+  = foldl { n b -> 2 * n + if b then 1 else 0 } 0;
 
-main = sum @ enumFromTo 1 100000;
+state name t0 t1 input
+  = if [] == input
+    then name
+    else (if hd input then t1 else t0) @ tl input
+  ;
+
+mod7
+  = let
+      s0 = state 0 s0 s1,
+      s1 = state 1 s2 s3,
+      s2 = state 2 s4 s5,
+      s3 = state 3 s6 s0,
+      s4 = state 4 s1 s2,
+      s5 = state 5 s3 s4,
+      s6 = state 6 s5 s6
+    in s0 . toBinary
+  ;
+

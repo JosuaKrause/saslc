@@ -54,4 +54,14 @@ public class Str extends Value {
     public boolean isList() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Str && string.equals(((Str) obj).string);
+    }
+
+    @Override
+    public int hashCode() {
+        return string.hashCode();
+    }
 }

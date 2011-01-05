@@ -149,4 +149,14 @@ public class Thunk {
     public boolean isRef() {
         return node.isRef();
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Thunk && node.equals(((Thunk) obj).node);
+    }
+
+    @Override
+    public int hashCode() {
+        return node.hashCode();
+    }
 }

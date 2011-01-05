@@ -37,4 +37,14 @@ public class Num extends Value {
     public boolean eq(final Value n) {
         return value.equals(n.getNum());
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof Num && value.equals(((Num) obj).value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }
