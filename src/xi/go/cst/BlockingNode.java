@@ -134,4 +134,10 @@ public class BlockingNode extends Value {
         ensureNode();
         return realNode.hashCode();
     }
+
+    @Override
+    public boolean isList() {
+        ensureNode();
+        return realNode.isList();
+    }
 }

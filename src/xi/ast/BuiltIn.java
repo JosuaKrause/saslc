@@ -50,12 +50,18 @@ public final class BuiltIn extends Value {
     public static final BuiltIn NIL = new BuiltIn('_');
     /** The substitution combinator. */
     public static final BuiltIn S = new BuiltIn('S');
+    /** The left-side substitution combinator. */
+    public static final BuiltIn B = new BuiltIn('B');
+    /** The right-side substitution combinator. */
+    public static final BuiltIn C = new BuiltIn('C');
     /** The constant combinator. */
     public static final BuiltIn K = new BuiltIn('K');
     /** The identity combinator. */
     public static final BuiltIn I = new BuiltIn('I');
     /** The recursion combinator. */
     public static final BuiltIn Y = new BuiltIn('Y');
+    /** The uncurry combinator. */
+    public static final BuiltIn U = new BuiltIn('U');
     /** Head of a list. */
     public static final BuiltIn HD = new BuiltIn('h');
     /** Tail of a list. */
@@ -66,15 +72,33 @@ public final class BuiltIn extends Value {
     /** Display name of this operation. */
     private final char name;
 
+    /** Commutativity flag. */
+    public final boolean commutative;
+
     /**
-     * Constructor taking the display name of the operation.
+     * Constructor taking the display name of the operation, assuming
+     * non-commutativity.
      * 
      * @param n
      *            name
      */
     private BuiltIn(final char n) {
+        this(n, false);
+    }
+
+    /**
+     * Constructor taking the display name of the operation and the
+     * commutativity flag.
+     * 
+     * @param n
+     *            name
+     * @param comm
+     *            commutativity flag
+     */
+    private BuiltIn(final char n, final boolean comm) {
         name = n;
         TABLE[n] = this;
+        commutative = comm;
     }
 
     @Override

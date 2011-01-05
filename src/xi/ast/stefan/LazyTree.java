@@ -115,12 +115,18 @@ public final class LazyTree implements CommonNode {
                 return new LazyTree(b, Prim.Neg);
             } else if (b == BuiltIn.S) {
                 return new LazyTree(b, Prim.S);
+            } else if (b == BuiltIn.B) {
+                return new LazyTree(b, Prim.B);
+            } else if (b == BuiltIn.C) {
+                return new LazyTree(b, Prim.C);
             } else if (b == BuiltIn.K) {
                 return new LazyTree(b, Prim.K);
             } else if (b == BuiltIn.I) {
                 return new LazyTree(b, Prim.I);
             } else if (b == BuiltIn.Y) {
                 return new LazyTree(b, Prim.Y);
+            } else if (b == BuiltIn.U) {
+                return new LazyTree(b, Prim.U);
             } else if (b == BuiltIn.HD) {
                 return new LazyTree(b, Prim.Hd);
             } else if (b == BuiltIn.TL) {
@@ -129,8 +135,7 @@ public final class LazyTree implements CommonNode {
                 return new LazyTree(b, Prim.Seq);
             }
         }
-        return new LazyTree(n, false, null, null, "not yet implemented", null,
-                false, Kind.str, null, 0);
+        throw new IllegalStateException("Node '" + n + "' not known.");
     }
 
     /** ID generator. */

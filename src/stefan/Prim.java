@@ -5,7 +5,7 @@ package stefan;
 public enum Prim {
 
 	// combinators introduced by the compiler, not used currently...
-	S(3), K(2), Y(1), C(3), I(1), U(2),
+	S(3), K(2), Y(1), B(3), C(3), I(1), U(2),
 
 	// arithmetic primitives: ~ + - * / %
 	Neg(1), Add(2), Sub(2), Mul(2), Div(2), Mod(2),
