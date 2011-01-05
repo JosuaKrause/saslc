@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 public class Logging {
 
     public static <T> Logger getLogger(final Class<T> c) {
-        return null;
+        return Logger.getLogger(c.getName());
     }
 
     public static void setLevel(final Level info) {
