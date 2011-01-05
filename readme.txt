@@ -1,5 +1,10 @@
 #
 # saslc is a little compiler for the declarative language SASL.
+# This version comes with a multi-threaded execution environment which
+# evaluates for example the following subexpressions "(3 + 5)" and "(9 - 2)"
+# independent and simultaneously in the SASL program "main = (3 + 5)*(9 - 2);"
+# Shared subexpressions like "x" in "{x -> x + x}" however will still be
+# evaluated once.
 #
 # Building the project:
 # If you are lucky to have eclipse you may use the ANT script (build.xml) to
