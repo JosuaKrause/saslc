@@ -24,6 +24,7 @@ import xi.ast.LetIn;
 import xi.ast.Module;
 import xi.ast.Name;
 import xi.ast.stefan.LazyTree;
+import xi.util.GlueReader;
 
 /**
  * A linker for the SK output.
@@ -46,11 +47,9 @@ public class Linker {
     public Linker(final List<Reader> ins) throws IOException {
         final Map<String, Expr> module = new HashMap<String, Expr>();
         final AstSKParser parser = new AstSKParser(module);
-        for (final Reader r : ins) {
-            parser.read(r);
-            defs.putAll(module);
-            module.clear();
-        }
+        parser.read(new GlueReader(ins));
+        defs.putAll(module);
+        module.clear();
     }
 
     public Expr link(final String startSym) {

@@ -2,6 +2,7 @@ package xi.util;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -22,7 +23,7 @@ public class GlueReader extends Reader {
 
     /** Constructor with a newline character '\n' as glue. */
     public GlueReader() {
-        this('\n');
+        this(null);
     }
 
     /**
@@ -34,6 +35,17 @@ public class GlueReader extends Reader {
     public GlueReader(final char g) {
         glue = g;
         in = new LinkedList<Reader>();
+    }
+
+    public GlueReader(final Collection<Reader> ins) {
+        this('\n', ins);
+    }
+
+    public GlueReader(final char g, final Collection<Reader> ins) {
+        this(g);
+        if (ins != null) {
+            in.addAll(ins);
+        }
     }
 
     /**
