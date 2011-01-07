@@ -47,6 +47,7 @@ public class Linker {
         final Map<String, Expr> module = new HashMap<String, Expr>();
         final AstSKParser parser = new AstSKParser(module);
         for (final Reader r : ins) {
+            // keeps the possibility to overwrite functions in other files
             parser.read(r);
             defs.putAll(module);
             module.clear();
