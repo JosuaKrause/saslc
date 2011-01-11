@@ -30,6 +30,7 @@ public class Module extends Node {
         if (top) {
             addDefinition(Name.valueOf("hd"), BuiltIn.HD);
             addDefinition(Name.valueOf("tl"), BuiltIn.TL);
+            addDefinition(Name.valueOf("char"), BuiltIn.CHAR);
         }
     }
 

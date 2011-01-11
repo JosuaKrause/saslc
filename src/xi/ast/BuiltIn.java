@@ -68,6 +68,8 @@ public final class BuiltIn extends Value {
     public static final BuiltIn TL = new BuiltIn('t');
     /** Strict sequence operator. */
     public static final BuiltIn SEQ = new BuiltIn('s');
+    /** Character casting operator. */
+    public static final BuiltIn CHAR = new BuiltIn('c');
 
     /** Display name of this operation. */
     private final char name;

@@ -270,6 +270,14 @@ public final class Function extends Prim {
             }
         },
 
+        /** Character casting operator. */
+        CHAR('c', 1) {
+            @Override
+            public Node apply(final Thunk... args) {
+                return Thunk.chr(args[0].wHNF().getNum().intValue()).wHNF();
+            }
+        },
+
         /**
          * Does nothing -- is used to find duplicate symbol definitions in the
          * SK-Code.
@@ -279,7 +287,9 @@ public final class Function extends Prim {
             public Node apply(final Thunk... args) {
                 return null;
             }
-        };
+        },
+
+        ;
 
         /** Jump table from character code (ASCII) to definition. */
         private static final Def[] FUN_MAP = new Def[1 << 7];
