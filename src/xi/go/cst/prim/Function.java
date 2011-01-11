@@ -285,7 +285,7 @@ public final class Function extends Prim {
         NOP(' ') {
             @Override
             public Node apply(final Thunk... args) {
-                return null;
+                throw new IllegalStateException("nop should not be used!!!");
             }
         },
 
