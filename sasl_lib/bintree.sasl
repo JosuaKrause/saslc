@@ -1,0 +1,65 @@
+# A binary tree implementation in SASL
+
+bn_key   = hd;
+bn_value = hd . tl . tl . tl;
+bn_left  = hd . tl;
+bn_right = hd . tl . tl;
+bn_create key value left right = [key, left, right, value];
+bt_isempty tree = tree == bt_empty;
+bt_empty = [];
+
+# adds a key value pair to the tree
+# and returns the modified tree.
+# key: the key (must be comparable)
+# value: the corresponding value
+# tree: the previous binary tree or bt_empty if you want to create a new one
+bt_add key value tree =
+  if bt_isempty tree
+  then bn_create key value bt_empty bt_empty
+  else
+    let
+      k = bn_key tree,
+      l = bn_left tree,
+      r = bn_right tree,
+      v = bn_value tree,
+      add = bt_add key value,
+    in
+      if key == k
+      then bn_create key value l r
+      else if key < k
+        then bn_create k v (add l) r
+        else bn_create k v l (add r)
+  ;
+
+bt_get key default tree =
+  if bt_isempty tree
+  then default
+  else
+    let
+      k = bn_key tree,
+      l = bn_left tree,
+      r = bn_right tree,
+      v = bn_value tree,
+      get = bt_get key default,
+    in
+      if key == k
+      then v
+      else
+        get if key < k then l else r
+  ;
+
+bt_contains key tree =
+  if bt_isempty tree
+  then false
+  else
+    let
+      k = bn_key tree,
+      l = bn_left tree,
+      r = bn_right tree,
+      contains = bt_contains key,
+    in
+      if key == k
+      then true
+      else
+        contains if key < k then l else r
+  ;
