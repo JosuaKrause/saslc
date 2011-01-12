@@ -98,6 +98,9 @@ public class Cout {
                 case Seq:
                     w.append("s");
                     break;
+                case Char:
+                    w.append("c");
+                    break;
                 default:
                     throw new UnsupportedOperationException(
                             "Unknown primitive: " + n.getPrim() + ".");

@@ -133,6 +133,8 @@ public final class LazyTree implements CommonNode {
                 return new LazyTree(b, Prim.Tl);
             } else if (b == BuiltIn.SEQ) {
                 return new LazyTree(b, Prim.Seq);
+            } else if (b == BuiltIn.CHAR) {
+                return new LazyTree(b, Prim.Char);
             }
         }
         throw new IllegalStateException("Node '" + n + "' not known.");
