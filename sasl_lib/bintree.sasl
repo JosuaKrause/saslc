@@ -5,7 +5,7 @@ bn_value = hd . tl . tl . tl;
 bn_left  = hd . tl;
 bn_right = hd . tl . tl;
 bn_create key value left right = [key, left, right, value];
-bt_isempty tree = tree == bt_empty;
+bt_isempty tree = bt_empty == tree;
 bt_empty = [];
 
 # adds a key value pair to the tree
@@ -22,7 +22,7 @@ bt_add key value tree =
       l = bn_left tree,
       r = bn_right tree,
       v = bn_value tree,
-      add = bt_add key value,
+      add = bt_add key value
     in
       if key == k
       then bn_create key value l r
@@ -40,12 +40,12 @@ bt_get key default tree =
       l = bn_left tree,
       r = bn_right tree,
       v = bn_value tree,
-      get = bt_get key default,
+      get = bt_get key default
     in
       if key == k
       then v
       else
-        get if key < k then l else r
+        get (if key < k then l else r)
   ;
 
 bt_contains key tree =
@@ -56,10 +56,10 @@ bt_contains key tree =
       k = bn_key tree,
       l = bn_left tree,
       r = bn_right tree,
-      contains = bt_contains key,
+      contains = bt_contains key
     in
       if key == k
       then true
       else
-        contains if key < k then l else r
+        contains (if key < k then l else r)
   ;
