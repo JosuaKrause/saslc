@@ -1,0 +1,19 @@
+# A DFA (deterministic finite automaton) implementation
+
+# A final state.
+# name: The value returned by this state if the end of the input is reached.
+# edges: A binary tree with the keys being edges and the values being the corresponding states.
+# input: The input sequence to run this automaton on.
+dfa_final name edges input
+  = if [] == input
+    then name
+    else (bt_get (hd input) dfa_error edges) @ tl input
+  ;
+
+# An inner state.
+# @see dfa_final
+dfa_state = dfa_final "error";
+
+# The error state.
+# @see dfa_final
+dfa_error = dfa_state bt_empty;
