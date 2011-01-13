@@ -105,7 +105,7 @@ public class Linker {
                     invalid = true;
                     break;
                 }
-                out = new OutputStreamWriter(new FileOutputStream(args[i]),
+                out = new OutputStreamWriter(new FileOutputStream(args[++i]),
                         UTF8);
             } else if ("-".equals(args[i])) {
                 inputs.add(new InputStreamReader(System.in));
