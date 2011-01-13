@@ -4,10 +4,10 @@
 # name: The value returned by this state if the end of the input is reached.
 # edges: A binary tree with the keys being edges and the values being the corresponding states.
 # input: The input sequence to run this automaton on.
-dfa_final name edges input
-  = if [] == input
-    then name
-    else (bt_get (hd input) dfa_error edges) @ tl input
+dfa_final name edges input =
+  if [] == input
+  then name
+  else (bt_get (hd input) dfa_error edges) @ tl input
   ;
 
 # An inner state.
@@ -17,3 +17,28 @@ dfa_state = dfa_final "error";
 # The error state.
 # @see dfa_final
 dfa_error = dfa_state bt_empty;
+
+# An example automaton
+
+# An automaton for computing the modulo 3 of a decimal input number
+# Input -> A string containing the number in decimal notation
+mod3dec =
+  let
+    zero = dfa_final 0 z_edges,
+    one  = dfa_final 1 o_edges,
+    two  = dfa_final 2 t_edges,
+    z_edges = bt_add '0' zero @ bt_add '3' zero @ bt_add '6' zero @ bt_add '9' zero @
+              bt_add '1' one @ bt_add '4' one @ bt_add '7' one @
+              bt_add '2' two @ bt_add '5' two @ bt_add '8' two
+              bt_empty,
+    o_edges = bt_add '0' one @ bt_add '3' one @ bt_add '6' one @ bt_add '9' one @
+              bt_add '1' two @ bt_add '4' two @ bt_add '7' two @
+              bt_add '2' zero @ bt_add '5' zero @ bt_add '8' zero
+              bt_empty,
+    t_edges = bt_add '0' two @ bt_add '3' two @ bt_add '6' two @ bt_add '9' two @
+              bt_add '1' zero @ bt_add '4' zero @ bt_add '7' zero @
+              bt_add '2' one @ bt_add '5' one @ bt_add '8' one
+              bt_empty
+  in zero
+  ;
+  
