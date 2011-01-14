@@ -91,6 +91,11 @@ public final class App extends Expr {
                 return left;
             }
 
+            // (\x . a b) => S a b, if x is free in both a and b
+            // (\x . a b) => S (K a) b, if x is free in b
+            // (\x . a b) => S a (K b), if x is free in a
+            // (\x . a b) => S (K a) (K b), if x is free in neither a nor b
+            // does not occur => K (a b)
             return S.app(!leftFree ? K.app(left) : left.unLambda(n),
                     !rightFree ? K.app(right) : right.unLambda(n));
         }
