@@ -100,7 +100,7 @@ public final class App extends Expr {
                 // (\x . a b) => S a b, if x is free both a and b
                 return S.app(left.unLambda(n), right.unLambda(n));
             }
-            // (\x . a b) => C a b, if x is free in b, but not in a
+            // (\x . a b) => C a b, if x is free in a, but not in b
             return C.app(left.unLambda(n), right);
 
         }
@@ -110,7 +110,7 @@ public final class App extends Expr {
                 return left;
             }
 
-            // (\x . a b) => B a b, if x is free in a, but not in b
+            // (\x . a b) => B a b, if x is free in b, but not in a
             return B.app(left, right.unLambda(n));
         }
         // (\x . a b) => K (a b), if x is free in neither a nor b
