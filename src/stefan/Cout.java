@@ -20,11 +20,20 @@ public class Cout {
                 case S:
                     w.append('S');
                     break;
+                case SPrime:
+                    w.append('z');
+                    break;
                 case B:
                     w.append('B');
                     break;
+                case BStar:
+                    w.append('b');
+                    break;
                 case C:
                     w.append('C');
+                    break;
+                case CPrime:
+                    w.append('v');
                     break;
                 case K:
                     w.append('K');
@@ -172,9 +181,9 @@ public class Cout {
         for (final Map.Entry<String, ? extends CommonNode> e : (new TreeMap<String, CommonNode>(
                 n.getDefs())).entrySet()) {
             write(drawn, w, e.getValue());
-            w.write("=" + e.getKey() + ";");
+            w.write("=" + e.getKey() + ";\n");
         }
-        w.append("\n").close();
+        w.close();
     }
 
 }
