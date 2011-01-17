@@ -250,4 +250,24 @@ public class LetIn extends Expr {
         }
         return this;
     }
+
+    @Override
+    public boolean match(final Expr[] pat, final int l, final int r) {
+        throw new IllegalStateException("Can only match expressions after"
+                + " unLambda().");
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (!(other instanceof LetIn)) {
+            return false;
+        }
+        final LetIn o = (LetIn) other;
+        return defs.equals(o.defs) && expr[0].equals(o.expr[0]);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * defs.hashCode() + expr[0].hashCode();
+    }
 }

@@ -35,4 +35,10 @@ public abstract class Node {
      */
     public abstract Node unLambda();
 
+    @Override
+    public abstract boolean equals(final Object other);
+
+    @Override
+    public abstract int hashCode();
+
 }

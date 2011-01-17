@@ -98,4 +98,14 @@ public final class Char extends Value {
         return String.valueOf(Character.toChars(cp));
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        return other instanceof Char && ((Char) other).cp == cp;
+    }
+
+    @Override
+    public int hashCode() {
+        return cp;
+    }
+
 }

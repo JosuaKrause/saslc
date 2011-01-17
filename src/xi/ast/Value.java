@@ -34,4 +34,16 @@ public abstract class Value extends Expr {
     public Expr inline(final Name name, final Expr val) {
         return this;
     }
+
+    @Override
+    public boolean match(final Expr[] pat, final int l, final int r) {
+        if (r - l != 1) {
+            return false;
+        }
+        if (pat[l] != null) {
+            return pat[l].equals(this);
+        }
+        pat[l] = this;
+        return true;
+    }
 }

@@ -128,4 +128,32 @@ public class Module extends Node {
         }
         return res;
     }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (!(other instanceof Module)) {
+            return false;
+        }
+        final Module o = (Module) other;
+        if (defs.size() == o.defs.size()) {
+            for (final Entry<Name, Expr> e : defs.entrySet()) {
+                if (!o.defs.containsKey(e.getKey())
+                        || !e.getValue().equals(o.defs.get(e.getKey()))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        // order of definitions irrelevant
+        for (final Entry<Name, Expr> e : defs.entrySet()) {
+            hash ^= 31 * e.getKey().hashCode() + e.getValue().hashCode();
+        }
+        return hash;
+    }
 }

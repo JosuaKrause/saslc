@@ -69,4 +69,24 @@ public class Lambda extends Expr {
         return this;
     }
 
+    @Override
+    public boolean match(final Expr[] pat, final int l, final int r) {
+        throw new IllegalStateException("Can only match expressions after"
+                + " unLambda().");
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (!(other instanceof Lambda)) {
+            return false;
+        }
+        final Lambda o = (Lambda) other;
+        return name.equals(o.name) && expr[0].equals(o.expr[0]);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode() * 31 + expr[0].hashCode();
+    }
+
 }

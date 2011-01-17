@@ -47,4 +47,14 @@ public final class Bool extends Value {
         return this == TRUE;
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        return this == other;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
 }

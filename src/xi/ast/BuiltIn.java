@@ -50,10 +50,16 @@ public final class BuiltIn extends Value {
     public static final BuiltIn NIL = new BuiltIn('_');
     /** The substitution combinator. */
     public static final BuiltIn S = new BuiltIn('S');
+    /** Another substitution combinator. */
+    public static final BuiltIn S_PRIME = new BuiltIn('z');
     /** The left-side substitution combinator. */
     public static final BuiltIn B = new BuiltIn('B');
+    /** The double left-side substitution combinator. */
+    public static final BuiltIn B_STAR = new BuiltIn('b');
     /** The right-side substitution combinator. */
     public static final BuiltIn C = new BuiltIn('C');
+    /** Another right-side substitution combinator. */
+    public static final BuiltIn C_PRIME = new BuiltIn('v');
     /** The constant combinator. */
     public static final BuiltIn K = new BuiltIn('K');
     /** The identity combinator. */
@@ -131,5 +137,15 @@ public final class BuiltIn extends Value {
      */
     public Expr app(final Expr... es) {
         return App.create(this, es);
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        return this == other;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
 }

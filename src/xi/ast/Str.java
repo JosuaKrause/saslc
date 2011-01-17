@@ -50,4 +50,14 @@ public final class Str extends Value {
         return str;
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        return other instanceof Str && str.equals(((Str) other).str);
+    }
+
+    @Override
+    public int hashCode() {
+        return str.hashCode();
+    }
+
 }

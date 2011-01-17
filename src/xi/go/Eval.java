@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import stefan.Cout;
@@ -89,11 +90,15 @@ public class Eval {
         } else {
             final GlueReader g = new GlueReader();
             for (final String arg : args) {
-                final File f = new File(arg);
-                if (f.exists()) {
-                    g.addReader(new FileReader(f));
+                if (arg.equals("-v")) {
+                    Logging.setLevel(Level.ALL);
                 } else {
-                    g.addReader(new StringReader(arg));
+                    final File f = new File(arg);
+                    if (f.exists()) {
+                        g.addReader(new FileReader(f));
+                    } else {
+                        g.addReader(new StringReader(arg));
+                    }
                 }
             }
             r = g;

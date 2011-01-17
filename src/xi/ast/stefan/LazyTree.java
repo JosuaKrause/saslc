@@ -115,10 +115,16 @@ public final class LazyTree implements CommonNode {
                 return new LazyTree(b, Prim.Neg);
             } else if (b == BuiltIn.S) {
                 return new LazyTree(b, Prim.S);
+            } else if (b == BuiltIn.S_PRIME) {
+                return new LazyTree(b, Prim.SPrime);
             } else if (b == BuiltIn.B) {
                 return new LazyTree(b, Prim.B);
+            } else if (b == BuiltIn.B_STAR) {
+                return new LazyTree(b, Prim.BStar);
             } else if (b == BuiltIn.C) {
                 return new LazyTree(b, Prim.C);
+            } else if (b == BuiltIn.C_PRIME) {
+                return new LazyTree(b, Prim.CPrime);
             } else if (b == BuiltIn.K) {
                 return new LazyTree(b, Prim.K);
             } else if (b == BuiltIn.I) {

@@ -95,4 +95,34 @@ public abstract class Expr extends Node {
      * @return expression with inlined expression
      */
     public abstract Expr inline(final Name name, final Expr val);
+
+    /**
+     * Tries to match the given pattern against this subtree, filling gaps with
+     * the corresponding expressions. {@code match([K, null, null], 0, 3)}
+     * invoked on a subtree {@code ((K 1) 3)} should return {@code true},
+     * filling the pattern as follows: {@code [K, 1, 3]}.
+     * 
+     * @param pat
+     *            Pattern to match against
+     * @param l
+     *            left delimiter
+     * @param r
+     *            right delimiter
+     * @return whether the pattern matched.
+     */
+    abstract boolean match(final Expr[] pat, final int l, final int r);
+
+    /**
+     * Tries to match the given pattern against this subtree, filling gaps with
+     * the corresponding expressions. {@code match([K, null, null])} invoked on
+     * a subtree {@code ((K 1) 3)} should return {@code true}, filling the
+     * pattern as follows: {@code [K, 1, 3]}.
+     * 
+     * @param pattern
+     *            Pattern to match against
+     * @return whether the pattern matched.
+     */
+    public boolean match(final Expr[] pattern) {
+        return match(pattern, 0, pattern.length);
+    }
 }

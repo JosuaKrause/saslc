@@ -32,6 +32,15 @@ public final class Function extends Prim {
             }
         },
 
+        /** Another substitution combinator. */
+        S_PRIME('z', 4) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
+                return new App(app(c, app(f, x)), app(g, x));
+            }
+        },
+
         /** The right-side substitution combinator. */
         B('B', 3) {
             @Override
@@ -41,12 +50,30 @@ public final class Function extends Prim {
             }
         },
 
+        /** The right-side substitution combinator. */
+        B_STAR('b', 4) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk c = args[0], f = args[1], g = args[2], x = args[2];
+                return new App(c, app(f, app(g, x)));
+            }
+        },
+
         /** The left-side substitution combinator. */
         C('C', 3) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk f = args[0], g = args[1], x = args[2];
                 return new App(app(f, x), g);
+            }
+        },
+
+        /** Another left-side substitution combinator. */
+        C_PRIME('v', 4) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
+                return new App(app(c, app(f, x)), g);
             }
         },
 

@@ -90,4 +90,14 @@ public final class Num extends Value {
         return val.toString();
     }
 
+    @Override
+    public boolean equals(final Object other) {
+        return other instanceof Num && val.equals(((Num) other).val);
+    }
+
+    @Override
+    public int hashCode() {
+        return val.hashCode();
+    }
+
 }
