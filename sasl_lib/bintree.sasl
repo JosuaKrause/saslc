@@ -1,4 +1,5 @@
 # A binary tree implementation in SASL
+# @author Joschi
 
 bn_key   = hd;
 bn_value = hd . tl . tl . tl;
@@ -17,12 +18,11 @@ bt_add key value tree =
   if bt_isempty tree
   then bn_create key value bt_empty bt_empty
   else
-    let
-      k = bn_key tree,
-      l = bn_left tree,
-      r = bn_right tree,
-      v = bn_value tree,
-      add = bt_add key value
+    let k = bn_key tree
+       ,l = bn_left tree
+       ,r = bn_right tree
+       ,v = bn_value tree
+       ,add = bt_add key value
     in
       if key == k
       then bn_create key value l r
@@ -35,12 +35,11 @@ bt_get key default tree =
   if bt_isempty tree
   then default
   else
-    let
-      k = bn_key tree,
-      l = bn_left tree,
-      r = bn_right tree,
-      v = bn_value tree,
-      get = bt_get key default
+    let k = bn_key tree
+       ,l = bn_left tree
+       ,r = bn_right tree
+       ,v = bn_value tree
+       ,get = bt_get key default
     in
       if key == k
       then v
@@ -52,11 +51,10 @@ bt_contains key tree =
   if bt_isempty tree
   then false
   else
-    let
-      k = bn_key tree,
-      l = bn_left tree,
-      r = bn_right tree,
-      contains = bt_contains key
+    let k = bn_key tree
+       ,l = bn_left tree
+       ,r = bn_right tree
+       ,contains = bt_contains key
     in
       if key == k
       then true
