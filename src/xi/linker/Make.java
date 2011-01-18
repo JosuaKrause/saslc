@@ -84,7 +84,7 @@ public class Make {
             }
             if (line.startsWith(START)) {
                 final String tmpstart = line.substring(START.length()).trim();
-                if (start == null) {
+                if (start != null) {
                     throw new IllegalArgumentException(
                             "duplicate start-symbol definition: '" + start
                                     + "' '" + tmpstart + "'");
@@ -122,14 +122,14 @@ public class Make {
     protected void link(final List<File> files, final String start,
             final File out) throws IOException {
         final List<Reader> inputs = new ArrayList<Reader>(files.size());
-        int i = 0;
         for (final File file : files) {
-            inputs.set(i++, new FileReader(file));
+            inputs.add(new FileReader(removeExt(file.getCanonicalPath(), SASL)
+                    + SK_LIB));
         }
         final Linker linker = new Linker(inputs);
         final Expr linked = linker.link(start);
         final Module mod = new Module(false);
-        mod.addDefinition(Name.valueOf("main"), linked);
+        mod.addDefinition(Name.valueOf(MAIN), linked);
 
         Cout.module(LazyTree.create(mod), new FileWriter(out));
     }

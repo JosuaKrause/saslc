@@ -102,6 +102,7 @@ class CUP$Parser$actions]]></replacevalue>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
+			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
         </jar>
 	</target>
 	<target name="sk">
