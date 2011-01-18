@@ -34,3 +34,8 @@
 #    The arguments can be an arbitrary number of sasl files or code snippets:
 #      java -jar run.jar sasl_lib/prelude.sasl "main = take 5 @ iterate {x -> [x]} [];"
 #
+# - sasl_make.jar reads a makefile and compiles, links and optionally runs a
+#    complete project. Further details can be seen with the -help command line
+#    argument. This example uses the makefile test.smake and runs the project:
+#      java -jar sasl_make.jar -r test.smake
+#
