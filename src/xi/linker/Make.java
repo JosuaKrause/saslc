@@ -198,6 +198,7 @@ public class Make {
             link(files, start, linked);
             System.err.println("Done!");
             if (run) {
+                System.err.println("Executing...");
                 run(linked);
             }
         } catch (final Exception e) {
