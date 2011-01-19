@@ -113,16 +113,17 @@ public abstract class Expr extends Node {
     abstract boolean match(final Expr[] pat, final int l, final int r);
 
     /**
-     * Tries to match the given pattern against this subtree, filling gaps with
-     * the corresponding expressions. {@code match([K, null, null])} invoked on
-     * a subtree {@code ((K 1) 3)} should return {@code true}, filling the
-     * pattern as follows: {@code [K, 1, 3]}.
+     * Tries to match the given pattern against this subtree, returning a copy
+     * of the pattern with filled in gaps on success, {@code null} otherwise.
+     * {@code match([K, null, null])} invoked on a subtree {@code ((K 1) 3)}
+     * should return {@code [K, 1, 3]}.
      * 
      * @param pattern
      *            Pattern to match against
-     * @return whether the pattern matched.
+     * @return the matched expressions or {@code null}
      */
-    public boolean match(final Expr[] pattern) {
-        return match(pattern, 0, pattern.length);
+    public Expr[] match(final Expr[] pattern) {
+        final Expr[] copy = pattern.clone();
+        return match(copy, 0, copy.length) ? copy : null;
     }
 }

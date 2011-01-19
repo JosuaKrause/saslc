@@ -1,9 +1,5 @@
 package xi.optimizer;
 
-import static xi.ast.BuiltIn.B;
-import static xi.ast.BuiltIn.C;
-import static xi.ast.BuiltIn.I;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,6 +14,7 @@ import java.util.logging.Level;
 
 import stefan.Cout;
 import xi.ast.App;
+import xi.ast.BuiltIn;
 import xi.ast.Expr;
 import xi.ast.Module;
 import xi.ast.Name;
@@ -107,16 +104,93 @@ public class Optimizer extends AstSKParser {
 
     @Override
     protected Expr app(final Expr f, final Expr x) {
-        // optimize here
-        final Expr[] ci = { C, I, null };
-        if (f.match(ci)) {
-            return App.create(x, ci[2]);
+        final Expr orig = App.create(f, x), opt = optimize(orig);
+        if (orig != opt) {
+            System.out.println(orig + "  ==>  " + opt);
+        }
+        return opt;
+    }
+
+    private static final Expr[] B_PAT = { BuiltIn.B, null, null };
+    private static final Expr[] C_PAT = { BuiltIn.C, null, null };
+    private static final Expr[] CI_PAT = { BuiltIn.C, BuiltIn.I, null, null };
+    private static final Expr[] K_PAT = { BuiltIn.K, null };
+    private static final Expr[] S_PAT = { BuiltIn.S, null, null };
+
+    public static Expr optimize(final Expr e) {
+
+        final Expr[] s = e.match(S_PAT);
+        if (s != null) {
+            // e = S f g
+            final Expr f = s[1], g = s[2];
+
+            final Expr[] k = f.match(K_PAT);
+            if (k != null) {
+                // e = S (K f2) g
+                final Expr f2 = k[1];
+
+                if (g.equals(BuiltIn.I)) {
+                    // S (K f2) I ==> f2
+                    return f2;
+                }
+
+                final Expr[] k2 = g.match(K_PAT);
+                if (k2 != null) {
+                    // S (K f2) (K g) ==> K (f2 g)
+                    return BuiltIn.K.app(App.create(f2, k2[1]));
+                }
+
+                final Expr[] b = g.match(B_PAT);
+                if (b != null) {
+                    // S (K f) (B g h) ==> B* f g h
+                    return BuiltIn.B_STAR.app(f2, b[1], b[2]);
+                }
+
+                // S (K f) g ==> B f g
+                return BuiltIn.B.app(f2, g);
+            }
+
+            final Expr[] k2 = g.match(K_PAT);
+            if (k2 != null) {
+                // e = S f (K g2)
+                final Expr g2 = k2[1];
+
+                final Expr[] b = f.match(B_PAT);
+                if (b != null) {
+                    // S (B f g) (K h) ==> C' f g h
+                    return BuiltIn.C_PRIME.app(b[1], b[2], g2);
+                }
+
+                // S f (K g) ==> C f g
+                return BuiltIn.C.app(f, g2);
+            }
+
+            final Expr[] b = f.match(B_PAT);
+            if (b != null) {
+                // S (B f g) h ==> S' f g h
+                return BuiltIn.S_PRIME.app(b[1], b[2], g);
+            }
+
         }
 
-        final Expr[] b = { B, null };
-        if (f.match(b)) {
-            System.out.println(f + " " + x);
+        final Expr[] ci = e.match(CI_PAT);
+        if (ci != null) {
+            // C I x f ==> f x
+            return App.create(ci[3], ci[2]);
         }
-        return App.create(f, x);
+
+        final Expr[] c = e.match(C_PAT);
+        if (c != null) {
+            // e = C f g
+            final Expr f = c[1], g = c[2];
+
+            final Expr[] b = f.match(B_PAT);
+            if (b != null) {
+                // C (B b1 b2) g ==> C' b1 b2 g
+                return BuiltIn.C_PRIME.app(b[1], b[2], g);
+            }
+        }
+
+        return e;
     }
 }

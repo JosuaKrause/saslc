@@ -90,8 +90,8 @@ public final class App extends Expr {
             final Expr l = left.unLambda(), r = right.unLambda();
 
             // C I x f => f x
-            final Expr[] c = C_PAT.clone();
-            if (l.match(c) && c[1] == I) {
+            final Expr[] c = l.match(C_PAT);
+            if (c != null && c[1] == I) {
                 Logging.getLogger(getClass()).fine(
                         "Optimizing: " + this + "  ==>  " + r + " " + c[2]);
                 return App.create(r, c[2]);
@@ -129,8 +129,8 @@ public final class App extends Expr {
 
                 final Expr r = right.unLambda(n);
 
-                final Expr[] b = B_PAT.clone();
-                if (l.match(b)) {
+                final Expr[] b = l.match(B_PAT);
+                if (b != null) {
                     return S_PRIME.app(b[1], b[2], r);
                 }
 
@@ -138,8 +138,8 @@ public final class App extends Expr {
                 return S.app(l, r);
             }
 
-            final Expr[] b = B_PAT.clone();
-            if (l.match(b)) {
+            final Expr[] b = l.match(B_PAT);
+            if (b != null) {
                 return C_PRIME.app(b[1], b[2], right);
             }
 
@@ -154,8 +154,8 @@ public final class App extends Expr {
             }
 
             final Expr r = right.unLambda(n);
-            final Expr[] b = B_PAT.clone();
-            if (r.match(b)) {
+            final Expr[] b = r.match(B_PAT);
+            if (b != null) {
                 return B_STAR.app(left, b[1], b[2]);
             }
 
