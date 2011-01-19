@@ -1,5 +1,9 @@
 package xi.optimizer;
 
+import static xi.ast.BuiltIn.B;
+import static xi.ast.BuiltIn.C;
+import static xi.ast.BuiltIn.I;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -104,6 +108,15 @@ public class Optimizer extends AstSKParser {
     @Override
     protected Expr app(final Expr f, final Expr x) {
         // optimize here
+        final Expr[] ci = { C, I, null };
+        if (f.match(ci)) {
+            return App.create(x, ci[2]);
+        }
+
+        final Expr[] b = { B, null };
+        if (f.match(b)) {
+            System.out.println(f + " " + x);
+        }
         return App.create(f, x);
     }
 }

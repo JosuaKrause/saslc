@@ -186,10 +186,15 @@ public final class App extends Expr {
 
     @Override
     public boolean match(final Expr[] pat, final int l, final int r) {
+        if (r - l == 1 && pat[l] == null) {
+            pat[l] = this;
+            return true;
+        }
         if (r - l < 2) {
             return false;
         }
-        return expr[0].match(pat, l, r - 1) && expr[1].match(pat, r - 1, r);
+        final boolean fst = expr[0].match(pat, l, r - 1);
+        return fst && expr[1].match(pat, r - 1, r);
     }
 
     @Override

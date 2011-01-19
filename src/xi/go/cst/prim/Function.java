@@ -54,7 +54,7 @@ public final class Function extends Prim {
         B_STAR('b', 4) {
             @Override
             public Node apply(final Thunk... args) {
-                final Thunk c = args[0], f = args[1], g = args[2], x = args[2];
+                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
                 return new App(c, app(f, app(g, x)));
             }
         },
