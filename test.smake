@@ -3,6 +3,7 @@
 
 # Libs:
 sasl_lib/
+test/
 
 # Test:
 test/test.sasl

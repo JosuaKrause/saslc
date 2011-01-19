@@ -13,7 +13,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import stefan.CommonNode;
 import stefan.Cout;
@@ -58,8 +60,11 @@ public class Make {
 
     private final boolean force;
 
-    public Make(final boolean cst, final boolean force) {
+    private final int jobs;
+
+    public Make(final boolean cst, final boolean force, final int jobs) {
         this.force = force;
+        this.jobs = jobs;
         shared = cst;
     }
 
@@ -141,6 +146,64 @@ public class Make {
         return false;
     }
 
+    private void compileAll(final List<File> files) throws Exception {
+        if (jobs <= 1) {
+            for (final File f : files) {
+                System.err.print(f);
+                final boolean already = compile(f);
+                System.err.println(already ? " [not modified]" : " [compiled]");
+            }
+            return;
+        }
+        System.err.println("Using " + jobs + " Threads...");
+        final Queue<File> queue = new ConcurrentLinkedQueue<File>(files);
+        final CompilerJob[] j = new CompilerJob[jobs];
+        for (int i = 0; i < j.length; ++i) {
+            j[i] = new CompilerJob(queue);
+        }
+        for (final Thread t : j) {
+            t.start();
+        }
+        boolean good = true;
+        for (final CompilerJob t : j) {
+            t.join();
+            good = good && t.good;
+        }
+        if (!good) {
+            throw new Exception("Some errors occured during compilation!");
+        }
+    }
+
+    private class CompilerJob extends Thread {
+
+        private final Queue<File> queue;
+
+        public boolean good;
+
+        public CompilerJob(final Queue<File> queue) {
+            this.queue = queue;
+            good = true;
+        }
+
+        @Override
+        public void run() {
+            File f;
+            while ((f = queue.poll()) != null) {
+                try {
+                    final boolean already = compile(f);
+                    System.err.println(f
+                            + (already ? " [not modified]" : " [compiled]"));
+                } catch (final Exception e) {
+                    synchronized (System.err) {
+                        System.err.println(f + " [error]");
+                        e.printStackTrace();
+                    }
+                    good = false;
+                }
+            }
+        }
+    }
+
     protected void link(final List<File> files, final String start,
             final File out) throws IOException {
         final List<Reader> inputs = new ArrayList<Reader>(files.size());
@@ -184,11 +247,7 @@ public class Make {
             final String start = readMake(new Scanner(makefile), files);
             System.err.println("Starting symbol: '" + start + "'");
             System.err.println("Compiling...");
-            for (final File f : files) {
-                System.err.print(f);
-                final boolean already = compile(f);
-                System.err.println(already ? " [not modified]" : " [compiled]");
-            }
+            compileAll(files);
             System.err.println("Linking...");
             final File linked = new File(removeExt(makefile.getCanonicalPath(),
                     MAKE)
@@ -208,12 +267,15 @@ public class Make {
 
     public static void usage() {
         System.err
-                .println("Usage: sasl_make [-help] [-r] [-f] [-cst] <makefile>");
+                .println("Usage: sasl_make [-help] [-r] [-f] [-cst] [-j <jobs>] <makefile>");
         System.err.println("-help: Shows this help");
         System.err.println("-r: Runs the program afterwards");
         System.err.println("-f: Forces a complete rebuild");
         System.err
                 .println("-cst: advises the VM to use shared trees when running");
+        System.err.println("-j: use concurrent compilation");
+        System.err
+                .println("<jobs>: the number of threads to use when compiling (default is 1)");
         System.err.println("<makefile>: the makefile to interpret");
         System.err.println("  The syntax of a makefile is fairly easy.");
         System.err.println("  Every line is a SASL file (" + SASL
@@ -237,39 +299,52 @@ public class Make {
     }
 
     public static void main(final String[] args) {
-        if (args.length == 0 || args.length > 3) {
+        if (args.length == 0) {
             usage();
             return;
         }
+        int jobs = 1;
         boolean run = false;
         boolean force = false;
         boolean shared = false;
         String makeFile = null;
-        for (int i = 0; i < args.length; ++i) {
-            final String arg = args[i];
-            if (arg.equals("-help")) {
-                usage();
-                return;
-            }
-            if (arg.equals("-r")) {
-                run = true;
-            } else if (arg.equals("-f")) {
-                force = true;
-            } else if (arg.equals("-cst")) {
-                shared = true;
-            } else {
-                if (makeFile != null || i != args.length - 1) {
+        try {
+            for (int i = 0; i < args.length; ++i) {
+                final String arg = args[i];
+                if (arg.equals("-help")) {
                     usage();
                     return;
                 }
-                makeFile = arg;
+                if (arg.equals("-r")) {
+                    run = true;
+                } else if (arg.equals("-f")) {
+                    force = true;
+                } else if (arg.equals("-cst")) {
+                    shared = true;
+                } else if (arg.equals("-j")) {
+                    if (i >= args.length - 1) {
+                        usage();
+                        return;
+                    }
+                    jobs = Integer.valueOf(args[++i].trim());
+                } else {
+                    if (makeFile != null || i != args.length - 1) {
+                        usage();
+                        return;
+                    }
+                    makeFile = arg;
+                }
             }
-        }
-        if (makeFile == null) {
+            if (makeFile == null) {
+                usage();
+                return;
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
             usage();
             return;
         }
-        final Make m = new Make(shared, force);
+        final Make m = new Make(shared, force, jobs);
         try {
             m.make(new File(makeFile), run);
         } catch (final Exception e) {
