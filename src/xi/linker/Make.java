@@ -56,7 +56,10 @@ public class Make {
 
     private final boolean shared;
 
-    public Make(final boolean cst) {
+    private final boolean force;
+
+    public Make(final boolean cst, final boolean force) {
+        this.force = force;
         shared = cst;
     }
 
@@ -100,16 +103,35 @@ public class Make {
             if (!f.exists()) {
                 throw new IOException("file: '" + f + "' does not exist!");
             }
-            files.add(f);
+            if (f.isDirectory()) {
+                addDir(f, files);
+            } else {
+                files.add(f);
+            }
         }
         return start == null ? MAIN : start;
+    }
+
+    private void addDir(final File f, final List<File> files) {
+        if (f.isFile()) {
+            if (f.getName().endsWith(SASL)) {
+                files.add(f);
+            }
+            return;
+        }
+        if (f.isDirectory()) {
+            for (final File child : f.listFiles()) {
+                addDir(child, files);
+            }
+        }
     }
 
     protected boolean compile(final File file) throws Exception {
         final File newFile = new File(removeExt(file.getCanonicalPath(), SASL)
                 + SK_LIB);
-        // only compile when necessary
-        if (newFile.exists() && newFile.lastModified() > file.lastModified()) {
+        // only compile when necessary or when forced...
+        if (!force && newFile.exists()
+                && newFile.lastModified() > file.lastModified()) {
             return true;
         }
         final Parser p = new Parser(new Lexer(new FileReader(file)));
@@ -184,15 +206,18 @@ public class Make {
     }
 
     public static void usage() {
-        System.err.println("Usage: sasl_make [-help] [-r] [-cst] <makefile>");
+        System.err
+                .println("Usage: sasl_make [-help] [-r] [-f] [-cst] <makefile>");
         System.err.println("-help: Shows this help");
         System.err.println("-r: Runs the program afterwards");
+        System.err.println("-f: Forces a complete rebuild");
         System.err
                 .println("-cst: advises the VM to use shared trees when running");
         System.err.println("<makefile>: the makefile to interpret");
         System.err.println("  The syntax of a makefile is fairly easy.");
         System.err.println("  Every line is a SASL file (" + SASL
-                + ") to compile.");
+                + ") or a directory containing");
+        System.err.println("  them (will be scanned recursively) to compile.");
         System.err.println("  The files are linked in the order given by the");
         System.err.println("  makefile. A line starting with '" + START
                 + "' defines the");
@@ -216,6 +241,7 @@ public class Make {
             return;
         }
         boolean run = false;
+        boolean force = false;
         boolean shared = false;
         String makeFile = null;
         for (int i = 0; i < args.length; ++i) {
@@ -226,6 +252,8 @@ public class Make {
             }
             if (arg.equals("-r")) {
                 run = true;
+            } else if (arg.equals("-f")) {
+                force = true;
             } else if (arg.equals("-cst")) {
                 shared = true;
             } else {
@@ -240,7 +268,7 @@ public class Make {
             usage();
             return;
         }
-        final Make m = new Make(shared);
+        final Make m = new Make(shared, force);
         try {
             m.make(new File(makeFile), run);
         } catch (final Exception e) {

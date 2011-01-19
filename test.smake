@@ -2,9 +2,7 @@
 # This is a example make-file for compiling and linking some libs and test.sasl
 
 # Libs:
-sasl_lib/prelude.sasl
-sasl_lib/bintree.sasl
-sasl_lib/automaton.sasl
+sasl_lib/
 
 # Test:
 test/test.sasl
