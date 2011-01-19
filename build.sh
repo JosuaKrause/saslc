@@ -16,6 +16,7 @@ cd bin
 javac -classpath ../lib/java-cup-11a.jar -d . -sourcepath ../src ../src/stefan/SKout.java ../src/xi/go/Eval.java ../src/xi/linker/Linker.java
 
 # create jars
+# TODO: more libs...
 jar xf ../lib/java-cup-11a.jar | jar cf ../saslc.jar .
 cd ..
 # TODO: simple trick - refine later
