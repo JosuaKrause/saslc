@@ -1,0 +1,12 @@
+#! java -jar sasl_make.jar -r
+# This is a example make-file for compiling and linking some libs and test.sasl
+
+# Libs:
+sasl_lib/
+test/
+
+# Test:
+test/test.sasl
+
+# Defining the start symbol:
+START:main

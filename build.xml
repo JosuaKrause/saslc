@@ -96,6 +96,14 @@ class CUP$Parser$actions]]></replacevalue>
             </manifest>
             <fileset dir="${bin}" />
         </jar>
+		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="xi.linker.Make"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}" />
+			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+        </jar>
 	</target>
 	<target name="sk">
 		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">

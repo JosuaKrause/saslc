@@ -16,13 +16,16 @@ cd bin
 javac -classpath ../lib/java-cup-11a.jar -d . -sourcepath ../src ../src/stefan/SKout.java ../src/xi/go/Eval.java ../src/xi/linker/Linker.java
 
 # create jars
+# TODO: more libs...
 jar xf ../lib/java-cup-11a.jar | jar cf ../saslc.jar .
 cd ..
 # TODO: simple trick - refine later
 cp saslc.jar sasln.jar
 cp saslc.jar run.jar
 cp saslc.jar sk.jar
+cp saslc.jar sasl_make.jar
 jar umf build/saslc.mf saslc.jar
 jar umf build/sasln.mf sasln.jar
 jar umf build/run.mf run.jar
 jar umf build/sk.mf sk.jar
+jar umf build/sasl_make.mf sasl_make.jar

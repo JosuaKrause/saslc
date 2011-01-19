@@ -1,4 +1,5 @@
 # A DFA (deterministic finite automaton) implementation
+# @author Joschi
 
 # A final state.
 # name: The value returned by this state if the end of the input is reached.
