@@ -1,2 +1,1 @@
-main = f;
-f x y = x + y;
+main = mod3dec "77";

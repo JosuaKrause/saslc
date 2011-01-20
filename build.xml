@@ -12,6 +12,7 @@
 	<!-- libraries -->
 	<property name="cup" location="lib/java-cup-11a.jar"/>
 	<property name="jflex" location="lib/JFlex.jar"/>
+	<property name="jsap" location="lib/JSAP-2.1.jar"/>
 	<!-- filetime checks -->
 	<uptodate property="buildLexer"
 	                  srcfile="${flexSrc}"
@@ -30,6 +31,7 @@
                 <exclude name="/xi/go/**"/>
             </fileset>
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+        	<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
     </target>
     <target name="compileFlex" unless="buildLexer">
@@ -76,6 +78,7 @@ class CUP$Parser$actions]]></replacevalue>
             </manifest>
             <fileset dir="${bin}" />
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
     </target>
 	<target name="run">
@@ -86,6 +89,7 @@ class CUP$Parser$actions]]></replacevalue>
             </manifest>
             <fileset dir="${bin}" />
             <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
 	</target>
 	<target name="sasln">
@@ -95,6 +99,7 @@ class CUP$Parser$actions]]></replacevalue>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
 		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
             <manifest>
@@ -103,6 +108,7 @@ class CUP$Parser$actions]]></replacevalue>
             </manifest>
             <fileset dir="${bin}" />
 			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
 	</target>
 	<target name="sk">
@@ -112,6 +118,7 @@ class CUP$Parser$actions]]></replacevalue>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
         </jar>
 	</target>
     <!-- builds the targets in the given order -->
