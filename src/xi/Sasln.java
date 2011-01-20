@@ -13,8 +13,8 @@ import xi.ast.Expr;
 import xi.ast.Module;
 import xi.ast.Name;
 import xi.linker.Linker;
-import xi.linker.Make;
 import xi.sk.SKWriter;
+import xi.util.StringUtils;
 
 /**
  * 
@@ -45,7 +45,7 @@ public class Sasln {
                     break;
                 }
                 out = new OutputStreamWriter(new FileOutputStream(args[++i]),
-                        Make.UTF8);
+                        StringUtils.UTF8);
             } else if ("-".equals(args[i])) {
                 inputs.add(new InputStreamReader(System.in));
             } else {
@@ -55,7 +55,7 @@ public class Sasln {
                     break;
                 }
                 inputs.add(new InputStreamReader(new FileInputStream(f),
-                        Make.UTF8));
+                        StringUtils.UTF8));
             }
         }
         if (invalid) {

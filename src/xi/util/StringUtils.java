@@ -1,5 +1,7 @@
 package xi.util;
 
+import java.nio.charset.Charset;
+
 /**
  * String processing utilities.
  * 
@@ -7,6 +9,9 @@ package xi.util;
  * @author Joschi
  */
 public final class StringUtils {
+
+    /** UTF-8 charset instance. */
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /** Hidden default constructor. */
     private StringUtils() {
