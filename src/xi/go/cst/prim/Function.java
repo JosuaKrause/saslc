@@ -307,26 +307,11 @@ public final class Function extends Prim {
             }
         },
 
-        /**
-         * Does nothing -- is used to find duplicate symbol definitions in the
-         * SK-Code.
-         */
-        NOP(SKPrim.NOP) {
-            @Override
-            public Node apply(final Thunk... args) {
-                throw new IllegalStateException("nop should not be used!!!");
-            }
-        },
-
         ;
 
         /** Jump table from character code (ASCII) to definition. */
         private static final Def[] FUN_MAP = new Def[1 << 7];
         static {
-            for (final char c : "i=\"<@TF_,'\r\n\t ".toCharArray()) {
-                FUN_MAP[c] = NOP;
-            }
-
             for (final Def fun : values()) {
                 if (FUN_MAP[fun.prim.chr] != null) {
                     throw new IllegalStateException(
@@ -381,6 +366,11 @@ public final class Function extends Prim {
          */
         private static Node indirect(final Thunk th) {
             return new App(I.thunk, th);
+        }
+
+        @Override
+        public String toString() {
+            return prim.name;
         }
     }
 

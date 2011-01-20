@@ -1,5 +1,7 @@
 package xi.ast;
 
+import xi.sk.SKVisitor;
+
 /**
  * Very lazy String implementation. The list is created when needed or when the
  * length is too short. Once a lazy String is split up (via hd and tl) it is
@@ -58,6 +60,11 @@ public final class Str extends Value {
     @Override
     public int hashCode() {
         return str.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.str(str);
     }
 
 }

@@ -3,6 +3,8 @@ package xi.ast;
 import java.util.Deque;
 import java.util.Set;
 
+import xi.sk.SKVisitor;
+
 /**
  * Lambda expression.
  * 
@@ -87,6 +89,11 @@ public class Lambda extends Expr {
     @Override
     public int hashCode() {
         return name.hashCode() * 31 + expr[0].hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        throw new IllegalStateException("Can only traverse SK code.");
     }
 
 }

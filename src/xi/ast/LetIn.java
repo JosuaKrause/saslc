@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Map.Entry;
 
+import xi.sk.SKVisitor;
+
 /**
  * SASL let-in expression.
  * 
@@ -269,5 +271,10 @@ public class LetIn extends Expr {
     @Override
     public int hashCode() {
         return 31 * defs.hashCode() + expr[0].hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        throw new IllegalStateException("Can only traverse SK code.");
     }
 }

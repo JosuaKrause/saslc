@@ -101,7 +101,9 @@ public enum SKPrim {
     CHAR('v', 1),
 
     /** Dummy operator. */
-    NOP('\0', Integer.MAX_VALUE);
+    NOP('\0', Integer.MAX_VALUE),
+
+    NIL("[]", '_', 0);
 
     /** The function's cardinality. */
     public final int arity;
@@ -110,6 +112,14 @@ public enum SKPrim {
 
     /** the function's name. */
     public final char chr;
+
+    /** Hash table for characters. */
+    private static SKPrim[] TABLE = new SKPrim[1 << 7];
+    static {
+        for (final SKPrim p : values()) {
+            TABLE[p.chr] = p;
+        }
+    }
 
     /**
      * Constructor taking the function's name and cardinality.
@@ -164,5 +174,18 @@ public enum SKPrim {
     @Override
     public String toString() {
         return name;
+    }
+
+    /**
+     * Returns the SKPrim value associated with this character or {@code null},
+     * if none exists.
+     * 
+     * @param c
+     *            character
+     * 
+     * @return associated SKPrim or {@code null}
+     */
+    public static SKPrim get(final char c) {
+        return c < TABLE.length ? TABLE[c] : null;
     }
 }

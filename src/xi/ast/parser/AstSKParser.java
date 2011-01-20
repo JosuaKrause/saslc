@@ -12,11 +12,12 @@ import xi.ast.Name;
 import xi.ast.Num;
 import xi.ast.Str;
 import xi.sk.SKParser;
+import xi.sk.SKPrim;
 
 public class AstSKParser extends SKParser<Expr> {
 
     /** Definition map. */
-    private Map<String, Expr> defs;
+    private final Map<String, Expr> defs;
 
     /**
      * Constructor.
@@ -25,16 +26,6 @@ public class AstSKParser extends SKParser<Expr> {
      *            definition map
      */
     public AstSKParser(final Map<String, Expr> map) {
-        setMap(map);
-    }
-
-    /**
-     * Sets the definition map.
-     * 
-     * @param map
-     *            definition map
-     */
-    public void setMap(final Map<String, Expr> map) {
         defs = map;
     }
 
@@ -77,8 +68,8 @@ public class AstSKParser extends SKParser<Expr> {
     }
 
     @Override
-    protected Expr prim(final char p) {
-        return BuiltIn.forChar(p);
+    protected Expr prim(final SKPrim p) {
+        return BuiltIn.forChar(p.chr);
     }
 
     @Override

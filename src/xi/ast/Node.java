@@ -2,6 +2,7 @@ package xi.ast;
 
 import java.util.logging.Logger;
 
+import xi.sk.SKTree;
 import xi.util.Logging;
 
 /**
@@ -10,7 +11,7 @@ import xi.util.Logging;
  * @author Leo
  * @author Joschi
  */
-public abstract class Node {
+public abstract class Node implements SKTree {
 
     /** Logger. */
     static final Logger log = Logging.getLogger(Node.class);

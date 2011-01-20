@@ -8,6 +8,7 @@ import xi.go.cst.prim.Function;
 import xi.go.cst.prim.List;
 import xi.go.cst.prim.Ref;
 import xi.sk.SKParser;
+import xi.sk.SKPrim;
 import xi.util.Logging;
 
 public abstract class CstSKParser extends SKParser<Thunk> {
@@ -75,8 +76,8 @@ public abstract class CstSKParser extends SKParser<Thunk> {
     }
 
     @Override
-    public Thunk prim(final char p) {
-        final Function.Def fun = Function.forChar(p);
+    public Thunk prim(final SKPrim p) {
+        final Function.Def fun = Function.forChar(p.chr);
         if (fun == null) {
             throw new IllegalArgumentException("Function '" + p
                     + "' not defined.");

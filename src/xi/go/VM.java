@@ -146,6 +146,7 @@ public final class VM {
             throw new IllegalArgumentException("No main method.");
         }
 
+        System.out.println("SK code: " + main[0]);
         VM.run(main, new OutputStreamWriter(System.out, UTF8));
     }
 

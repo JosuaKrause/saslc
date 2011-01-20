@@ -18,13 +18,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
 
-import stefan.Cout;
 import xi.ast.Expr;
 import xi.ast.LetIn;
 import xi.ast.Module;
 import xi.ast.Name;
 import xi.ast.parser.AstSKParser;
-import xi.ast.stefan.LazyTree;
+import xi.sk.SKWriter;
 
 /**
  * A linker for the SK output.
@@ -137,6 +136,8 @@ public class Linker {
         final Module mod = new Module(false);
         mod.addDefinition(Name.valueOf("main"), linked);
 
-        Cout.module(LazyTree.create(mod), out);
+        final SKWriter sk = new SKWriter(out);
+        sk.write(mod);
+        sk.close();
     }
 }

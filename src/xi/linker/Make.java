@@ -17,18 +17,16 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import stefan.CommonNode;
-import stefan.Cout;
 import xi.ast.Expr;
 import xi.ast.Module;
 import xi.ast.Name;
 import xi.ast.Node;
-import xi.ast.stefan.LazyTree;
 import xi.go.VM;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
+import xi.sk.SKWriter;
 
 /**
  * Reads a SASL makefile and compiles the given files.
@@ -141,8 +139,10 @@ public class Make {
         }
         final Parser p = new Parser(new Lexer(new FileReader(file)));
         final Node n = p.parseValue().unLambda();
-        final CommonNode node = LazyTree.create(n);
-        Cout.module(node, new PrintWriter(newFile));
+
+        final SKWriter sk = new SKWriter(new PrintWriter(newFile));
+        sk.write(n);
+        sk.close();
         return false;
     }
 
@@ -216,7 +216,9 @@ public class Make {
         final Module mod = new Module(false);
         mod.addDefinition(Name.valueOf(MAIN), linked);
 
-        Cout.module(LazyTree.create(mod), new FileWriter(out));
+        final SKWriter sk = new SKWriter(new FileWriter(out));
+        sk.write(mod);
+        sk.close();
     }
 
     protected void run(final File in) throws IOException {

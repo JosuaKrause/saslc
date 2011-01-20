@@ -2,6 +2,8 @@ package xi.ast;
 
 import java.math.BigInteger;
 
+import xi.sk.SKVisitor;
+
 /**
  * Integer literal.
  * 
@@ -98,6 +100,11 @@ public final class Num extends Value {
     @Override
     public int hashCode() {
         return val.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.num(val);
     }
 
 }

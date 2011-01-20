@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import xi.sk.SKVisitor;
+
 /**
  * Name literal.
  * 
@@ -109,6 +111,11 @@ public final class Name extends Value implements Comparable<Name> {
     @Override
     public Expr inline(final Name name, final Expr val) {
         return equals(name) ? val : this;
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.var(name);
     }
 
 }

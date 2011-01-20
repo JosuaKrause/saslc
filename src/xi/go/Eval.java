@@ -6,20 +6,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import stefan.Cout;
-import xi.ast.stefan.LazyTree;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKParser;
+import xi.sk.SKTree;
 import xi.util.GlueReader;
 import xi.util.Logging;
 
@@ -33,7 +31,7 @@ public class Eval {
     /** Logger. */
     static final Logger log = Logging.getLogger(Eval.class);
 
-    public static Map<String, Thunk> parse(final Reader r) {
+    public static Map<String, Thunk> parse(final SKTree tree) {
 
         final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
         final SKParser<Thunk> parser = new CstSKParser(false) {
@@ -46,7 +44,7 @@ public class Eval {
             }
         };
 
-        parser.read(r);
+        parser.read(tree);
 
         return fTable;
     }
@@ -104,13 +102,8 @@ public class Eval {
             r = g;
         }
 
-        final Lexer l = new Lexer(r);
-        final StringWriter w = new StringWriter();
-
-        Cout.module(LazyTree.create(new Parser(l).parseValue().unLambda()), w);
-
-        final Thunk[] main = { link(parse(new StringReader(w.toString())),
-                "main") };
+        final SKTree skt = new Parser(new Lexer(r)).parseValue().unLambda();
+        final Thunk[] main = { link(parse(skt), "main") };
 
         try {
             VM.run(main, new OutputStreamWriter(System.out));

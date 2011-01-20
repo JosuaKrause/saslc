@@ -12,6 +12,7 @@ import static xi.ast.BuiltIn.S_PRIME;
 import java.util.Deque;
 import java.util.Set;
 
+import xi.sk.SKVisitor;
 import xi.util.Logging;
 
 /**
@@ -209,5 +210,12 @@ public final class App extends Expr {
     @Override
     public int hashCode() {
         return 31 * expr[0].hashCode() + expr[1].hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        expr[1].traverse(v);
+        expr[0].traverse(v);
+        v.app();
     }
 }

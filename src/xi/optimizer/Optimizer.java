@@ -12,14 +12,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import stefan.Cout;
 import xi.ast.App;
 import xi.ast.BuiltIn;
 import xi.ast.Expr;
 import xi.ast.Module;
 import xi.ast.Name;
 import xi.ast.parser.AstSKParser;
-import xi.ast.stefan.LazyTree;
+import xi.sk.SKWriter;
 import xi.util.Logging;
 
 import com.martiansoftware.jsap.FlaggedOption;
@@ -80,7 +79,9 @@ public class Optimizer extends AstSKParser {
         final Writer w = new OutputStreamWriter(outFile == null ? System.out
                 : new FileOutputStream(outFile), "UTF-8");
 
-        Cout.module(LazyTree.create(optimize(r)), w);
+        final SKWriter skw = new SKWriter(w);
+        skw.write(optimize(r));
+        w.close();
     }
 
     /**

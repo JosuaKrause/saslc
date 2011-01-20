@@ -1,5 +1,7 @@
 package xi.ast;
 
+import xi.sk.SKVisitor;
+
 /**
  * Character literal.
  * 
@@ -108,4 +110,8 @@ public final class Char extends Value {
         return cp;
     }
 
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.chr(cp);
+    }
 }

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import xi.sk.SKVisitor;
+
 /**
  * 
  * @author Leo
@@ -155,5 +157,13 @@ public class Module extends Node {
             hash ^= 31 * e.getKey().hashCode() + e.getValue().hashCode();
         }
         return hash;
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        for (final Entry<Name, Expr> e : defs.entrySet()) {
+            e.getValue().traverse(v);
+            v.def(e.getKey().toString());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package xi.ast;
 
+import xi.sk.SKVisitor;
+
 /**
  * Boolean literal.
  * 
@@ -55,6 +57,11 @@ public final class Bool extends Value {
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.bool(getValue());
     }
 
 }
