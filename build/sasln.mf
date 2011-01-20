@@ -1,2 +1,2 @@
-Main-Class: xi.linker.Linker
+Main-Class: xi.Sasln
 Class-Path: .

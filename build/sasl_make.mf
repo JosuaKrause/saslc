@@ -1,2 +1,2 @@
-Main-Class: xi.linker.Make
+Main-Class: xi.SaslMake
 Class-Path: .
