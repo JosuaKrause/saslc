@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +26,7 @@ import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
+import xi.util.StringUtils;
 
 /**
  * Reads a SASL makefile and compiles the given files.
@@ -35,9 +35,6 @@ import xi.sk.SKWriter;
  * 
  */
 public class Make {
-
-    /** UTF-8 charset instance. */
-    public static final Charset UTF8 = Charset.forName("UTF-8");
 
     public static final String START = "START:";
 
@@ -233,13 +230,15 @@ public class Make {
                 }
                 main[0] = body;
             }
-        }.read(new InputStreamReader(new FileInputStream(in), UTF8));
+        }
+                .read(new InputStreamReader(new FileInputStream(in),
+                        StringUtils.UTF8));
 
         if (main[0] == null) {
             throw new IllegalArgumentException("No main method.");
         }
 
-        VM.run(main, new OutputStreamWriter(System.out, UTF8));
+        VM.run(main, new OutputStreamWriter(System.out, StringUtils.UTF8));
     }
 
     public void make(final File makefile, final boolean run) throws Exception {
