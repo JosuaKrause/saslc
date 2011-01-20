@@ -1,2 +1,2 @@
-Main-Class: xi.go.Eval
+Main-Class: xi.Run
 Class-Path: .

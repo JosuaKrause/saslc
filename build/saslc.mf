@@ -1,2 +1,2 @@
-Main-Class: xi.sk.Saslc
+Main-Class: xi.Saslc
 Class-Path: .

@@ -61,7 +61,7 @@ class CUP$Parser$actions]]></replacevalue>
 	<target name="jars">
 		<jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="xi.linker.Linker"/>
+                <attribute name="Main-Class" value="xi.Sasln"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
@@ -69,7 +69,7 @@ class CUP$Parser$actions]]></replacevalue>
         </jar>
 		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="xi.linker.Make"/>
+                <attribute name="Main-Class" value="xi.SaslMake"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
@@ -78,7 +78,7 @@ class CUP$Parser$actions]]></replacevalue>
         </jar>
 		<jar destfile="run.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="xi.go.Eval"/>
+                <attribute name="Main-Class" value="xi.Run"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
@@ -87,7 +87,7 @@ class CUP$Parser$actions]]></replacevalue>
         </jar>
 		<jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="xi.sk.Saslc"/>
+                <attribute name="Main-Class" value="xi.Saslc"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}">
@@ -98,7 +98,7 @@ class CUP$Parser$actions]]></replacevalue>
         </jar>
 		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="xi.go.VM"/>
+                <attribute name="Main-Class" value="xi.SK"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}" />
