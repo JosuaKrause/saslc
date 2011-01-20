@@ -1,2 +1,2 @@
-Main-Class: stefan.SKout
+Main-Class: xi.sk.Saslc
 Class-Path: .

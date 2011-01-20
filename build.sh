@@ -4,7 +4,7 @@
 java -jar lib/java-cup-11a.jar -nopositions -symbols Terminal -parser Parser cup/subsasl.cup
 mv Terminal.java src/xi/parser/
 mv Parser.java src/xi/parser/
-# TODO: sed Parser warnings...
+# TODO: sed Parser warning removal...
 
 # generate the lexer
 java -jar lib/JFlex.jar -d src/xi/lexer/ flex/subsasl.flex
