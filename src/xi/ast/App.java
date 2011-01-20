@@ -12,6 +12,7 @@ import static xi.ast.BuiltIn.S_PRIME;
 import java.util.Deque;
 import java.util.Set;
 
+import xi.optimizer.OptLevel;
 import xi.util.Logging;
 
 /**
@@ -103,9 +104,9 @@ public final class App extends Expr {
         final boolean leftFree = left.hasFree(n);
         final boolean rightFree = right.hasFree(n);
 
-        if (DISABLE_BC) {
+        if (!OptLevel.BC_OPT.isSet()) {
             // (\x . a b) => K (a b), if x is free in neither a nor b
-            if (!leftFree && !rightFree) {
+            if (OptLevel.K_OPT.isSet() && !leftFree && !rightFree) {
                 return K.app(this);
             }
 
@@ -129,18 +130,22 @@ public final class App extends Expr {
 
                 final Expr r = right.unLambda(n);
 
-                final Expr[] b = l.match(B_PAT);
-                if (b != null) {
-                    return S_PRIME.app(b[1], b[2], r);
+                if (OptLevel.BC_EXT_OPT.isSet()) {
+                    final Expr[] b = l.match(B_PAT);
+                    if (b != null) {
+                        return S_PRIME.app(b[1], b[2], r);
+                    }
                 }
 
                 // (\x . a b) => S a b, if x is free both a and b
                 return S.app(l, r);
             }
 
-            final Expr[] b = l.match(B_PAT);
-            if (b != null) {
-                return C_PRIME.app(b[1], b[2], right);
+            if (OptLevel.BC_EXT_OPT.isSet()) {
+                final Expr[] b = l.match(B_PAT);
+                if (b != null) {
+                    return C_PRIME.app(b[1], b[2], right);
+                }
             }
 
             // (\x . a b) => C a b, if x is free in a, but not in b
@@ -154,13 +159,18 @@ public final class App extends Expr {
             }
 
             final Expr r = right.unLambda(n);
-            final Expr[] b = r.match(B_PAT);
-            if (b != null) {
-                return B_STAR.app(left, b[1], b[2]);
+            if (OptLevel.BC_EXT_OPT.isSet()) {
+                final Expr[] b = r.match(B_PAT);
+                if (b != null) {
+                    return B_STAR.app(left, b[1], b[2]);
+                }
             }
 
             // (\x . a b) => B a b, if x is free in b, but not in a
             return B.app(left, r);
+        }
+        if (!OptLevel.K_OPT.isSet()) {
+            return S.app(K.app(left), K.app(right));
         }
         // (\x . a b) => K (a b), if x is free in neither a nor b
         return K.app(this);
