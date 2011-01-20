@@ -13,11 +13,13 @@ rm src/xi/lexer/Lexer.java~
 # compile the sources
 mkdir -pv bin
 cd bin
-javac -classpath ../lib/java-cup-11a.jar -d . -sourcepath ../src ../src/stefan/SKout.java ../src/xi/go/Eval.java ../src/xi/linker/Linker.java
+javac -classpath "../lib/java-cup-11a.jar;../lib/JSAP-2.1.jar" -d . -sourcepath ../src `find ../src/* -type f`
 
 # create jars
 # TODO: more libs...
-jar xf ../lib/java-cup-11a.jar | jar cf ../saslc.jar .
+jar xf ../lib/JSAP-2.1.jar
+jar xf ../lib/java-cup-11a.jar
+jar cf ../saslc.jar .
 cd ..
 # TODO: simple trick - refine later
 cp saslc.jar sasln.jar
@@ -29,3 +31,6 @@ jar umf build/sasln.mf sasln.jar
 jar umf build/run.mf run.jar
 jar umf build/sk.mf sk.jar
 jar umf build/sasl_make.mf sasl_make.jar
+
+echo
+echo 'Building jars succesfully! For further information please consult readme.txt'

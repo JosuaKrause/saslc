@@ -1,1 +1,1 @@
-main = {n -> sum [1,2..n]} 1000;
+main = mod3dec "77";
