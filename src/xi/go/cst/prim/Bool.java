@@ -1,6 +1,7 @@
 package xi.go.cst.prim;
 
 import xi.go.cst.Thunk;
+import xi.sk.SKVisitor;
 
 /**
  * Boolean value.
@@ -56,6 +57,11 @@ public final class Bool extends Value {
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.bool(getBool());
     }
 
 }

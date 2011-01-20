@@ -1,6 +1,7 @@
 package xi.go.cst.prim;
 
 import xi.go.cst.Thunk;
+import xi.sk.SKVisitor;
 
 /**
  * String node.
@@ -63,5 +64,10 @@ public class Str extends Value {
     @Override
     public int hashCode() {
         return string.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.str(string);
     }
 }

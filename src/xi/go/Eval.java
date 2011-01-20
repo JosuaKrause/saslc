@@ -19,7 +19,7 @@ import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
-import xi.parser.sk.SKParser;
+import xi.sk.SKParser;
 import xi.util.GlueReader;
 import xi.util.Logging;
 

@@ -12,6 +12,8 @@ import xi.go.cst.prim.List;
 import xi.go.cst.prim.Num;
 import xi.go.cst.prim.Str;
 import xi.go.cst.prim.Value;
+import xi.sk.SKTree;
+import xi.sk.SKVisitor;
 
 /**
  * 
@@ -19,7 +21,7 @@ import xi.go.cst.prim.Value;
  * @author Joschi
  * 
  */
-public class Thunk {
+public class Thunk implements SKTree {
 
     private Node node;
 
@@ -83,7 +85,7 @@ public class Thunk {
             } else {
                 reductions++;
                 final Function.Def funDef = curr.node.getFunction();
-                if (stack.size() < funDef.cardinality) {
+                if (stack.size() < funDef.arity()) {
                     throw new IllegalStateException("Not enough arguments for "
                             + funDef);
                 }
@@ -92,8 +94,8 @@ public class Thunk {
                     continue;
                 }
 
-                final Thunk[] args = new Thunk[funDef.cardinality];
-                for (int i = 0; i < funDef.cardinality; i++) {
+                final Thunk[] args = new Thunk[funDef.arity()];
+                for (int i = 0; i < funDef.arity(); i++) {
                     curr = stack.pop();
                     args[i] = curr.node.getRight();
                 }
@@ -146,5 +148,10 @@ public class Thunk {
     @Override
     public int hashCode() {
         return node.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        node.traverse(v);
     }
 }

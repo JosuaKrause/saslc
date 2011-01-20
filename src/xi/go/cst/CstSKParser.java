@@ -7,7 +7,7 @@ import xi.go.cst.prim.Bool;
 import xi.go.cst.prim.Function;
 import xi.go.cst.prim.List;
 import xi.go.cst.prim.Ref;
-import xi.parser.sk.SKParser;
+import xi.sk.SKParser;
 import xi.util.Logging;
 
 public abstract class CstSKParser extends SKParser<Thunk> {

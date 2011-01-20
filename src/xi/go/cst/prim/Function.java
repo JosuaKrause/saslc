@@ -7,6 +7,8 @@ import java.math.BigInteger;
 import xi.go.cst.App;
 import xi.go.cst.Node;
 import xi.go.cst.Thunk;
+import xi.sk.SKPrim;
+import xi.sk.SKVisitor;
 
 /**
  * Built-in functions of the SK interpreter.
@@ -24,7 +26,7 @@ public final class Function extends Prim {
     public static enum Def {
 
         /** The substitution combinator. */
-        S('S', 3) {
+        S(SKPrim.S) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk f = args[0], g = args[1], x = args[2];
@@ -33,7 +35,7 @@ public final class Function extends Prim {
         },
 
         /** Another substitution combinator. */
-        S_PRIME('z', 4) {
+        S_PRIME(SKPrim.S_PRIME) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
@@ -42,7 +44,7 @@ public final class Function extends Prim {
         },
 
         /** The right-side substitution combinator. */
-        B('B', 3) {
+        B(SKPrim.B) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk f = args[0], g = args[1], x = args[2];
@@ -51,7 +53,7 @@ public final class Function extends Prim {
         },
 
         /** The right-side substitution combinator. */
-        B_STAR('b', 4) {
+        B_STAR(SKPrim.B_STAR) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
@@ -60,7 +62,7 @@ public final class Function extends Prim {
         },
 
         /** The left-side substitution combinator. */
-        C('C', 3) {
+        C(SKPrim.C) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk f = args[0], g = args[1], x = args[2];
@@ -69,7 +71,7 @@ public final class Function extends Prim {
         },
 
         /** Another left-side substitution combinator. */
-        C_PRIME('v', 4) {
+        C_PRIME(SKPrim.C_PRIME) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
@@ -78,7 +80,7 @@ public final class Function extends Prim {
         },
 
         /** The constant combinator. */
-        K('K') {
+        K(SKPrim.K) {
             @Override
             public Node apply(final Thunk... args) {
                 return indirect(args[0]);
@@ -86,7 +88,7 @@ public final class Function extends Prim {
         },
 
         /** The identity combinator. */
-        I('I', 1) {
+        I(SKPrim.I) {
             @Override
             public Node apply(final Thunk... args) {
                 throw new IllegalStateException();
@@ -95,7 +97,7 @@ public final class Function extends Prim {
         },
 
         /** The recursion combinator. */
-        Y('Y', 1) {
+        Y(SKPrim.Y) {
             @Override
             public Node apply(final Thunk... args) {
                 return App.loop(args[0]);
@@ -103,7 +105,7 @@ public final class Function extends Prim {
         },
 
         /** The uncurry combinator. */
-        U('U') {
+        U(SKPrim.U) {
             @Override
             public Node apply(final Thunk... args) {
                 final Thunk f = args[0];
@@ -113,7 +115,7 @@ public final class Function extends Prim {
         },
 
         /** Addition. */
-        ADD('+') {
+        ADD(SKPrim.ADD) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger a = args[0].wHNF().getNum();
@@ -123,7 +125,7 @@ public final class Function extends Prim {
         },
 
         /** Subtraction. */
-        SUB('-') {
+        SUB(SKPrim.SUB) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger a = args[0].wHNF().getNum();
@@ -133,7 +135,7 @@ public final class Function extends Prim {
         },
 
         /** Multiplication. */
-        MUL('*') {
+        MUL(SKPrim.MUL) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger a = args[0].wHNF().getNum();
@@ -143,7 +145,7 @@ public final class Function extends Prim {
         },
 
         /** Division. */
-        DIV('/') {
+        DIV(SKPrim.DIV) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger a = args[0].wHNF().getNum();
@@ -153,7 +155,7 @@ public final class Function extends Prim {
         },
 
         /** Modulo. */
-        MOD('%') {
+        MOD(SKPrim.MOD) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger a = args[0].wHNF().getNum();
@@ -163,7 +165,7 @@ public final class Function extends Prim {
         },
 
         /** Logical negation. */
-        NOT('!', 1) {
+        NOT(SKPrim.NOT) {
             @Override
             public Node apply(final Thunk... args) {
                 return Bool.get(!args[0].wHNF().getBool());
@@ -171,7 +173,7 @@ public final class Function extends Prim {
         },
 
         /** Numeric negation. */
-        NEG('~', 1) {
+        NEG(SKPrim.NEG) {
             @Override
             public Node apply(final Thunk... args) {
                 return new Num(args[0].wHNF().getNum().negate());
@@ -179,7 +181,7 @@ public final class Function extends Prim {
         },
 
         /** Conditional operator. */
-        COND('?', 3) {
+        COND(SKPrim.COND) {
             @Override
             public Node apply(final Thunk... args) {
                 return indirect(args[args[0].wHNF().getBool() ? 1 : 2]);
@@ -187,7 +189,7 @@ public final class Function extends Prim {
         },
 
         /** List construction. */
-        CONS(':') {
+        CONS(SKPrim.CONS) {
             @Override
             public Node apply(final Thunk... args) {
                 return new List(args[0], args[1]);
@@ -195,7 +197,7 @@ public final class Function extends Prim {
         },
 
         /** Head of a list. */
-        HEAD('h', 1) {
+        HEAD(SKPrim.HEAD) {
             @Override
             public Node apply(final Thunk... args) {
                 // get the cons node
@@ -204,7 +206,7 @@ public final class Function extends Prim {
         },
 
         /** Tail of a list. */
-        TAIL('t', 1) {
+        TAIL(SKPrim.TAIL) {
             @Override
             public Node apply(final Thunk... args) {
                 // get the cons node
@@ -213,7 +215,7 @@ public final class Function extends Prim {
         },
 
         /** Less-than operator. */
-        LT('L') {
+        LT(SKPrim.LT) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger x = args[0].wHNF().getNum();
@@ -223,7 +225,7 @@ public final class Function extends Prim {
         },
 
         /** Less-than-or-equal operator. */
-        LTE('l') {
+        LTE(SKPrim.LTE) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger x = args[0].wHNF().getNum();
@@ -233,7 +235,7 @@ public final class Function extends Prim {
         },
 
         /** Equality operator. */
-        EQ('e') {
+        EQ(SKPrim.EQ) {
             @Override
             public Node apply(final Thunk... args) {
                 final Value x = args[0].wHNF();
@@ -243,7 +245,7 @@ public final class Function extends Prim {
         },
 
         /** Non-equality operator. */
-        NEQ('n') {
+        NEQ(SKPrim.NEQ) {
             @Override
             public Node apply(final Thunk... args) {
                 final Value x = args[0].wHNF();
@@ -253,7 +255,7 @@ public final class Function extends Prim {
         },
 
         /** Greater-than-or-equal operator. */
-        GTE('g') {
+        GTE(SKPrim.GTE) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger x = args[0].wHNF().getNum();
@@ -263,7 +265,7 @@ public final class Function extends Prim {
         },
 
         /** Greater-than operator. */
-        GT('G') {
+        GT(SKPrim.GT) {
             @Override
             public Node apply(final Thunk... args) {
                 final BigInteger x = args[0].wHNF().getNum();
@@ -273,7 +275,7 @@ public final class Function extends Prim {
         },
 
         /** Logical conjunction. */
-        AND('&') {
+        AND(SKPrim.AND) {
             @Override
             public Node apply(final Thunk... args) {
                 return indirect(args[args[0].wHNF().getBool() ? 1 : 0]);
@@ -281,7 +283,7 @@ public final class Function extends Prim {
         },
 
         /** Logical disjunction. */
-        OR('|') {
+        OR(SKPrim.OR) {
             @Override
             public Node apply(final Thunk... args) {
                 return indirect(args[args[0].wHNF().getBool() ? 0 : 1]);
@@ -289,7 +291,7 @@ public final class Function extends Prim {
         },
 
         /** Sequence operator. */
-        SEQ('s') {
+        SEQ(SKPrim.SEQ) {
             @Override
             public Node apply(final Thunk... args) {
                 args[0].wHNF();
@@ -298,7 +300,7 @@ public final class Function extends Prim {
         },
 
         /** Character casting operator. */
-        CHAR('c', 1) {
+        CHAR(SKPrim.CHAR) {
             @Override
             public Node apply(final Thunk... args) {
                 return Thunk.chr(args[0].wHNF().getNum().intValue()).wHNF();
@@ -309,7 +311,7 @@ public final class Function extends Prim {
          * Does nothing -- is used to find duplicate symbol definitions in the
          * SK-Code.
          */
-        NOP(' ') {
+        NOP(SKPrim.NOP) {
             @Override
             public Node apply(final Thunk... args) {
                 throw new IllegalStateException("nop should not be used!!!");
@@ -321,51 +323,34 @@ public final class Function extends Prim {
         /** Jump table from character code (ASCII) to definition. */
         private static final Def[] FUN_MAP = new Def[1 << 7];
         static {
-            for (final char c : "i=\"<@TF_,'\r\n\t".toCharArray()) {
+            for (final char c : "i=\"<@TF_,'\r\n\t ".toCharArray()) {
                 FUN_MAP[c] = NOP;
             }
 
             for (final Def fun : values()) {
-                if (FUN_MAP[fun.name] != null) {
+                if (FUN_MAP[fun.prim.chr] != null) {
                     throw new IllegalStateException(
-                            "duplicate symbol definition! " + fun.name);
+                            "duplicate symbol definition! " + fun.prim.chr);
                 }
-                FUN_MAP[fun.name] = fun;
+                FUN_MAP[fun.prim.chr] = fun;
             }
         }
-
-        /** The function's cardinality. */
-        public final int cardinality;
-
-        /** the function's name. */
-        public final char name;
 
         /** The function's surrounding thunk. */
         public final Thunk thunk;
 
-        /**
-         * Constructor taking the function's name and cardinality.
-         * 
-         * @param f
-         *            function name
-         * @param n
-         *            cardinality
-         */
-        private Def(final char f, final int n) {
-            name = f;
-            cardinality = n;
-            thunk = new Thunk(new Function(this));
-        }
+        /** Wrapped primitive. */
+        public final SKPrim prim;
 
         /**
-         * Constructor taking the function's name, the cardinality is assumed to
-         * be 2.
+         * Constructor.
          * 
-         * @param f
-         *            function name
+         * @param p
+         *            primitive
          */
-        private Def(final char f) {
-            this(f, 2);
+        private Def(final SKPrim p) {
+            prim = p;
+            thunk = new Thunk(new Function(this));
         }
 
         /**
@@ -378,6 +363,15 @@ public final class Function extends Prim {
         public abstract Node apply(final Thunk... args);
 
         /**
+         * Number of arguments this function consumes.
+         * 
+         * @return arity of this function
+         */
+        public final int arity() {
+            return prim.arity;
+        }
+
+        /**
          * Creates an indirection node to the {@link Thunk} {@code th}, i.e.
          * {@code (I @ th)}.
          * 
@@ -388,7 +382,6 @@ public final class Function extends Prim {
         private static Node indirect(final Thunk th) {
             return new App(I.thunk, th);
         }
-
     }
 
     /** Definition of this function. */
@@ -434,6 +427,11 @@ public final class Function extends Prim {
     @Override
     public int hashCode() {
         return fun.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.prim(fun.prim);
     }
 
 }

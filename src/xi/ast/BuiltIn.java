@@ -51,7 +51,7 @@ public final class BuiltIn extends Value {
     /** The substitution combinator. */
     public static final BuiltIn S = new BuiltIn('S');
     /** Another substitution combinator. */
-    public static final BuiltIn S_PRIME = new BuiltIn('z');
+    public static final BuiltIn S_PRIME = new BuiltIn('R');
     /** The left-side substitution combinator. */
     public static final BuiltIn B = new BuiltIn('B');
     /** The double left-side substitution combinator. */
@@ -59,7 +59,7 @@ public final class BuiltIn extends Value {
     /** The right-side substitution combinator. */
     public static final BuiltIn C = new BuiltIn('C');
     /** Another right-side substitution combinator. */
-    public static final BuiltIn C_PRIME = new BuiltIn('v');
+    public static final BuiltIn C_PRIME = new BuiltIn('c');
     /** The constant combinator. */
     public static final BuiltIn K = new BuiltIn('K');
     /** The identity combinator. */

@@ -11,7 +11,7 @@ import xi.ast.Expr;
 import xi.ast.Name;
 import xi.ast.Num;
 import xi.ast.Str;
-import xi.parser.sk.SKParser;
+import xi.sk.SKParser;
 
 public class AstSKParser extends SKParser<Expr> {
 

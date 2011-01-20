@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import xi.go.cst.prim.Function;
+import xi.sk.SKTree;
 
 /**
  * A node of the expression tree.
@@ -11,7 +12,7 @@ import xi.go.cst.prim.Function;
  * @author Leo
  * @author Joschi
  */
-public abstract class Node {
+public abstract class Node implements SKTree {
 
     /**
      * Checks whether this is an application node.

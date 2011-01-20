@@ -2,6 +2,8 @@ package xi.go.cst.prim;
 
 import java.math.BigInteger;
 
+import xi.sk.SKVisitor;
+
 /**
  * Number node.
  * 
@@ -11,7 +13,7 @@ import java.math.BigInteger;
 public class Num extends Value {
 
     /** Numeric value of this node. */
-    protected BigInteger value;
+    BigInteger value;
 
     /**
      * Constructor.
@@ -46,5 +48,10 @@ public class Num extends Value {
     @Override
     public int hashCode() {
         return value.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.num(value);
     }
 }

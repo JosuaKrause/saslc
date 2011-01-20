@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import xi.go.cst.Thunk;
+import xi.sk.SKVisitor;
 
 /**
  * Name reference.
@@ -78,6 +79,11 @@ public final class Ref extends Value {
     @Override
     public int hashCode() {
         return fun.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.var(fun);
     }
 
 }

@@ -21,7 +21,7 @@ public class Cout {
                     w.append('S');
                     break;
                 case SPrime:
-                    w.append('z');
+                    w.append('R');
                     break;
                 case B:
                     w.append('B');
@@ -33,7 +33,7 @@ public class Cout {
                     w.append('C');
                     break;
                 case CPrime:
-                    w.append('v');
+                    w.append('c');
                     break;
                 case K:
                     w.append('K');

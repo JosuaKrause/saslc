@@ -2,6 +2,7 @@ package xi.go.cst.prim;
 
 import java.math.BigInteger;
 
+import xi.sk.SKVisitor;
 import xi.util.StringUtils;
 
 /**
@@ -32,4 +33,8 @@ public class Char extends Num {
         return true;
     }
 
+    @Override
+    public void traverse(final SKVisitor v) {
+        v.chr(value.intValue());
+    }
 }

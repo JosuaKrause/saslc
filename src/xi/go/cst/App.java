@@ -3,6 +3,8 @@ package xi.go.cst;
 import java.util.Map;
 import java.util.Set;
 
+import xi.sk.SKVisitor;
+
 /**
  * Application node.
  * 
@@ -90,6 +92,13 @@ public class App extends Node {
     @Override
     public int hashCode() {
         return left.hashCode() ^ right.hashCode();
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        right.traverse(v);
+        left.traverse(v);
+        v.app();
     }
 
 }

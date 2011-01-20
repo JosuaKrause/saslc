@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import xi.go.cst.Thunk;
+import xi.sk.SKVisitor;
 
 /**
  * List node.
@@ -49,6 +50,11 @@ public class List extends Value {
         @Override
         public boolean equals(final Object obj) {
             return this == obj;
+        }
+
+        @Override
+        public void traverse(final SKVisitor v) {
+            v.nil();
         }
     };
 
@@ -138,5 +144,12 @@ public class List extends Value {
     @Override
     public int hashCode() {
         return (head.hashCode() ^ tail.hashCode()) ^ -1;
+    }
+
+    @Override
+    public void traverse(final SKVisitor v) {
+        tail.traverse(v);
+        head.traverse(v);
+        v.cons();
     }
 }
