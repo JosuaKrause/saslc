@@ -12,7 +12,7 @@ import xi.ast.Name;
  * 
  * @author Leo
  */
-public class ListComp {
+class ListComp {
 
     /** Monadic function 'bind' (>>=). */
     private static final Name BIND = Name.valueOf("bindList");

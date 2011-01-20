@@ -15,99 +15,111 @@
 	<property name="jsap" location="lib/JSAP-2.1.jar"/>
 	<!-- filetime checks -->
 	<uptodate property="buildLexer"
-	                  srcfile="${flexSrc}"
-	                  targetfile="${src}${flexDest}Lexer.java"/>
+					  srcfile="${flexSrc}"
+					  targetfile="${src}${flexDest}Lexer.java"/>
 	<uptodate property="buildParser"
-	                      srcfile="${cupSrc}"
-	                      targetfile="${src}${cupDest}Parser.java"/>
+						  srcfile="${cupSrc}"
+						  targetfile="${src}${cupDest}Parser.java"/>
 	<!-- the actual targets -->
-    <target name="compileFlex" unless="buildLexer">
-    	<!--
-    	   build lexer only when needed - otherwise every ANT-build
-    	   would produce a new Lexer.java with other in-file-times.
-    	-->
-        <java jar="${jflex}" fork="true">
-            <arg line="-d ${src}${flexDest} ${flexSrc}" />
-        </java>
-    	<delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
-    </target>
+	<target name="compileFlex" unless="buildLexer">
+		<!--
+		   build lexer only when needed - otherwise every ANT-build
+		   would produce a new Lexer.java with other in-file-times.
+		-->
+		<java jar="${jflex}" fork="true">
+			<arg line="-d ${src}${flexDest} ${flexSrc}" />
+		</java>
+		<delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
+	</target>
 	<target name="compileCup" unless="buildParser">
-        <!--
-           build parser only when needed - otherwise every ANT-build
-           would produce a new Parser.java with other in-file-times.
-        -->
-        <java dir="${src}${cupDest}" jar="${cup}" fork="true">
-            <arg line="-nopositions -symbols Terminal -parser Parser ${cupSrc}" />
-        </java>
+		<!--
+		   build parser only when needed - otherwise every ANT-build
+		   would produce a new Parser.java with other in-file-times.
+		-->
+		<java dir="${src}${cupDest}" jar="${cup}" fork="true">
+			<arg line="-nopositions -symbols Terminal -parser Parser ${cupSrc}" />
+		</java>
 		<replace file="${src}${cupDest}Parser.java">
-		    <replacetoken>public class Parser</replacetoken> 
-		    <replacevalue><![CDATA[@SuppressWarnings("all")
+			<replacetoken>public class Parser</replacetoken> 
+			<replacevalue><![CDATA[@SuppressWarnings("all")
 public class Parser]]></replacevalue>
 		</replace>
 		<replace file="${src}${cupDest}Parser.java">
-		    <replacetoken>class CUP$Parser$actions</replacetoken> 
-            <replacevalue><![CDATA[@SuppressWarnings("all")
+			<replacetoken>class CUP$Parser$actions</replacetoken> 
+			<replacevalue><![CDATA[@SuppressWarnings("all")
 class CUP$Parser$actions]]></replacevalue>
 		</replace>
 	</target>
-    <target name="compileRest">
-    	<!-- recompile the whole source folder -->
-        <javac srcdir="${src}" destdir="${bin}" verbose="yes">
-        	<classpath>
-        		<pathelement location="${cup}" />
-        	</classpath>
-        </javac>
-    </target>
+	<target name="compileRest">
+		<!-- recompile the whole source folder -->
+		<javac srcdir="${src}" destdir="${bin}" verbose="yes">
+			<classpath>
+				<pathelement location="${cup}" />
+			</classpath>
+		</javac>
+	</target>
 	<target name="jars">
 		<jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="xi.Sasln"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${bin}" />
+			<manifest>
+				<attribute name="Main-Class" value="xi.Sasln"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin}">
+				<exclude name="/xi/go/**"/>
+				<exclude name="/xi/lexer/**"/>
+				<exclude name="/xi/parser/**"/>
+			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
-        </jar>
+		</jar>
 		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="xi.SaslMake"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${bin}" />
+			<manifest>
+				<attribute name="Main-Class" value="xi.SaslMake"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin}" />
 			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
-        </jar>
+		</jar>
 		<jar destfile="run.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="xi.Run"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${bin}" />
-            <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
-            <zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
-        </jar>
-		<jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="xi.Saslc"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${bin}">
-                <exclude name="/xi/go/**"/>
-            </fileset>
-            <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
-            <zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
-        </jar>
-		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="xi.SK"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${bin}" />
+			<manifest>
+				<attribute name="Main-Class" value="xi.Run"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin}">
+				<exclude name="/xi/linker/**"/>
+			</fileset>
+			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
-        </jar>
+		</jar>
+		<jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="xi.Saslc"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin}">
+				<exclude name="/xi/go/**"/>
+				<exclude name="/xi/linker/**"/>
+			</fileset>
+			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
+		</jar>
+		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="xi.SK"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin}">
+				<exclude name="/xi/lexer/**"/>
+				<exclude name="/xi/parser/**"/>
+				<exclude name="/xi/ast/**"/>
+				<exclude name="/xi/linker/**"/>
+			</fileset>
+			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
+		</jar>
 	</target>
-    <!-- builds the targets in the given order -->
-    <target name="all"
-            depends="compileCup,compileFlex,compileRest,jars"
-            description="Build all jars"
-            />
+	<!-- builds the targets in the given order -->
+	<target name="all"
+			depends="compileCup,compileFlex,compileRest,jars"
+			description="Build all jars"
+			/>
 </project>

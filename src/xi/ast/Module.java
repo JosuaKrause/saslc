@@ -132,7 +132,7 @@ public class Module extends Node {
     }
 
     @Override
-    public boolean equals(final Object other) {
+    public final boolean equals(final Object other) {
         if (!(other instanceof Module)) {
             return false;
         }
@@ -150,7 +150,7 @@ public class Module extends Node {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int hash = 0;
         // order of definitions irrelevant
         for (final Entry<Name, Expr> e : defs.entrySet()) {
@@ -160,7 +160,7 @@ public class Module extends Node {
     }
 
     @Override
-    public void traverse(final SKVisitor v) {
+    public final void traverse(final SKVisitor v) {
         for (final Entry<Name, Expr> e : defs.entrySet()) {
             e.getValue().traverse(v);
             v.def(e.getKey().toString());

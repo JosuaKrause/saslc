@@ -40,5 +40,4 @@ public enum OptLevel {
     public boolean isSet(final int bitfield) {
         return (bitfield & (1 << ordinal())) != 0;
     }
-
 }
