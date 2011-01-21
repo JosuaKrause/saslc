@@ -1,10 +1,6 @@
 package xi;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -14,7 +10,7 @@ import xi.ast.Module;
 import xi.ast.Name;
 import xi.linker.Linker;
 import xi.sk.SKWriter;
-import xi.util.StringUtils;
+import xi.util.IOUtils;
 
 /**
  * 
@@ -26,7 +22,7 @@ public class Sasln {
     public static void main(final String[] args) throws Exception {
         String start = "main";
         final ArrayList<Reader> inputs = new ArrayList<Reader>();
-        Writer out = new OutputStreamWriter(System.out);
+        Writer out = IOUtils.STDOUT;
         boolean invalid = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-help")) {
@@ -44,18 +40,16 @@ public class Sasln {
                     invalid = true;
                     break;
                 }
-                out = new OutputStreamWriter(new FileOutputStream(args[++i]),
-                        StringUtils.UTF8);
+                out = IOUtils.utf8Writer(new File(args[++i]));
             } else if ("-".equals(args[i])) {
-                inputs.add(new InputStreamReader(System.in));
+                inputs.add(IOUtils.STDIN);
             } else {
                 final File f = new File(args[i]);
                 if (!f.isFile()) {
                     invalid = true;
                     break;
                 }
-                inputs.add(new InputStreamReader(new FileInputStream(f),
-                        StringUtils.UTF8));
+                inputs.add(IOUtils.utf8Reader(f));
             }
         }
         if (invalid) {
@@ -69,7 +63,7 @@ public class Sasln {
             return;
         }
         if (inputs.isEmpty()) {
-            inputs.add(new InputStreamReader(System.in));
+            inputs.add(IOUtils.STDIN);
         }
         final Linker linker = new Linker(inputs);
         final Expr linked = linker.link(start);

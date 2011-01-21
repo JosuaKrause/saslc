@@ -1,13 +1,10 @@
 package xi.linker;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -26,7 +23,7 @@ import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
-import xi.util.StringUtils;
+import xi.util.IOUtils;
 
 /**
  * Reads a SASL makefile and compiles the given files.
@@ -134,10 +131,10 @@ public class Make {
                 && newFile.lastModified() > file.lastModified()) {
             return true;
         }
-        final Parser p = new Parser(new Lexer(new FileReader(file)));
+        final Parser p = new Parser(new Lexer(IOUtils.utf8Reader(file)));
         final Node n = p.parseValue().unLambda();
 
-        final SKWriter sk = new SKWriter(new PrintWriter(newFile));
+        final SKWriter sk = new SKWriter(IOUtils.utf8Writer(newFile));
         sk.write(n);
         sk.close();
         return false;
@@ -230,15 +227,13 @@ public class Make {
                 }
                 main[0] = body;
             }
-        }
-                .read(new InputStreamReader(new FileInputStream(in),
-                        StringUtils.UTF8));
+        }.read(IOUtils.utf8Reader(in));
 
         if (main[0] == null) {
             throw new IllegalArgumentException("No main method.");
         }
 
-        VM.run(main, new OutputStreamWriter(System.out, StringUtils.UTF8));
+        VM.run(main, new OutputStreamWriter(System.out));
     }
 
     public void make(final File makefile, final boolean run) throws Exception {

@@ -1,8 +1,6 @@
 package xi;
 
-import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.File;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -10,6 +8,7 @@ import xi.ast.Node;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
+import xi.util.IOUtils;
 
 public class Saslc {
 
@@ -42,15 +41,15 @@ public class Saslc {
                 if (arg.equals("-help")) {
                     usage("");
                 }
-                out = new FileWriter(arg);
+                out = IOUtils.utf8Writer(new File(arg));
             } else {
-                out = new OutputStreamWriter(System.out);
+                out = IOUtils.STDOUT;
             }
         } catch (final Exception e) {
             e.printStackTrace();
             usage("An Exception occured!");
             return;
         }
-        compile(new InputStreamReader(System.in), out);
+        compile(IOUtils.STDIN, out);
     }
 }

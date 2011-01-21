@@ -1,9 +1,6 @@
 package xi;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.logging.Level;
@@ -15,6 +12,7 @@ import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKTree;
 import xi.util.GlueReader;
+import xi.util.IOUtils;
 import xi.util.Logging;
 
 /**
@@ -35,7 +33,7 @@ public class Run {
     public static void main(final String[] args) throws Exception {
         final Reader r;
         if (args.length == 0) {
-            r = new InputStreamReader(System.in, "UTF-8");
+            r = IOUtils.STDIN;
         } else {
             final GlueReader g = new GlueReader();
             for (final String arg : args) {
@@ -44,7 +42,7 @@ public class Run {
                 } else {
                     final File f = new File(arg);
                     if (f.exists()) {
-                        g.addReader(new FileReader(f));
+                        g.addReader(IOUtils.utf8Reader(f));
                     } else {
                         g.addReader(new StringReader(arg));
                     }
@@ -57,7 +55,7 @@ public class Run {
         final Thunk[] main = { Eval.link(Eval.parse(skt), "main") };
 
         try {
-            VM.run(main, new OutputStreamWriter(System.out));
+            VM.run(main, IOUtils.STDOUT);
         } catch (final Exception e) {
             // explicit catch block for other versions compatibility
             System.out.println("Execution aborted!");

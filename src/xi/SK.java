@@ -1,17 +1,14 @@
 package xi;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.logging.Level;
 
 import xi.go.VM;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
+import xi.util.IOUtils;
 import xi.util.Logging;
-import xi.util.StringUtils;
 
 public class SK {
 
@@ -59,14 +56,14 @@ public class SK {
                 }
                 main[0] = body;
             }
-        }.read(new InputStreamReader(new FileInputStream(f), StringUtils.UTF8));
+        }.read(IOUtils.utf8Reader(f));
 
         if (main[0] == null) {
             throw new IllegalArgumentException("No main method.");
         }
 
         System.out.println("SK code: " + main[0]);
-        VM.run(main, new OutputStreamWriter(System.out, StringUtils.UTF8));
+        VM.run(main, IOUtils.STDOUT);
     }
 
     /**
