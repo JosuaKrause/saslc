@@ -72,6 +72,19 @@ class CUP$Parser$actions]]></replacevalue>
 			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
 		</jar>
+        <jar destfile="saslo.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="xi.Saslo"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}">
+                <exclude name="/xi/go/**"/>
+                <exclude name="/xi/lexer/**"/>
+                <exclude name="/xi/parser/**"/>
+                <exclude name="/java_cup/**"/>
+            </fileset>
+            <zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
+        </jar>
 		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
 			<manifest>
 				<attribute name="Main-Class" value="xi.SaslMake"/>
