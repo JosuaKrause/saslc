@@ -8,7 +8,7 @@ package xi.sk;
 public interface SKTree {
 
     /**
-     * THis method performs a post-order traversal of the SK syntax tree,
+     * This method performs a post-order traversal of the SK syntax tree,
      * notifying the visitor about all encountered nodes.
      * 
      * @param v

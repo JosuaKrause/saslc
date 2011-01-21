@@ -54,7 +54,7 @@ public abstract class Value extends Prim {
     }
 
     /**
-     * Checks whether two nodes are equal.
+     * Checks whether two nodes are equivalent.
      * 
      * @param n
      *            node to compare to.

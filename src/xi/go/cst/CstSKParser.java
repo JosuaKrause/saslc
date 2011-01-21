@@ -42,9 +42,6 @@ public abstract class CstSKParser extends SKParser<Thunk> {
             shd = val;
             shared.put(val, val);
         } else {
-            if (!val.toString().equals(shd.toString())) {
-                System.out.println(val.equals(shd));
-            }
             Logging.getLogger(getClass()).info("sharing expression: " + val);
         }
         return shd;

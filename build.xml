@@ -68,6 +68,7 @@ class CUP$Parser$actions]]></replacevalue>
 				<exclude name="/xi/go/**"/>
 				<exclude name="/xi/lexer/**"/>
 				<exclude name="/xi/parser/**"/>
+				<exclude name="/java_cup/**"/>
 			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
 		</jar>
@@ -76,7 +77,9 @@ class CUP$Parser$actions]]></replacevalue>
 				<attribute name="Main-Class" value="xi.SaslMake"/>
 				<attribute name="Class-Path" value="."/>
 			</manifest>
-			<fileset dir="${bin}" />
+			<fileset dir="${bin}">
+				<exclude name="/java_cup/**"/>
+			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
 		</jar>
@@ -87,6 +90,7 @@ class CUP$Parser$actions]]></replacevalue>
 			</manifest>
 			<fileset dir="${bin}">
 				<exclude name="/xi/linker/**"/>
+				<exclude name="/java_cup/**"/>
 			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
@@ -99,6 +103,7 @@ class CUP$Parser$actions]]></replacevalue>
 			<fileset dir="${bin}">
 				<exclude name="/xi/go/**"/>
 				<exclude name="/xi/linker/**"/>
+				<exclude name="/java_cup/**"/>
 			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
@@ -113,6 +118,7 @@ class CUP$Parser$actions]]></replacevalue>
 				<exclude name="/xi/parser/**"/>
 				<exclude name="/xi/ast/**"/>
 				<exclude name="/xi/linker/**"/>
+				<exclude name="/java_cup/**"/>
 			</fileset>
 			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
 		</jar>

@@ -1,1 +1,1 @@
-main = sum [1,3..100];
+main = guardList;

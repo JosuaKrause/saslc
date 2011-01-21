@@ -16,30 +16,63 @@ import xi.sk.SKTree;
 import xi.sk.SKVisitor;
 
 /**
+ * A thunk, wrapping every node of the SK tree and allowing to freely exchange
+ * the wrapped node for its evaluation result.
  * 
  * @author Leo
  * @author Joschi
- * 
  */
 public class Thunk implements SKTree {
 
+    /** the wrapped {@link Node SK node}. */
     private Node node;
 
-    public static int pushes = 0;
-    public static int reductions = 0;
+    /** Number of pushes in the current evaluation. */
+    public static volatile int pushes = 0;
+    /** Number of reductions in the current evaluation. */
+    public static volatile int reductions = 0;
 
+    /**
+     * Constructor.
+     * 
+     * @param nd
+     *            node to be wrapped
+     */
     public Thunk(final Node nd) {
         node = nd;
     }
 
+    /**
+     * Creates a wrapped application node.
+     * 
+     * @param f
+     *            function to be applied
+     * @param x
+     *            value the function should be applied to
+     * @return the application node wrapped in a Thunk
+     */
     public static Thunk app(final Thunk f, final Thunk x) {
         return new Thunk(new App(f, x));
     }
 
+    /**
+     * Creates a wrapped number node.
+     * 
+     * @param i
+     *            number to be wrapped
+     * @return Thunk with wrapped number node
+     */
     public static Thunk num(final BigInteger i) {
         return new Thunk(new Num(i));
     }
 
+    /**
+     * Creates a wrapped character node.
+     * 
+     * @param cp
+     *            character to be wrapped
+     * @return Thunk with wrapped character node
+     */
     public static Thunk chr(final int cp) {
         return new Thunk(new Char(cp));
     }
@@ -110,39 +143,82 @@ public class Thunk implements SKTree {
         return (Value) node;
     }
 
-    boolean isApp() {
-        return node.isApp();
-    }
-
-    private boolean isValue() {
-        return node.isValue();
-    }
-
     @Override
     public String toString() {
         return node.toString();
     }
 
+    /**
+     * Links the application tree, i.e. replaces all references with the
+     * corresponding expressions.
+     * 
+     * @param defs
+     *            definitions
+     * @return a new thunk that this thunk should be replaced with, or {@code
+     *         null}
+     */
     public Thunk link(final Map<String, Thunk> defs) {
         return link(defs, new HashSet<String>());
     }
 
+    /**
+     * Links the application tree, i.e. replaces all references with the
+     * corresponding expressions.
+     * 
+     * @param defs
+     *            definitions
+     * @param linked
+     *            set of already linked definitions to avoid loops
+     * @return a new thunk that this thunk should be replaced with, or {@code
+     *         null}
+     */
     public Thunk link(final Map<String, Thunk> defs, final Set<String> linked) {
         final Thunk res = node.link(defs, linked);
         return res == null ? this : res;
     }
 
+    /**
+     * Checks whether the node wrapped in this thunk is equivalent to the one
+     * inside the given thunk.
+     * 
+     * @param o
+     *            node to compare to.
+     * @return {@code true}, if both nodes are equal, {@code false} otherwise
+     */
     public boolean eq(final Thunk o) {
         return wHNF().eq(o.wHNF());
-    }
-
-    public boolean isRef() {
-        return node.isRef();
     }
 
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof Thunk && node.equals(((Thunk) obj).node);
+    }
+
+    /**
+     * Checks whether the node wrapped in this Thunk is an application node.
+     * 
+     * @return result of check
+     */
+    boolean isApp() {
+        return node.isApp();
+    }
+
+    /**
+     * Checks whether the node wrapped in this Thunk is a name reference.
+     * 
+     * @return result of check
+     */
+    public boolean isRef() {
+        return node.isRef();
+    }
+
+    /**
+     * Checks whether the node wrapped in this Thunk is a value.
+     * 
+     * @return result of check
+     */
+    private boolean isValue() {
+        return node.isValue();
     }
 
     @Override
