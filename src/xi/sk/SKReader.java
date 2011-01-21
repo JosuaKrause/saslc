@@ -5,8 +5,10 @@ import java.io.Reader;
 import java.math.BigInteger;
 
 /**
+ * Reads a SK input stream.
  * 
  * @author Leo Woerteler
+ * @author Joschi
  */
 public class SKReader {
 
@@ -19,6 +21,12 @@ public class SKReader {
     /** Last character that was read. */
     private int lastChar;
 
+    /**
+     * Creates a new SK reader.
+     * 
+     * @param v
+     *            The visitor where the events will be propagated to.
+     */
     public SKReader(final SKVisitor v) {
         visitor = v;
     }
@@ -152,7 +160,6 @@ public class SKReader {
      * 
      * @param r
      *            reader
-     * @return resulting data structure
      */
     public final void read(final Reader r) {
         in = r;
@@ -166,6 +173,9 @@ public class SKReader {
         in = null;
     }
 
+    /**
+     * Reads the input.
+     */
     private void read() {
         while (hasNext()) {
             final char c = current();

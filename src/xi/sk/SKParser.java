@@ -15,6 +15,12 @@ import java.util.Stack;
  */
 public abstract class SKParser<T> {
 
+    /**
+     * Reads from a SKTree.
+     * 
+     * @param t
+     *            The tree to read.
+     */
     public void read(final SKTree t) {
         final Stack<T> stack = new Stack<T>();
 
@@ -25,6 +31,12 @@ public abstract class SKParser<T> {
         }
     }
 
+    /**
+     * Reads from a Reader.
+     * 
+     * @param r
+     *            The reader to read from.
+     */
     public void read(final Reader r) {
         final Stack<T> stack = new Stack<T>();
 
@@ -136,8 +148,15 @@ public abstract class SKParser<T> {
      */
     private final class ParserSKVisitor implements SKVisitor {
 
+        /** The stack holding unconsumed subtrees. */
         private final Stack<T> stack;
 
+        /**
+         * Creates a visitor.
+         * 
+         * @param s
+         *            The shared stack.
+         */
         public ParserSKVisitor(final Stack<T> s) {
             stack = s;
         }
