@@ -6,6 +6,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigInteger;
 
+import xi.util.StringUtils;
+
 /**
  * Writes SK code to an output stream.
  * 
@@ -89,8 +91,7 @@ public class SKWriter implements SKVisitor, Closeable {
 
     @Override
     public void str(final String str) {
-        sb.append('"').append(str.replace("\\", "\\\\").replace("\"", "\\\""))
-                .append('"');
+        sb.append('"').append(StringUtils.primitiveEscape(str)).append('"');
     }
 
     @Override

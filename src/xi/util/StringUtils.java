@@ -1,6 +1,5 @@
 package xi.util;
 
-
 /**
  * String processing utilities.
  * 
@@ -149,6 +148,18 @@ public final class StringUtils {
                     + "sequence '\\" + res + "'");
         }
         return res;
+    }
+
+    /**
+     * Escapes only double quotes and backslashes. <br/> {@code '"' => '\"'} <br/> {@code
+     * '\' => '\\'}
+     * 
+     * @param str
+     *            The String to escape.
+     * @return The escaped String.
+     */
+    public static String primitiveEscape(final String str) {
+        return str.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
 }
