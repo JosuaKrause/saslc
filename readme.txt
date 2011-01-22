@@ -39,3 +39,5 @@
 #    argument. This example uses the makefile test.smake and runs the project:
 #      java -jar sasl_make.jar -r test.smake
 #
+# The latest updates of saslc can be found here: https://github.com/JosuaKrause/saslc
+#
