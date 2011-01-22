@@ -3,12 +3,20 @@ package xi;
 import java.io.File;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.logging.Level;
 
 import xi.ast.Node;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;
+import xi.util.Logging;
+
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.SimpleJSAP;
+import com.martiansoftware.jsap.Switch;
+import com.martiansoftware.jsap.UnflaggedOption;
+import com.martiansoftware.jsap.stringparsers.FileStringParser;
 
 /**
  * SASL compiler tool.
@@ -46,11 +54,32 @@ public class Saslc {
      *             if anything goes wrong
      */
     public static void main(final String[] args) throws Exception {
+        final SimpleJSAP parser = new SimpleJSAP("saslc",
+                "Compiles a SASL module to SK code.");
+
+        final Switch verbose = new Switch("verbose", 'v', "verbose",
+                "prints informational messages to STDERR");
+        parser.registerParameter(verbose);
+        final UnflaggedOption sasl = new UnflaggedOption("sasl",
+                FileStringParser.getParser().setMustBeFile(true).setMustExist(
+                        true), null, false, false, "SASL module to compile.\n"
+                        + "If none is given, STDIN is read");
+        parser.registerParameter(sasl);
+
+        final JSAPResult res = parser.parse(args);
+        if (parser.messagePrinted()) {
+            System.exit(1);
+        }
+
+        if (res.getBoolean("verbose")) {
+            Logging.setLevel(Level.ALL);
+        }
+
+        final File f = res.getFile("sasl");
         final Writer out;
         try {
-            if (args.length == 1) {
-                final String arg = args[0].trim();
-                out = IOUtils.utf8Writer(new File(arg));
+            if (f != null) {
+                out = IOUtils.utf8Writer(f);
             } else {
                 out = IOUtils.STDOUT;
             }

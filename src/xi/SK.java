@@ -1,7 +1,5 @@
 package xi;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 
 import xi.go.VM;
@@ -9,6 +7,12 @@ import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.util.IOUtils;
 import xi.util.Logging;
+
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.SimpleJSAP;
+import com.martiansoftware.jsap.Switch;
+import com.martiansoftware.jsap.UnflaggedOption;
+import com.martiansoftware.jsap.stringparsers.FileStringParser;
 
 /**
  * An SK interpreter, reading and executing a single fully linked SK expression.
@@ -22,37 +26,36 @@ public class SK {
      * 
      * @param args
      *            command line arguments
-     * @throws IOException
+     * @throws Exception
+     *             in case of fire
      */
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws Exception {
 
-        if (args.length == 0) {
-            usage("");
+        final SimpleJSAP parser = new SimpleJSAP("sk",
+                "Executes a single fully linked SK expression.");
+
+        parser.registerParameter(new Switch("shared", 'c', "cse",
+                "performs common subexpression elimination"));
+        final Switch verbose = new Switch("verbose", 'v', "verbose",
+                "prints informational messages to STDERR");
+        parser.registerParameter(verbose);
+        final UnflaggedOption sk = new UnflaggedOption("sk", FileStringParser
+                .getParser().setMustBeFile(true).setMustExist(true), null,
+                true, false, "SK file to be executed");
+        parser.registerParameter(sk);
+
+        final JSAPResult res = parser.parse(args);
+        if (parser.messagePrinted()) {
+            System.exit(1);
         }
 
-        int pos = -1;
-        boolean shared = false;
-        while (++pos < args.length - 1) {
-            final String arg = args[pos];
-            if ("-cse".equals(arg)) {
-                shared = true;
-            } else if ("-h".equals(arg) || "--help".equals(arg)) {
-                usage("");
-            } else if ("-v".equals(arg)) {
-                Logging.setLevel(Level.INFO);
-            } else {
-                usage("Unknown parameter: '" + arg + "'\n");
-            }
-        }
-
-        final File f = new File(args[pos]);
-        if (!f.canRead()) {
-            usage("File doesn't exist!\n");
+        if (res.getBoolean("verbose")) {
+            Logging.setLevel(Level.ALL);
         }
 
         final Thunk[] main = { null };
 
-        new CstSKParser(shared) {
+        new CstSKParser(res.getBoolean("shared")) {
             @Override
             protected void def(final String name, final Thunk body) {
                 if (main[0] != null || !name.equals("main")) {
@@ -61,7 +64,7 @@ public class SK {
                 }
                 main[0] = body;
             }
-        }.read(IOUtils.utf8Reader(f));
+        }.read(IOUtils.utf8Reader(res.getFile("sk")));
 
         if (main[0] == null) {
             throw new IllegalArgumentException("No main method.");
@@ -70,18 +73,4 @@ public class SK {
         System.out.println("SK code: " + main[0]);
         VM.run(main, IOUtils.STDOUT);
     }
-
-    /**
-     * Prints a usage message and exits.
-     * 
-     * @param desc
-     *            error description
-     */
-    private static final void usage(final String desc) {
-        System.err.println(desc + "Usage: sk [-cse] [-v] <sk_file> <arg>...\n"
-                + "\t-cse: perform common subexpression elimination\n"
-                + "\t-v:   verbose mode, prints info output to STDERR");
-        System.exit(1);
-    }
-
 }

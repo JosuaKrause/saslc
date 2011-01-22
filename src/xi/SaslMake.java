@@ -1,15 +1,18 @@
 package xi;
 
-import static xi.linker.Make.COMMENT;
-import static xi.linker.Make.MAIN;
-import static xi.linker.Make.SASL;
-import static xi.linker.Make.SK;
-import static xi.linker.Make.SK_LIB;
-import static xi.linker.Make.START;
-
 import java.io.File;
+import java.util.logging.Level;
 
 import xi.linker.Make;
+import xi.util.Logging;
+
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.SimpleJSAP;
+import com.martiansoftware.jsap.Switch;
+import com.martiansoftware.jsap.UnflaggedOption;
+import com.martiansoftware.jsap.stringparsers.FileStringParser;
+import com.martiansoftware.jsap.stringparsers.IntSizeStringParser;
 
 /**
  * The sasl_make command-line tool, making automatic builds possible.
@@ -19,96 +22,70 @@ import xi.linker.Make;
 public class SaslMake {
 
     /**
-     * Printing the usage message.
-     */
-    public static void usage() {
-        System.err
-                .println("Usage: sasl_make [-help] [-r] [-f] [-cst] [-j <jobs>] <makefile>");
-        System.err.println("-help: Shows this help");
-        System.err.println("-r: Runs the program afterwards");
-        System.err.println("-f: Forces a complete rebuild");
-        System.err
-                .println("-cst: advises the VM to use shared trees when running");
-        System.err.println("-j: use concurrent compilation");
-        System.err
-                .println("<jobs>: the number of threads to use when compiling (default is 1)");
-        System.err.println("<makefile>: the makefile to interpret");
-        System.err.println("  The syntax of a makefile is fairly easy.");
-        System.err.println("  Every line is a SASL file (" + SASL
-                + ") or a directory containing");
-        System.err.println("  them (will be scanned recursively) to compile.");
-        System.err.println("  The files are linked in the order given by the");
-        System.err.println("  makefile. A line starting with '" + START
-                + "' defines the");
-        System.err
-                .println("  starting symbol. When no such line is given, the default");
-        System.err.println("  " + MAIN + " is used. Everything after a "
-                + COMMENT + " is");
-        System.err.println("  interpreted as a comment.");
-        System.err.println("Old " + SK_LIB + " files and the <makefile>" + SK
-                + " will be");
-        System.err
-                .println("overwritten. Informations about the progress will be");
-        System.err
-                .println("printed to STD_ERR. The results of the program when");
-        System.err.println("started with -r will be printed to STD_OUT.");
-    }
-
-    /**
      * Main method.
      * 
      * @param args
      *            command-line arguments
+     * @throws Exception
+     *             in case of tornadoes
      */
-    public static void main(final String[] args) {
-        if (args.length == 0) {
-            usage();
-            return;
+    public static void main(final String[] args) throws Exception {
+        final SimpleJSAP parser = new SimpleJSAP("sasl_make",
+                "Interprets a SASL make file (*.smake), compiling, linking"
+                        + " and optionally executing a SASL program.");
+
+        final FlaggedOption jobs = new FlaggedOption("jobs",
+                IntSizeStringParser.getParser(), "1", false, 'j', "jobs",
+                "number of threads used in compilation");
+        parser.registerParameter(jobs);
+        parser.registerParameter(new Switch("run", 'r', "run",
+                "runs the compiled SASL program"));
+        parser.registerParameter(new Switch("force", 'f', "force",
+                "Forces a complete rebuild"));
+        parser.registerParameter(new Switch("shared", 'c', "cse",
+                "performs common subexpression elimination"));
+        final Switch verbose = new Switch("verbose", 'v', "verbose",
+                "prints informational messages to STDERR");
+        parser.registerParameter(verbose);
+        final UnflaggedOption makefile = new UnflaggedOption(
+                "makefile",
+                FileStringParser.getParser().setMustBeFile(true).setMustExist(
+                        true),
+                null,
+                true,
+                false,
+                "the makefile to "
+                        + "interpret\nThe syntax of a makefile is fairly easy.\n"
+                        + "Every line is a SASL file (.sasl) or a directory "
+                        + "containing them (will be scanned recursively) to "
+                        + "compile. The files are linked in the order given by "
+                        + "the makefile. A line starting with 'START:' defines "
+                        + "the starting symbol. When no such line is given, "
+                        + "the default main is used. Everything after a # is "
+                        + "interpreted as a comment. "
+                        + "Old .sklib files and the <makefile>.sk will be "
+                        + "overwritten. Informations about the progress will be "
+                        + "printed to STD_ERR. The results of the program when "
+                        + "started with -r will be printed to STDOUT.");
+        parser.registerParameter(makefile);
+
+        final JSAPResult res = parser.parse(args);
+        if (parser.messagePrinted()) {
+            System.exit(1);
         }
-        int jobs = 1;
-        boolean run = false;
-        boolean force = false;
-        boolean shared = false;
-        String makeFile = null;
-        try {
-            for (int i = 0; i < args.length; ++i) {
-                final String arg = args[i];
-                if (arg.equals("-help")) {
-                    usage();
-                    return;
-                }
-                if (arg.equals("-r")) {
-                    run = true;
-                } else if (arg.equals("-f")) {
-                    force = true;
-                } else if (arg.equals("-cst")) {
-                    shared = true;
-                } else if (arg.equals("-j")) {
-                    if (i >= args.length - 1) {
-                        usage();
-                        return;
-                    }
-                    jobs = Integer.valueOf(args[++i].trim());
-                } else {
-                    if (makeFile != null || i != args.length - 1) {
-                        usage();
-                        return;
-                    }
-                    makeFile = arg;
-                }
-            }
-            if (makeFile == null) {
-                usage();
-                return;
-            }
-        } catch (final Exception e) {
-            e.printStackTrace();
-            usage();
-            return;
+
+        if (res.getBoolean("verbose")) {
+            Logging.setLevel(Level.ALL);
         }
-        final Make m = new Make(shared, force, jobs);
+
+        final int j = Math.max(1, res.getInt("jobs"));
+        final boolean run = res.getBoolean("run");
+        final boolean force = res.getBoolean("force");
+        final boolean shared = res.getBoolean("shared");
+        final File makeFile = res.getFile("makefile");
+        final Make m = new Make(shared, force, j);
         try {
-            m.make(new File(makeFile), run);
+            m.make(makeFile, run);
         } catch (final Exception e) {
             System.err.println();
             e.printStackTrace();
