@@ -38,10 +38,20 @@ public class Lambda extends Expr {
         return !name.equals(var) && expr[0].hasFree(var);
     }
 
+    /**
+     * Getter for the Lambda expression's body.
+     * 
+     * @return body expression
+     */
     public Expr getBody() {
         return expr[0];
     }
 
+    /**
+     * Getter for the lambda expression's variable name.
+     * 
+     * @return variable name
+     */
     public String getName() {
         return name.getName();
     }

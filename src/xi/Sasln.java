@@ -13,12 +13,21 @@ import xi.sk.SKWriter;
 import xi.util.IOUtils;
 
 /**
+ * An SK linker, reading multiple SK libraries and creating a single SK
+ * expression, starting from a given start symbol.
  * 
  * @author Joschi
- * 
  */
 public class Sasln {
 
+    /**
+     * Main method.
+     * 
+     * @param args
+     *            command-line arguments
+     * @throws Exception
+     *             if anything goes wrong
+     */
     public static void main(final String[] args) throws Exception {
         String start = "main";
         final ArrayList<Reader> inputs = new ArrayList<Reader>();

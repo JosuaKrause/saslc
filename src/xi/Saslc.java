@@ -10,8 +10,24 @@ import xi.parser.Parser;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;
 
+/**
+ * SASL compiler tool.
+ * 
+ * @author Leo Woerteler
+ */
 public class Saslc {
 
+    /**
+     * Compiles the SASL module given in the Reader, writing the resulting SK
+     * expression to the given Writer.
+     * 
+     * @param in
+     *            SASL reader
+     * @param out
+     *            Writer to write the SK code to
+     * @throws Exception
+     *             in case of alien invasion
+     */
     private static void compile(final Reader in, final Writer out)
             throws Exception {
         final Parser p = new Parser(new Lexer(in));
@@ -21,33 +37,25 @@ public class Saslc {
         sk.close();
     }
 
-    private static void usage(final String err) {
-        System.err.println("Usage: saslc [<outfile>]");
-        System.err
-                .println("<outfile>: An optional file to write the result to.");
-        System.err
-                .println("The program is read by STD_IN and by default written to STD_OUT.");
-        System.exit(1);
-    }
-
+    /**
+     * Main method.
+     * 
+     * @param args
+     *            command-line arguments
+     * @throws Exception
+     *             if anything goes wrong
+     */
     public static void main(final String[] args) throws Exception {
-        if (args.length > 1) {
-            usage("too many arguments");
-        }
         final Writer out;
         try {
             if (args.length == 1) {
                 final String arg = args[0].trim();
-                if (arg.equals("-help")) {
-                    usage("");
-                }
                 out = IOUtils.utf8Writer(new File(arg));
             } else {
                 out = IOUtils.STDOUT;
             }
         } catch (final Exception e) {
             e.printStackTrace();
-            usage("An Exception occured!");
             return;
         }
         compile(IOUtils.STDIN, out);

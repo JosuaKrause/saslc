@@ -1,19 +1,16 @@
-package xi.ast.parser;
+package xi.ast;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-import xi.ast.App;
-import xi.ast.Bool;
-import xi.ast.BuiltIn;
-import xi.ast.Char;
-import xi.ast.Expr;
-import xi.ast.Name;
-import xi.ast.Num;
-import xi.ast.Str;
 import xi.sk.SKParser;
 import xi.sk.SKPrim;
 
+/**
+ * An SK parser that writes the parsed definition into the given map.
+ * 
+ * @author Leo Woerteler
+ */
 public class AstSKParser extends SKParser<Expr> {
 
     /** Definition map. */

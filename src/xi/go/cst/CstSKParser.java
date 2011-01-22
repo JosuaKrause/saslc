@@ -11,6 +11,12 @@ import xi.sk.SKParser;
 import xi.sk.SKPrim;
 import xi.util.Logging;
 
+/**
+ * An abstract SK parser producing SK trees, leaving the decision about what to
+ * do with the parsed definition to the sumclass.
+ * 
+ * @author Leo Woerteler
+ */
 public abstract class CstSKParser extends SKParser<Thunk> {
 
     /** Sharing flag. */

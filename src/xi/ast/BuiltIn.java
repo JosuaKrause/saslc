@@ -108,7 +108,8 @@ public class BuiltIn extends Value {
      * Retrieves the BuiltIn associated with the given character.
      * 
      * @param c
-     * @return
+     *            character for the BuiltIn
+     * @return associated BuiltIn if existent, {@code null} otherwise
      */
     public static BuiltIn forChar(final char c) {
         final BuiltIn b = TABLE[c];

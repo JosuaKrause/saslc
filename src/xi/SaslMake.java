@@ -12,12 +12,15 @@ import java.io.File;
 import xi.linker.Make;
 
 /**
+ * The sasl_make command-line tool, making automatic builds possible.
  * 
  * @author Joschi
- * 
  */
 public class SaslMake {
 
+    /**
+     * Printing the usage message.
+     */
     public static void usage() {
         System.err
                 .println("Usage: sasl_make [-help] [-r] [-f] [-cst] [-j <jobs>] <makefile>");
@@ -51,6 +54,12 @@ public class SaslMake {
         System.err.println("started with -r will be printed to STD_OUT.");
     }
 
+    /**
+     * Main method.
+     * 
+     * @param args
+     *            command-line arguments
+     */
     public static void main(final String[] args) {
         if (args.length == 0) {
             usage();

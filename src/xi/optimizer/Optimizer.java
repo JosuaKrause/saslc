@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import xi.ast.App;
+import xi.ast.AstSKParser;
 import xi.ast.BuiltIn;
 import xi.ast.Expr;
 import xi.ast.Module;
 import xi.ast.Name;
-import xi.ast.parser.AstSKParser;
 
 /**
  * An optimizer for the SK output.
@@ -57,12 +57,24 @@ public class Optimizer extends AstSKParser {
         return opt;
     }
 
+    /** Pattern for (B f g). */
     private static final Expr[] B_PAT = { BuiltIn.B, null, null };
+    /** Pattern for (C f g). */
     private static final Expr[] C_PAT = { BuiltIn.C, null, null };
+    /** Pattern for (C I x f). */
     private static final Expr[] CI_PAT = { BuiltIn.C, BuiltIn.I, null, null };
+    /** Pattern for (K x). */
     private static final Expr[] K_PAT = { BuiltIn.K, null };
+    /** Pattern for (S f g). */
     private static final Expr[] S_PAT = { BuiltIn.S, null, null };
 
+    /**
+     * Optimizes an SK expression via pattern matching.
+     * 
+     * @param e
+     *            SK expression
+     * @return potentially optimized expression
+     */
     public static Expr optimize(final Expr e) {
 
         final Expr[] s = e.match(S_PAT);

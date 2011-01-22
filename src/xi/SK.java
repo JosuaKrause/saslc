@@ -10,6 +10,11 @@ import xi.go.cst.Thunk;
 import xi.util.IOUtils;
 import xi.util.Logging;
 
+/**
+ * An SK interpreter, reading and executing a single fully linked SK expression.
+ * 
+ * @author Leo Woerteler
+ */
 public class SK {
 
     /**

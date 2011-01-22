@@ -1,16 +1,13 @@
 package xi;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.logging.Level;
 
 import xi.optimizer.Optimizer;
 import xi.sk.SKWriter;
+import xi.util.IOUtils;
 import xi.util.Logging;
 
 import com.martiansoftware.jsap.FlaggedOption;
@@ -20,8 +17,21 @@ import com.martiansoftware.jsap.Switch;
 import com.martiansoftware.jsap.UnflaggedOption;
 import com.martiansoftware.jsap.stringparsers.FileStringParser;
 
+/**
+ * A pattern-matching optimizer for SK code.
+ * 
+ * @author Leo Woerteler
+ */
 public class Saslo {
 
+    /**
+     * Main method.
+     * 
+     * @param args
+     *            command-line arguments
+     * @throws Exception
+     *             in case of fire
+     */
     public static void main(final String[] args) throws Exception {
 
         final SimpleJSAP parser = new SimpleJSAP("saslo");
@@ -51,10 +61,10 @@ public class Saslo {
         }
 
         final File inFile = opts.getFile("in"), outFile = opts.getFile("out");
-        final Reader r = new InputStreamReader(inFile == null ? System.in
-                : new FileInputStream(inFile), "UTF-8");
-        final Writer w = new OutputStreamWriter(outFile == null ? System.out
-                : new FileOutputStream(outFile), "UTF-8");
+        final Reader r = inFile == null ? IOUtils.STDIN : IOUtils
+                .utf8Reader(inFile);
+        final Writer w = outFile == null ? IOUtils.STDOUT : IOUtils
+                .utf8Writer(outFile);
 
         final SKWriter skw = new SKWriter(w);
         skw.write(Optimizer.optimize(r));

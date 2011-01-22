@@ -1,1 +1,3 @@
-main = guardList;
+main = iterate plus1 0;
+
+plus1 x = x + 1;

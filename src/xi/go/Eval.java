@@ -21,6 +21,13 @@ public class Eval {
     /** Logger. */
     static final Logger log = Logging.getLogger(Eval.class);
 
+    /**
+     * Parses the definitions inside an SKTree into a map.
+     * 
+     * @param tree
+     *            SKTree to read
+     * @return map of definitions
+     */
     public static Map<String, Thunk> parse(final SKTree tree) {
 
         final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
@@ -39,6 +46,15 @@ public class Eval {
         return fTable;
     }
 
+    /**
+     * Links the expression to execute through direct pointers.
+     * 
+     * @param fns
+     *            functions to link
+     * @param entry
+     *            start symbol
+     * @return linked expression
+     */
     public static Thunk link(final Map<String, Thunk> fns, final String entry) {
 
         if (!fns.containsKey(entry)) {

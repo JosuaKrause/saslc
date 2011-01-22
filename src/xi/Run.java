@@ -19,9 +19,9 @@ import xi.util.IOUtils;
 import xi.util.Logging;
 
 /**
+ * Runs a given SASL file.
  * 
  * @author Joschi
- * 
  */
 public class Run {
 

@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
 
+import xi.ast.AstSKParser;
 import xi.ast.Expr;
 import xi.ast.LetIn;
 import xi.ast.Module;
 import xi.ast.Name;
-import xi.ast.parser.AstSKParser;
 
 /**
  * A linker for the SK output.
@@ -44,6 +44,14 @@ public class Linker {
         }
     }
 
+    /**
+     * Creates an expression without name references by fusing all needed
+     * definitions into the one associated with the name {@code startSym}.
+     * 
+     * @param startSym
+     *            start symbol
+     * @return linked expression
+     */
     public Expr link(final String startSym) {
         final Map<String, Expr> required = new HashMap<String, Expr>();
         final Queue<String> queue = new ArrayDeque<String>();

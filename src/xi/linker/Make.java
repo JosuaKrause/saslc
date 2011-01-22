@@ -33,40 +33,75 @@ import xi.util.IOUtils;
  */
 public class Make {
 
+    /** Keyword for the start symbol. */
     public static final String START = "START:";
-
+    /** Standard start symbol. */
     public static final String MAIN = "main";
 
-    // file names cannot contain #
+    /** Comment delimiter. */
     public static final String COMMENT = "#";
 
+    /** SASL file extension. */
     public static final String SASL = ".sasl";
-
+    /** SKLib extension. */
     public static final String SK_LIB = ".sklib";
-
+    /** SK extension. */
     public static final String SK = ".sk";
-
+    /** SKMake extension. */
     public static final String MAKE = ".smake";
 
+    /** Sharing flag. */
     private final boolean shared;
-
+    /** Flag for forcing recreation of all files. */
     private final boolean force;
 
+    /** Number of compiling threads. */
     private final int jobs;
 
+    /**
+     * Constructor.
+     * 
+     * @param cst
+     *            flag for common subexpression elimination
+     * @param force
+     *            flag for forcing recreation of all files
+     * @param jobs
+     *            number of compiling threads
+     */
     public Make(final boolean cst, final boolean force, final int jobs) {
         this.force = force;
         this.jobs = jobs;
         shared = cst;
     }
 
-    private static String removeExt(String file, final String ext) {
-        if (file.endsWith(ext)) {
-            file = file.substring(0, file.length() - ext.length());
+    /**
+     * Removes the given extension from the given file name, if it exists.
+     * 
+     * @param file
+     *            file name
+     * @param ext
+     *            extension
+     * @return fine name without extension
+     */
+    private static String removeExt(final String file, final String ext) {
+        String f = file;
+        if (f.endsWith(ext)) {
+            f = f.substring(0, f.length() - ext.length());
         }
-        return file;
+        return f;
     }
 
+    /**
+     * Reads an SMake-file, setting the options from it.
+     * 
+     * @param s
+     *            Scanner for the SMake file
+     * @param files
+     *            paths paths that should be included
+     * @return start symbol
+     * @throws IllegalArgumentException
+     * @throws IOException
+     */
     protected String readMake(final Scanner s, final List<File> files)
             throws IllegalArgumentException, IOException {
         String start = null;
@@ -109,6 +144,14 @@ public class Make {
         return start == null ? MAIN : start;
     }
 
+    /**
+     * Adds all files in the given directory, recursively.
+     * 
+     * @param f
+     *            directory
+     * @param files
+     *            list of files to include
+     */
     private void addDir(final File f, final List<File> files) {
         if (f.isFile()) {
             if (f.getName().endsWith(SASL)) {
@@ -123,6 +166,16 @@ public class Make {
         }
     }
 
+    /**
+     * Compiles the given SASL file.
+     * 
+     * @param file
+     *            SASL file
+     * @return {@code true}, if no compilation was necessary, {@code false}
+     *         otherwise
+     * @throws Exception
+     *             if anything went wrong
+     */
     protected boolean compile(final File file) throws Exception {
         final File newFile = new File(removeExt(file.getCanonicalPath(), SASL)
                 + SK_LIB);
@@ -140,6 +193,14 @@ public class Make {
         return false;
     }
 
+    /**
+     * Compiles all files in the given list.
+     * 
+     * @param files
+     *            files to compile
+     * @throws Exception
+     *             if anything went wrong
+     */
     private void compileAll(final List<File> files) throws Exception {
         if (jobs <= 1) {
             for (final File f : files) {
@@ -168,36 +229,19 @@ public class Make {
         }
     }
 
-    private class CompilerJob extends Thread {
-
-        private final Queue<File> queue;
-
-        public boolean good;
-
-        public CompilerJob(final Queue<File> queue) {
-            this.queue = queue;
-            good = true;
-        }
-
-        @Override
-        public void run() {
-            File f;
-            while ((f = queue.poll()) != null) {
-                try {
-                    final boolean already = compile(f);
-                    System.err.println(f
-                            + (already ? " [not modified]" : " [compiled]"));
-                } catch (final Exception e) {
-                    synchronized (System.err) {
-                        System.err.println(f + " [error]");
-                        e.printStackTrace();
-                    }
-                    good = false;
-                }
-            }
-        }
-    }
-
+    /**
+     * Links the definitions in the given SASL files, resulting in a single SK
+     * expression, starting from the given start symbol.
+     * 
+     * @param files
+     *            SASL files to link
+     * @param start
+     *            start symbol
+     * @param out
+     *            SK file to rwite to
+     * @throws IOException
+     *             I/O exception
+     */
     protected void link(final List<File> files, final String start,
             final File out) throws IOException {
         final List<Reader> inputs = new ArrayList<Reader>(files.size());
@@ -215,6 +259,14 @@ public class Make {
         sk.close();
     }
 
+    /**
+     * Runs the given SMake file.
+     * 
+     * @param in
+     *            SMake configuration
+     * @throws IOException
+     *             I/O exception
+     */
     protected void run(final File in) throws IOException {
         final Thunk[] main = { null };
 
@@ -236,6 +288,16 @@ public class Make {
         VM.run(main, new OutputStreamWriter(System.out));
     }
 
+    /**
+     * Executes the given configuration.
+     * 
+     * @param makefile
+     *            SMake configuration
+     * @param run
+     *            whether the SK expression should be executed
+     * @throws Exception
+     *             in case of fire
+     */
     public void make(final File makefile, final boolean run) throws Exception {
         try {
             final List<File> files = new LinkedList<File>();
@@ -258,6 +320,47 @@ public class Make {
             }
         } catch (final Exception e) {
             throw new Exception(e);
+        }
+    }
+
+    /**
+     * Compiler thread.
+     * 
+     * @author Josua Krause
+     */
+    private class CompilerJob extends Thread {
+        /** Queue of files to compile. */
+        private final Queue<File> queue;
+        /** Error flag. */
+        public boolean good;
+
+        /**
+         * Constructor.
+         * 
+         * @param queue
+         *            files to compile
+         */
+        public CompilerJob(final Queue<File> queue) {
+            this.queue = queue;
+            good = true;
+        }
+
+        @Override
+        public void run() {
+            File f;
+            while ((f = queue.poll()) != null) {
+                try {
+                    final boolean already = compile(f);
+                    System.err.println(f
+                            + (already ? " [not modified]" : " [compiled]"));
+                } catch (final Exception e) {
+                    synchronized (System.err) {
+                        System.err.println(f + " [error]");
+                        e.printStackTrace();
+                    }
+                    good = false;
+                }
+            }
         }
     }
 
