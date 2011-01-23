@@ -49,6 +49,11 @@ public class Parser]]></replacevalue>
 			<replacevalue><![CDATA[@SuppressWarnings("all")
 class CUP$Parser$actions]]></replacevalue>
 		</replace>
+        <replace file="${src}${cupDest}Terminal.java">
+            <replacetoken>public class Terminal</replacetoken> 
+            <replacevalue><![CDATA[@SuppressWarnings("all")
+public class Terminal]]></replacevalue>
+        </replace>
 	</target>
 	<target name="compileRest">
 		<!-- recompile the whole source folder -->
