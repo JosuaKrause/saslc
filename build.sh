@@ -13,10 +13,9 @@ rm src/xi/lexer/Lexer.java~
 # compile the sources
 mkdir -pv bin
 cd bin
-javac -classpath "../lib/java-cup-11a.jar;../lib/JSAP-2.1.jar" -d . -sourcepath ../src `find ../src/* -type f`
+javac -verbose -classpath "../lib/java-cup-11a.jar;../lib/JSAP-2.1.jar" -d . -sourcepath ../src `find ../src/* -type f -name *.java`
 
 # create jars
-# TODO: more libs...
 jar xf ../lib/JSAP-2.1.jar
 jar xf ../lib/java-cup-11a.jar
 jar cf ../saslc.jar .
