@@ -114,6 +114,17 @@ public final class Function extends Prim {
             }
         },
 
+        /** The uncurry combinator. */
+        U_PRIME(SKPrim.U_PRIME) {
+            @Override
+            public Node apply(final Thunk... args) {
+                final Thunk f = args[0];
+                final Value z = args[1].wHNF();
+                return z.isList() ? new App(app(f, z.getHead()), z.getTail())
+                        : Fail.INSTANCE;
+            }
+        },
+
         /** Addition. */
         ADD(SKPrim.ADD) {
             @Override

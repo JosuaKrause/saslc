@@ -76,6 +76,8 @@ public class BuiltIn extends Value {
     public static final BuiltIn Y = new BuiltIn(SKPrim.Y);
     /** The uncurry combinator. */
     public static final BuiltIn U = new BuiltIn(SKPrim.U);
+    /** The strict uncurry combinator. */
+    public static final BuiltIn U_PRIME = new BuiltIn(SKPrim.U_PRIME);
     /** Head of a list. */
     public static final BuiltIn HD = new BuiltIn(SKPrim.HEAD);
     /** Tail of a list. */
@@ -84,6 +86,8 @@ public class BuiltIn extends Value {
     public static final BuiltIn SEQ = new BuiltIn(SKPrim.SEQ);
     /** Character casting operator. */
     public static final BuiltIn CHAR = new BuiltIn(SKPrim.CHAR);
+    /** Pattern-match failure operator. */
+    public static final BuiltIn FAIL = new BuiltIn(SKPrim.FAIL);
 
     /** Display name of this operation. */
     private final SKPrim prim;

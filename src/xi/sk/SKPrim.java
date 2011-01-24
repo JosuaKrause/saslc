@@ -37,6 +37,9 @@ public enum SKPrim {
     /** The uncurry combinator. */
     U('U'),
 
+    /** The strict uncurry combinator. */
+    U_PRIME("U'", 'u'),
+
     /** Addition. */
     ADD('+'),
 
@@ -104,7 +107,12 @@ public enum SKPrim {
     NOP('\0', Integer.MAX_VALUE),
 
     /** The empty list. */
-    NIL("[]", '_', 0);
+    NIL("[]", '_', 0),
+
+    /** The pattern-match failure primitive. */
+    FAIL("FAIL", 'f', 0),
+
+    ;
 
     /** The function's cardinality. */
     public final int arity;

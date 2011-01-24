@@ -12,8 +12,8 @@ import static xi.ast.BuiltIn.S_PRIME;
 import java.util.Deque;
 import java.util.Set;
 
-import xi.sk.SKVisitor;
 import xi.optimizer.OptLevel;
+import xi.sk.SKVisitor;
 import xi.util.Logging;
 
 /**
