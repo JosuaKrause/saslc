@@ -36,12 +36,12 @@ public class SaslMake {
 
         final FlaggedOption jobs = new FlaggedOption("jobs",
                 IntSizeStringParser.getParser(), "1", false, 'j', "jobs",
-                "number of threads used in compilation");
+                "number of threads used for compilation");
         parser.registerParameter(jobs);
         parser.registerParameter(new Switch("run", 'r', "run",
                 "runs the compiled SASL program"));
         parser.registerParameter(new Switch("force", 'f', "force",
-                "Forces a complete rebuild"));
+                "forces a complete rebuild"));
         parser.registerParameter(new Switch("shared", 'c', "cse",
                 "performs common subexpression elimination"));
         final Switch verbose = new Switch("verbose", 'v', "verbose",
@@ -56,17 +56,22 @@ public class SaslMake {
                 false,
                 "the makefile to "
                         + "interpret\nThe syntax of a makefile is fairly easy.\n"
-                        + "Every line is a SASL file (.sasl) or a directory "
-                        + "containing them (will be scanned recursively) to "
-                        + "compile. The files are linked in the order given by "
-                        + "the makefile. A line starting with 'START:' defines "
-                        + "the starting symbol. When no such line is given, "
-                        + "the default main is used. Everything after a # is "
-                        + "interpreted as a comment. "
-                        + "Old .sklib files and the <makefile>.sk will be "
-                        + "overwritten. Informations about the progress will be "
-                        + "printed to STD_ERR. The results of the program when "
-                        + "started with -r will be printed to STDOUT.");
+                        + "Every line is a SASL file ("
+                        + Make.SASL
+                        + ") or a directory containing them (will be scanned "
+                        + "recursively) to compile. The files are linked in the "
+                        + "order given by the makefile. A line starting with '"
+                        + Make.START
+                        + "' defines the starting symbol. When no such line is "
+                        + "given, the default main is used. Everything after a "
+                        + Make.COMMENT
+                        + " is interpreted as a comment. Old "
+                        + Make.SK_LIB
+                        + " files and the <makefile>"
+                        + Make.SK
+                        + " will be overwritten. Informations about the "
+                        + "progress will be printed to STD_ERR. The results of "
+                        + "the program when started with -r will be printed to STDOUT.");
         parser.registerParameter(makefile);
 
         final JSAPResult res = parser.parse(args);
