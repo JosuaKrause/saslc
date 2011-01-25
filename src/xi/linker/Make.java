@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +23,8 @@ import xi.go.VM;
 import xi.go.cst.CstSKParser;
 import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
+import xi.optimizer.OptLevel;
+import xi.optimizer.Optimizer;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;
@@ -254,9 +258,19 @@ public class Make {
         final Module mod = new Module(false);
         mod.addDefinition(Name.valueOf(MAIN), linked);
 
-        final SKWriter sk = new SKWriter(new FileWriter(out));
-        sk.write(mod);
-        sk.close();
+        if (OptLevel.PATTERN_OPT.isSet()) {
+            final StringWriter sw = new StringWriter();
+            final SKWriter sk = new SKWriter(sw);
+            sk.write(mod);
+            sk.close();
+            final SKWriter fin = new SKWriter(new FileWriter(out));
+            fin.write(Optimizer.optimize(new StringReader(sw.toString())));
+            fin.close();
+        } else {
+            final SKWriter sk = new SKWriter(new FileWriter(out));
+            sk.write(mod);
+            sk.close();
+        }
     }
 
     /**

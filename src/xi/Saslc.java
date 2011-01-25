@@ -7,11 +7,13 @@ import java.util.logging.Level;
 
 import xi.ast.Node;
 import xi.lexer.Lexer;
+import xi.optimizer.OptLevel;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;
 import xi.util.Logging;
 
+import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.SimpleJSAP;
 import com.martiansoftware.jsap.Switch;
@@ -60,6 +62,10 @@ public class Saslc {
         final Switch verbose = new Switch("verbose", 'v', "verbose",
                 "prints informational messages to STDERR");
         parser.registerParameter(verbose);
+        final FlaggedOption opt = new FlaggedOption("opt", BitFieldParser
+                .getParser(), "-1", false, 'o', "opt",
+                "sets the optimization level as octal number");
+        parser.registerParameter(opt);
         final UnflaggedOption sasl = new UnflaggedOption("sasl",
                 FileStringParser.getParser().setMustBeFile(true).setMustExist(
                         true), null, false, false, "SASL module to compile.\n"
@@ -74,6 +80,8 @@ public class Saslc {
         if (res.getBoolean("verbose")) {
             Logging.setLevel(Level.ALL);
         }
+
+        OptLevel.setLevel(res.getInt("opt"));
 
         final File f = res.getFile("sasl");
         final Writer out;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.logging.Level;
 
 import xi.linker.Make;
+import xi.optimizer.OptLevel;
 import xi.util.Logging;
 
 import com.martiansoftware.jsap.FlaggedOption;
@@ -42,6 +43,10 @@ public class SaslMake {
                 "runs the compiled SASL program"));
         parser.registerParameter(new Switch("force", 'f', "force",
                 "forces a complete rebuild"));
+        final FlaggedOption opt = new FlaggedOption("opt", BitFieldParser
+                .getParser(), "-1", false, 'o', "opt",
+                "sets the optimization level as octal number");
+        parser.registerParameter(opt);
         parser.registerParameter(new Switch("shared", 'c', "cse",
                 "performs common subexpression elimination"));
         final Switch verbose = new Switch("verbose", 'v', "verbose",
@@ -82,6 +87,8 @@ public class SaslMake {
         if (res.getBoolean("verbose")) {
             Logging.setLevel(Level.ALL);
         }
+
+        OptLevel.setLevel(res.getInt("opt"));
 
         final int j = Math.max(1, res.getInt("jobs"));
         final boolean run = res.getBoolean("run");
