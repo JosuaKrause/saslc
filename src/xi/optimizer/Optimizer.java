@@ -16,6 +16,7 @@ import xi.ast.Name;
  * An optimizer for the SK output.
  * 
  * @author Leo
+ * @author Joschi
  */
 public class Optimizer extends AstSKParser {
 
@@ -50,9 +51,15 @@ public class Optimizer extends AstSKParser {
 
     @Override
     protected Expr app(final Expr f, final Expr x) {
-        final Expr orig = App.create(f, x), opt = optimize(orig);
-        if (orig != opt) {
-            System.out.println(orig + "  ==>  " + opt);
+        Expr orig, opt;
+        for (;;) {
+            orig = App.create(f, x);
+            opt = optimize(orig);
+            if (orig != opt) {
+                System.out.println(orig + "  ==>  " + opt);
+            } else {
+                break;
+            }
         }
         return opt;
     }

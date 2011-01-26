@@ -142,7 +142,7 @@ public abstract class SKParser<T> {
     protected abstract T reference(final String name);
 
     /**
-     * An SKVisitor that uses a stack to reprooduce the SK tree.
+     * An SKVisitor that uses a stack to reproduce the SK tree.
      * 
      * @author Leo Woerteler
      */
