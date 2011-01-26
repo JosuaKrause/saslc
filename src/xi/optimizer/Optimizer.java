@@ -51,9 +51,10 @@ public class Optimizer extends AstSKParser {
 
     @Override
     protected Expr app(final Expr f, final Expr x) {
-        Expr orig, opt;
+        Expr orig;
+        Expr opt = App.create(f, x);
         for (;;) {
-            orig = App.create(f, x);
+            orig = opt;
             opt = optimize(orig);
             if (orig != opt) {
                 System.out.println(orig + "  ==>  " + opt);
