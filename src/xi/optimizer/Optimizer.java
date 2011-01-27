@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import xi.ast.App;
-import xi.ast.AstSKParser;
-import xi.ast.BuiltIn;
-import xi.ast.Expr;
-import xi.ast.Module;
-import xi.ast.Name;
+import xi.compiler.App;
+import xi.compiler.AstSKParser;
+import xi.compiler.BuiltIn;
+import xi.compiler.Expr;
+import xi.compiler.Module;
+import xi.compiler.Name;
 
 /**
  * An optimizer for the SK output.

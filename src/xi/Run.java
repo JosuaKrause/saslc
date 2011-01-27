@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import xi.go.Eval;
-import xi.go.VM;
-import xi.go.cst.Thunk;
 import xi.lexer.Lexer;
 import xi.parser.Parser;
+import xi.runtime.Eval;
+import xi.runtime.VM;
+import xi.runtime.ast.Thunk;
 import xi.sk.SKTree;
 import xi.util.IOUtils;
 import xi.util.Logging;

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import xi.ast.Expr;
-import xi.ast.Module;
-import xi.ast.Name;
+import xi.compiler.Expr;
+import xi.compiler.Module;
+import xi.compiler.Name;
 import xi.linker.Linker;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;

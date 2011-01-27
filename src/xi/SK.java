@@ -2,9 +2,9 @@ package xi;
 
 import java.util.logging.Level;
 
-import xi.go.VM;
-import xi.go.cst.CstSKParser;
-import xi.go.cst.Thunk;
+import xi.runtime.VM;
+import xi.runtime.ast.CstSKParser;
+import xi.runtime.ast.Thunk;
 import xi.util.IOUtils;
 import xi.util.Logging;
 

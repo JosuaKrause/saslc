@@ -10,17 +10,17 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 
 import java_cup.runtime.Symbol;
-import xi.ast.App;
-import xi.ast.Bool;
-import xi.ast.BuiltIn;
-import xi.ast.Char;
-import xi.ast.Expr;
-import xi.ast.Lambda;
-import xi.ast.LetIn;
-import xi.ast.Module;
-import xi.ast.Name;
-import xi.ast.Num;
-import xi.ast.Str;
+import xi.compiler.App;
+import xi.compiler.Bool;
+import xi.compiler.BuiltIn;
+import xi.compiler.Char;
+import xi.compiler.Expr;
+import xi.compiler.Lambda;
+import xi.compiler.LetIn;
+import xi.compiler.Module;
+import xi.compiler.Name;
+import xi.compiler.Num;
+import xi.compiler.Str;
 
 /** CUP v0.11a beta 20060608 generated parser.
   * @version Sun Jan 23 12:44:54 CET 2011

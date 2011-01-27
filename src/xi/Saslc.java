@@ -5,7 +5,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.logging.Level;
 
-import xi.ast.Node;
+import xi.compiler.Node;
 import xi.lexer.Lexer;
 import xi.optimizer.OptLevel;
 import xi.parser.Parser;

@@ -1,8 +1,8 @@
 package xi.parser;
 
 import java_cup.runtime.Symbol;
-import xi.ast.Expr;
-import xi.ast.Name;
+import xi.compiler.Expr;
+import xi.compiler.Name;
 
 /**
  * Thrown when a parse error occurs.

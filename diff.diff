@@ -1,0 +1,4671 @@
+### Eclipse Workspace Patch 1.0
+#P saslc
+--- .classpath	Mon Nov 29 13:13:51 2010
++++ .classpath	Thu Jan 20 23:45:26 2011
+@@ -4,5 +4,6 @@
+ 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+ 	<classpathentry kind="lib" path="lib/JFlex.jar" sourcepath="lib/jflex-1.4.3.zip"/>
+ 	<classpathentry kind="lib" path="lib/java-cup-11a.jar"/>
++	<classpathentry kind="lib" path="lib/JSAP-2.1.jar" sourcepath="lib/JSAP-2.1-src.zip"/>
+ 	<classpathentry kind="output" path="bin"/>
+ </classpath>
+--- .settings/org.eclipse.jdt.core.prefs	Sat Dec 18 11:35:58 2010
++++ .settings/org.eclipse.jdt.core.prefs	Sat Jan 22 20:13:46 2011
+@@ -1,4 +1,4 @@
+-#Sat Dec 18 12:35:57 CET 2010
++#Sat Jan 22 21:13:45 CET 2011
+ eclipse.preferences.version=1
+ org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
+ org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.6
+@@ -29,18 +29,18 @@
+ org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod=warning
+ org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch=warning
+ org.eclipse.jdt.core.compiler.problem.indirectStaticAccess=ignore
+-org.eclipse.jdt.core.compiler.problem.invalidJavadoc=ignore
++org.eclipse.jdt.core.compiler.problem.invalidJavadoc=warning
+ org.eclipse.jdt.core.compiler.problem.invalidJavadocTags=enabled
+ org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef=disabled
+ org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef=disabled
+-org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility=public
++org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility=private
+ org.eclipse.jdt.core.compiler.problem.localVariableHiding=ignore
+-org.eclipse.jdt.core.compiler.problem.methodWithConstructorName=warning
++org.eclipse.jdt.core.compiler.problem.methodWithConstructorName=error
+ org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation=warning
+ org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod=warning
+-org.eclipse.jdt.core.compiler.problem.missingJavadocComments=ignore
++org.eclipse.jdt.core.compiler.problem.missingJavadocComments=warning
+ org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding=disabled
+-org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility=public
++org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility=private
+ org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription=return_tag
+ org.eclipse.jdt.core.compiler.problem.missingJavadocTags=warning
+ org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding=disabled
+@@ -53,7 +53,7 @@
+ org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral=ignore
+ org.eclipse.jdt.core.compiler.problem.nullReference=warning
+ org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod=warning
+-org.eclipse.jdt.core.compiler.problem.parameterAssignment=ignore
++org.eclipse.jdt.core.compiler.problem.parameterAssignment=error
+ org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment=ignore
+ org.eclipse.jdt.core.compiler.problem.potentialNullReference=warning
+ org.eclipse.jdt.core.compiler.problem.rawTypeReference=warning
+--- build.xml	Tue Dec 21 20:06:05 2010
++++ build.xml	Fri Jan 21 12:53:54 2011
+@@ -12,103 +12,133 @@
+ 	<!-- libraries -->
+ 	<property name="cup" location="lib/java-cup-11a.jar"/>
+ 	<property name="jflex" location="lib/JFlex.jar"/>
++	<property name="jsap" location="lib/JSAP-2.1.jar"/>
+ 	<!-- filetime checks -->
+ 	<uptodate property="buildLexer"
+-	                  srcfile="${flexSrc}"
+-	                  targetfile="${src}${flexDest}Lexer.java"/>
++					  srcfile="${flexSrc}"
++					  targetfile="${src}${flexDest}Lexer.java"/>
+ 	<uptodate property="buildParser"
+-	                      srcfile="${cupSrc}"
+-	                      targetfile="${src}${cupDest}Parser.java"/>
++						  srcfile="${cupSrc}"
++						  targetfile="${src}${cupDest}Parser.java"/>
+ 	<!-- the actual targets -->
+-    <target name="saslc_jar">
+-        <jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
+-            <manifest>
+-                <attribute name="Main-Class" value="stefan.SKout"/>
+-                <attribute name="Class-Path" value="."/>
+-            </manifest>
+-            <fileset dir="${bin}">
+-                <exclude name="/xi/go/**"/>
+-            </fileset>
+-            <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+-        </jar>
+-    </target>
+-    <target name="compileFlex" unless="buildLexer">
+-    	<!--
+-    	   build lexer -    	   would produce a new Lexer.java with other in-file-times.
+-    	-->
+-        <java jar="${jflex}" fork="true">
+-            <arg line="-d ${src}${flexDest} ${flexSrc}" />
+-        </java>
+-    	<delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
+-    </target>
++	<target name="compileFlex" unless="buildLexer">
++		<!--
++		   build lexer +		   would produce a new Lexer.java with other in-file-times.
++		-->
++		<java jar="${jflex}" fork="true">
++			<arg line="-d ${src}${flexDest} ${flexSrc}" />
++		</java>
++		<delete file="${src}${flexDest}Lexer.java~" failonerror="false" />
++	</target>
+ 	<target name="compileCup" unless="buildParser">
+-        <!--
+-           build lexer -           would produce a new Lexer.java with other in-file-times.
+-        -->
+-        <java dir="${src}${cupDest}" jar="${cup}" fork="true">
+-            <arg line="-nopositions -symbols Terminal -parser Parser ${cupSrc}" />
+-        </java>
++		<!--
++		   build parser +		   would produce a new Parser.java with other in-file-times.
++		-->
++		<java dir="${src}${cupDest}" jar="${cup}" fork="true">
++			<arg line="-nopositions -symbols Terminal -parser Parser ${cupSrc}" />
++		</java>
+ 		<replace file="${src}${cupDest}Parser.java">
+-		    <replacetoken>public class Parser</replacetoken> 
+-		    <replacevalue><![CDATA[@SuppressWarnings("all")
++			<replacetoken>public class Parser</replacetoken> 
++			<replacevalue><![CDATA[@SuppressWarnings("all")
+ public class Parser]]></replacevalue>
+ 		</replace>
+ 		<replace file="${src}${cupDest}Parser.java">
+-		    <replacetoken>class CUP$Parser$actions</replacetoken> 
+-            <replacevalue><![CDATA[@SuppressWarnings("all")
++			<replacetoken>class CUP$Parser$actions</replacetoken> 
++			<replacevalue><![CDATA[@SuppressWarnings("all")
+ class CUP$Parser$actions]]></replacevalue>
+ 		</replace>
+ 	</target>
+-    <target name="compileRest">
+-    	<!-- recompile the whole source folder -->
+-        <javac srcdir="${src}" destdir="${bin}" verbose="yes">
+-        	<classpath>
+-        		<pathelement location="${cup}" />
+-        	</classpath>
+-        </javac>
+-    	<!-- create the parser test jar -->
+-    	<jar destfile="StefanParser.jar" filesetmanifest="mergewithoutmain">
+-            <manifest>
+-                <attribute name="Main-Class" value="stefan.TestParser"/>
+-                <attribute name="Class-Path" value="."/>
+-            </manifest>
+-            <fileset dir="${bin}" />
+-            <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+-        </jar>
+-    </target>
+-	<target name="run">
+-		<jar destfile="run.jar" filesetmanifest="mergewithoutmain">
+-            <manifest>
+-                <attribute name="Main-Class" value="xi.go.Eval"/>
+-                <attribute name="Class-Path" value="."/>
+-            </manifest>
+-            <fileset dir="${bin}" />
+-            <zipfileset excludes="META-INF/*.SF" src="${cup}"/>
+-        </jar>
++	<target name="compileRest">
++		<!-- recompile the whole source folder -->
++		<javac srcdir="${src}" destdir="${bin}" verbose="yes">
++			<classpath>
++				<pathelement location="${cup}" />
++			</classpath>
++		</javac>
+ 	</target>
+-	<target name="sasln">
++	<target name="jars">
+ 		<jar destfile="sasln.jar" filesetmanifest="mergewithoutmain">
++			<manifest>
++				<attribute name="Main-Class" value="xi.Sasln"/>
++				<attribute name="Class-Path" value="."/>
++			</manifest>
++			<fileset dir="${bin}">
++				<exclude name="/xi/go/**"/>
++				<exclude name="/xi/lexer/**"/>
++				<exclude name="/xi/parser/**"/>
++				<exclude name="/java_cup/**"/>
++			</fileset>
++			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
++		</jar>
++        <jar destfile="saslo.jar" filesetmanifest="mergewithoutmain">
+             <manifest>
+-                <attribute name="Main-Class" value="xi.linker.Linker"/>
++                <attribute name="Main-Class" value="xi.Saslo"/>
+                 <attribute name="Class-Path" value="."/>
+             </manifest>
+-            <fileset dir="${bin}" />
++            <fileset dir="${bin}">
++                <exclude name="/xi/go/**"/>
++                <exclude name="/xi/lexer/**"/>
++                <exclude name="/xi/parser/**"/>
++                <exclude name="/java_cup/**"/>
++            </fileset>
++            <zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
+         </jar>
+-	</target>
+-	<target name="sk">
++		<jar destfile="sasl_make.jar" filesetmanifest="mergewithoutmain">
++			<manifest>
++				<attribute name="Main-Class" value="xi.SaslMake"/>
++				<attribute name="Class-Path" value="."/>
++			</manifest>
++			<fileset dir="${bin}">
++				<exclude name="/java_cup/**"/>
++			</fileset>
++			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
++			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
++		</jar>
++		<jar destfile="run.jar" filesetmanifest="mergewithoutmain">
++			<manifest>
++				<attribute name="Main-Class" value="xi.Run"/>
++				<attribute name="Class-Path" value="."/>
++			</manifest>
++			<fileset dir="${bin}">
++				<exclude name="/xi/linker/**"/>
++				<exclude name="/java_cup/**"/>
++			</fileset>
++			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
++			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
++		</jar>
++		<jar destfile="./saslc.jar" filesetmanifest="mergewithoutmain">
++			<manifest>
++				<attribute name="Main-Class" value="xi.Saslc"/>
++				<attribute name="Class-Path" value="."/>
++			</manifest>
++			<fileset dir="${bin}">
++				<exclude name="/xi/go/**"/>
++				<exclude name="/xi/linker/**"/>
++				<exclude name="/java_cup/**"/>
++			</fileset>
++			<zipfileset excludes="META-INF/*.SF" src="${cup}"/>
++			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
++		</jar>
+ 		<jar destfile="sk.jar" filesetmanifest="mergewithoutmain">
+-            <manifest>
+-                <attribute name="Main-Class" value="xi.go.VM"/>
+-                <attribute name="Class-Path" value="."/>
+-            </manifest>
+-            <fileset dir="${bin}" />
+-        </jar>
++			<manifest>
++				<attribute name="Main-Class" value="xi.SK"/>
++				<attribute name="Class-Path" value="."/>
++			</manifest>
++			<fileset dir="${bin}">
++				<exclude name="/xi/lexer/**"/>
++				<exclude name="/xi/parser/**"/>
++				<exclude name="/xi/ast/**"/>
++				<exclude name="/xi/linker/**"/>
++				<exclude name="/java_cup/**"/>
++			</fileset>
++			<zipfileset excludes="META-INF/*.SF" src="${jsap}"/>
++		</jar>
+ 	</target>
+-    <!-- builds the targets in the given order -->
+-    <target name="all"
+-            depends="compileCup,compileFlex,compileRest,saslc_jar,run,sasln,sk"
+-            description="Build all jars"
+-            />
++	<!-- builds the targets in the given order -->
++	<target name="all"
++			depends="compileCup,compileFlex,compileRest,jars"
++			description="Build all jars"
++			/>
+ </project>
+--- readme.txt	Mon Dec  6 13:30:20 2010
++++ readme.txt	Sat Jan 22 20:34:06 2011
+@@ -1,16 +1,43 @@
+-# To start the project.
+-# Compile with build.xml (ANT-Script)
+-# and then run 'dot_stefan.bat testfile.sasl' when on Windows.
+-# On a Unix machine you can simply run something like:
+-
+-# java -jar StefanParser.jar < testfile.sasl | dot -Gcharset=utf8 -Tpdf > testout.pdf
+-
+-# When compiling without ANT you may use these commands:
+-
+-java -jar lib/java-cup-11a.jar -nopositions -symbols Terminal -parser Parser cup/subsasl.cup
+-mv Terminal.java src/xi/parser/
+-mv Parser.java src/xi/parser/
+-java -jar lib/JFlex.jar -d src/xi/lexer/ flex/subsasl.flex
+-javac -classpath lib/java-cup-11a.jar -sourcepath src/ -d bin/
+-
+-java -cp lib/java-cup-11a.jar:bin/ stefan.TestParser < testfile.sasl | dot -Gcharset=utf8 -Tpdf > testout.pdf
+\ No newline at end of file
++#
++# saslc is a little compiler for the declarative language SASL.
++#
++# Building the project:
++# If you are lucky to have eclipse you may use the ANT script (build.xml) to
++# build the project. If this is not the case you can use the shell script
++# (build.sh) to build it. Unfortunately the shell script should be the
++# second choice, because currently the java-cup created warnings are not
++# removed and the created jars are copies with different manifests in the
++# script.
++#
++# Using it:
++# saslc (when built) comes with some handy tools:
++# - saslc.jar simply compiles incoming SASL code into SK code.
++#    The code is passed to the standard in and the compiled output
++#    goes to the standard out or a file if you name one. To use it
++#    on files you certainly benefit from redirects:
++#      java -jar saslc.jar test.sk < test.sasl
++#
++# - sasln.jar links one or more sk files to one sk file without symbolic names.
++#    The usage of this tool can be learned with the command line option -help.
++#    Normally it is not necessary to link sk files to run them but the linking
++#    process generates much smaller files and unnecessary / unused symbols are
++#    thrown away. Due to the fact of not to have to handle symbols and names in
++#    linked sk files there is no way to run saslc.jar generated sk directly and
++#    without linking:
++#      java -jar sasln.jar -out runnable.sk prelude.sk lib.sk program.sk...
++#
++# - sk.jar runs a previously linked sk file.
++#    As of now further arguments are ignored:
++#      java -jar sk.jar runnable.sk
++#
++# - run.jar compiles, links and runs given SASL programs.
++#    The arguments can be an arbitrary number of sasl files or code snippets:
++#      java -jar run.jar sasl_lib/prelude.sasl "main = take 5 @ iterate {x -> [x]} [];"
++#
++# - sasl_make.jar reads a makefile and compiles, links and optionally runs a
++#    complete project. Further details can be seen with the -help command line
++#    argument. This example uses the makefile test.smake and runs the project:
++#      java -jar sasl_make.jar -r test.smake
++#
++# The latest updates of saslc can be found here: https://github.com/JosuaKrause/saslc
++#
+--- sasl_lib/prelude.sasl	Sat Jan 22 22:58:03 2011
++++ sasl_lib/prelude.sasl	Mon Jan 17 12:29:06 2011
+@@ -8,7 +8,7 @@
+ ### basic functions ###
+ 
+ # the fixed point combinator
+-fix a = a (fix a);
++fix a = let x = a x in x;
+ 
+ # the identity
+ id x = x;
+@@ -55,7 +55,7 @@
+ # z: the default value
+ # xs: the list
+ foldr f z xs
+-  = if xs == []
++  = if [] == xs
+     then z
+     else f (hd xs) @ foldr f z @ tl xs
+   ;
+@@ -167,15 +167,15 @@
+ # xs: the list
+ # ys: the list to append
+ cat xs ys
+-    = if xs == []
++    = if [] == xs
+       then ys
+-      else hd xs : cat (tl xs) ys
++      else hd xs : (tl xs) `cat` ys
+     ;
+ 
+ # Flattens a list of lists.
+ # xss: list of lists to be concatenated
+ concat xss
+-    = if xss == []
++    = if [] == xss
+       then []
+       else cat (hd xss) @ concat @ tl xss
+     ;
+@@ -184,7 +184,7 @@
+ # f: function
+ # xs: list
+ concatMap f xs
+-    = if xs == []
++    = if [] == xs
+       then []
+       else cat (f @ hd xs) @ concatMap f @ tl xs;
+ 
+@@ -203,7 +203,7 @@
+ drop n xs =
+     if n <= 0
+     then xs
+-    else if xs == []
++    else if [] == xs
+     then []
+     else drop (n-1) (tl xs)
+     ;
+@@ -212,7 +212,7 @@
+ # f: the mapping function
+ # list: the list
+ map f xs
+-    = if xs == []
++    = if [] == xs
+       then []
+       else f (hd xs) : map f (tl xs)
+     ;
+@@ -230,14 +230,14 @@
+ ### Sorting algorithms ###
+ 
+ quickSort lt xs
+-  = if xs == []
++  = if [] == xs
+     then []
+     else 
+       let
+         pivot = hd xs,
+         rest = tl xs,
+         partition list
+-          = if list == []
++          = if [] == list
+             then [[], []]
+             else
+               let
+@@ -253,13 +253,13 @@
+   ;
+ 
+ mergeSort lt xs
+-  = if xs == []
++  = if [] == xs
+     then []
+     else
+       let
+         merge as bs
+-          = if as == [] then bs
+-            else if bs == [] then as
++          = if [] == as then bs
++            else if [] == bs then as
+             else let
+               a = hd as,
+               b = hd bs
+@@ -268,7 +268,7 @@
+                else b : merge as (tl bs)
+           ,
+         halve xs
+-          = if xs == []
++          = if [] == xs
+             then [[], []]
+             else
+               let
+@@ -282,7 +282,7 @@
+         as = fst hv,
+         bs = snd hv
+       in
+-        if bs == []
++        if [] == bs
+         then as
+         else mergeSort lt as `merge` mergeSort lt bs
+   ;
+@@ -292,14 +292,14 @@
+ # lt: the comparison function
+ # list: the list to sort
+ insertionSort lt list =
+-    if list == []
++    if [] == list
+     then []
+     else
+         let
+           x = hd list,
+           xs = tl list,
+           ins x xs
+-            = if xs == []
++            = if [] == xs
+               then [x]
+               else
+                 let y = hd xs
+@@ -316,11 +316,11 @@
+       bubble e
+         = let list = fromLeft e
+           in
+-            if list == [] then Right []
++            if [] == list then Right []
+             else
+               let x = hd list, xs = tl list
+               in
+-                if xs == [] then Right list
++                if [] == xs then Right list
+                 else
+                   let
+                     y = hd xs, ys = tl xs,
+--- src/xi/ast/App.java	Sat Jan 22 22:58:03 2011
++++ src/xi/ast/App.java	Thu Jan 20 16:26:22 2011
+@@ -1,13 +1,21 @@
+ package xi.ast;
+ 
+ import static xi.ast.BuiltIn.B;
++import static xi.ast.BuiltIn.B_STAR;
+ import static xi.ast.BuiltIn.C;
++import static xi.ast.BuiltIn.C_PRIME;
++import static xi.ast.BuiltIn.I;
+ import static xi.ast.BuiltIn.K;
+ import static xi.ast.BuiltIn.S;
++import static xi.ast.BuiltIn.S_PRIME;
+ 
+ import java.util.Deque;
+ import java.util.Set;
+ 
++import xi.sk.SKVisitor;
++import xi.optimizer.OptLevel;
++import xi.util.Logging;
++
+ /**
+  * SASL function application.
+  * 
+@@ -17,6 +25,12 @@
+  */
+ public final class App extends Expr {
+ 
++    /** Pattern for matching applications of B. */
++    private static final Expr[] B_PAT = { B, null, null };
++
++    /** Pattern for matching applications of C. */
++    private static final Expr[] C_PAT = { C, null, null };
++
+     /**
+      * Creates an application-node for the given expressions.
+      * 
+@@ -48,7 +62,8 @@
+ 
+     @Override
+     public String toString() {
+-        return "(" + expr[0] + " " + expr[1] + ')';
++        return expr[0] + " "
++                + (expr[1] instanceof App ? "(" + expr[1] + ")" : expr[1]);
+     }
+ 
+     /**
+@@ -72,16 +87,27 @@
+     @Override
+     protected Expr unLambda(final Name n) {
+         final Expr left = getLeft(), right = getRight();
++
+         if (n == null) {
+-            return App.create(left.unLambda(), right.unLambda());
++            final Expr l = left.unLambda(), r = right.unLambda();
++
++            // C I x f => f x
++            final Expr[] c = l.match(C_PAT);
++            if (c != null && c[1] == I) {
++                Logging.getLogger(getClass()).fine(
++                        "Optimizing: " + this + "  ==>  " + r + " " + c[2]);
++                return App.create(r, c[2]);
++            }
++
++            return App.create(l, r);
+         }
+ 
+         final boolean leftFree = left.hasFree(n);
+         final boolean rightFree = right.hasFree(n);
+ 
+-        if (DISABLE_BC) {
++        if (!OptLevel.BC_OPT.isSet()) {
+             // (\x . a b) => K (a b), if x is free in neither a nor b
+-            if (!leftFree && !rightFree) {
++            if (OptLevel.K_OPT.isSet() && !leftFree && !rightFree) {
+                 return K.app(this);
+             }
+ 
+@@ -90,17 +116,41 @@
+                 return left;
+             }
+ 
++            // (\x . a b) => S a b, if x is free in both a and b
++            // (\x . a b) => S (K a) b, if x is free in b
++            // (\x . a b) => S a (K b), if x is free in a
++            // (\x . a b) => S (K a) (K b), if x is free in neither a nor b
++            // does not occur => K (a b)
+             return S.app(!leftFree ? K.app(left) : left.unLambda(n),
+                     !rightFree ? K.app(right) : right.unLambda(n));
+         }
+ 
+         if (leftFree) {
++            final Expr l = left.unLambda(n);
+             if (rightFree) {
+-                // (\x . a b) => S (a b), if x is free both a and b
+-                return S.app(left.unLambda(n), right.unLambda(n));
++
++                final Expr r = right.unLambda(n);
++
++                if (OptLevel.BC_EXT_OPT.isSet()) {
++                    final Expr[] b = l.match(B_PAT);
++                    if (b != null) {
++                        return S_PRIME.app(b[1], b[2], r);
++                    }
++                }
++
++                // (\x . a b) => S a b, if x is free both a and b
++                return S.app(l, r);
++            }
++
++            if (OptLevel.BC_EXT_OPT.isSet()) {
++                final Expr[] b = l.match(B_PAT);
++                if (b != null) {
++                    return C_PRIME.app(b[1], b[2], right);
++                }
+             }
+-            // (\x . a b) => C (a b), if x is free in b, but not in a
+-            return C.app(left.unLambda(n), right);
++
++            // (\x . a b) => C a b, if x is free in a, but not in b
++            return C.app(l, right);
+ 
+         }
+         if (rightFree) {
+@@ -109,8 +159,19 @@
+                 return left;
+             }
+ 
+-            // (\x . a b) => B (a b), if x is free in a, but not in b
+-            return B.app(left, right.unLambda(n));
++            final Expr r = right.unLambda(n);
++            if (OptLevel.BC_EXT_OPT.isSet()) {
++                final Expr[] b = r.match(B_PAT);
++                if (b != null) {
++                    return B_STAR.app(left, b[1], b[2]);
++                }
++            }
++
++            // (\x . a b) => B a b, if x is free in b, but not in a
++            return B.app(left, r);
++        }
++        if (!OptLevel.K_OPT.isSet()) {
++            return S.app(K.app(left), K.app(right));
+         }
+         // (\x . a b) => K (a b), if x is free in neither a nor b
+         return K.app(this);
+@@ -132,5 +193,39 @@
+         expr[0] = expr[0].inline(name, val);
+         expr[1] = expr[1].inline(name, val);
+         return this;
++    }
++
++    @Override
++    public boolean match(final Expr[] pat, final int l, final int r) {
++        if (r - l == 1 && pat[l] == null) {
++            pat[l] = this;
++            return true;
++        }
++        if (r - l < 2) {
++            return false;
++        }
++        final boolean fst = expr[0].match(pat, l, r - 1);
++        return fst && expr[1].match(pat, r - 1, r);
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        if (!(other instanceof App)) {
++            return false;
++        }
++        final App o = (App) other;
++        return expr[0].equals(o.expr[0]) && expr[1].equals(o.expr[1]);
++    }
++
++    @Override
++    public int hashCode() {
++        return 31 * expr[0].hashCode() + expr[1].hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        expr[1].traverse(v);
++        expr[0].traverse(v);
++        v.app();
+     }
+ }
+--- src/xi/ast/Bool.java	Sat Dec 18 13:03:03 2010
++++ src/xi/ast/Bool.java	Thu Jan 20 12:44:47 2011
+@@ -1,5 +1,7 @@
+ package xi.ast;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Boolean literal.
+  * 
+@@ -45,6 +47,21 @@
+      */
+     public boolean getValue() {
+         return this == TRUE;
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        return this == other;
++    }
++
++    @Override
++    public int hashCode() {
++        return System.identityHashCode(this);
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.bool(getValue());
+     }
+ 
+ }
+--- src/xi/ast/BuiltIn.java	Sat Jan 22 22:58:03 2011
++++ src/xi/ast/BuiltIn.java	Sat Jan 22 20:15:28 2011
+@@ -1,5 +1,8 @@
+ package xi.ast;
+ 
++import xi.sk.SKPrim;
++import xi.sk.SKVisitor;
++
+ /**
+  * Built-in operations.
+  * 
+@@ -7,90 +10,106 @@
+  * @author Joschi
+  * 
+  */
+-public final class BuiltIn extends Value {
++public class BuiltIn extends Value {
+ 
+     /** Jump table. */
+     private static final BuiltIn[] TABLE = new BuiltIn[1 << 7];
+ 
+     /** List construction. */
+-    public static final BuiltIn CONS = new BuiltIn(':');
++    public static final BuiltIn CONS = new BuiltIn(SKPrim.CONS);
+     /** Condition operator. */
+-    public static final BuiltIn BRANCH = new BuiltIn('?');
++    public static final BuiltIn BRANCH = new BuiltIn(SKPrim.COND);
+     /** Addition. */
+-    public static final BuiltIn PLUS = new BuiltIn('+');
++    public static final BuiltIn PLUS = new BuiltIn(SKPrim.ADD);
+     /** Subtraction. */
+-    public static final BuiltIn MINUS = new BuiltIn('-');
++    public static final BuiltIn MINUS = new BuiltIn(SKPrim.SUB);
+     /** Multiplication. */
+-    public static final BuiltIn TIMES = new BuiltIn('*');
++    public static final BuiltIn TIMES = new BuiltIn(SKPrim.MUL);
+     /** Division. */
+-    public static final BuiltIn DIV = new BuiltIn('/');
++    public static final BuiltIn DIV = new BuiltIn(SKPrim.DIV);
+     /** Modulo. */
+-    public static final BuiltIn MOD = new BuiltIn('%');
++    public static final BuiltIn MOD = new BuiltIn(SKPrim.MOD);
+     /** Equality. */
+-    public static final BuiltIn EQ = new BuiltIn('e');
++    public static final BuiltIn EQ = new BuiltIn(SKPrim.EQ);
+     /** Inequality. */
+-    public static final BuiltIn NE = new BuiltIn('n');
++    public static final BuiltIn NE = new BuiltIn(SKPrim.NEQ);
+     /** Less-than. */
+-    public static final BuiltIn LT = new BuiltIn('L');
++    public static final BuiltIn LT = new BuiltIn(SKPrim.LT);
+     /** Greater-than. */
+-    public static final BuiltIn GT = new BuiltIn('G');
++    public static final BuiltIn GT = new BuiltIn(SKPrim.GT);
+     /** Less-than-or-equal. */
+-    public static final BuiltIn LE = new BuiltIn('l');
++    public static final BuiltIn LE = new BuiltIn(SKPrim.LTE);
+     /** Greater-than. */
+-    public static final BuiltIn GE = new BuiltIn('g');
++    public static final BuiltIn GE = new BuiltIn(SKPrim.GTE);
+     /** Logical conjunction. */
+-    public static final BuiltIn AND = new BuiltIn('&');
++    public static final BuiltIn AND = new BuiltIn(SKPrim.AND);
+     /** Logical disjunction. */
+-    public static final BuiltIn OR = new BuiltIn('|');
++    public static final BuiltIn OR = new BuiltIn(SKPrim.OR);
+     /** Logical negation. */
+-    public static final BuiltIn NOT = new BuiltIn('!');
++    public static final BuiltIn NOT = new BuiltIn(SKPrim.NOT);
+     /** Numerical negation. */
+-    public static final BuiltIn UMINUS = new BuiltIn('~');
++    public static final BuiltIn UMINUS = new BuiltIn(SKPrim.NEG);
+     /** Empty list. */
+-    public static final BuiltIn NIL = new BuiltIn('_');
++    public static final BuiltIn NIL = new BuiltIn(SKPrim.NIL) {
++        @Override
++        public void traverse(final SKVisitor v) {
++            v.nil();
++        }
++    };
+     /** The substitution combinator. */
+-    public static final BuiltIn S = new BuiltIn('S');
++    public static final BuiltIn S = new BuiltIn(SKPrim.S);
++    /** Another substitution combinator. */
++    public static final BuiltIn S_PRIME = new BuiltIn(SKPrim.S_PRIME);
+     /** The left-side substitution combinator. */
+-    public static final BuiltIn B = new BuiltIn('B');
++    public static final BuiltIn B = new BuiltIn(SKPrim.B);
++    /** The double left-side substitution combinator. */
++    public static final BuiltIn B_STAR = new BuiltIn(SKPrim.B_STAR);
+     /** The right-side substitution combinator. */
+-    public static final BuiltIn C = new BuiltIn('C');
++    public static final BuiltIn C = new BuiltIn(SKPrim.C);
++    /** Another right-side substitution combinator. */
++    public static final BuiltIn C_PRIME = new BuiltIn(SKPrim.C_PRIME);
+     /** The constant combinator. */
+-    public static final BuiltIn K = new BuiltIn('K');
++    public static final BuiltIn K = new BuiltIn(SKPrim.K);
+     /** The identity combinator. */
+-    public static final BuiltIn I = new BuiltIn('I');
++    public static final BuiltIn I = new BuiltIn(SKPrim.I);
+     /** The recursion combinator. */
+-    public static final BuiltIn Y = new BuiltIn('Y');
++    public static final BuiltIn Y = new BuiltIn(SKPrim.Y);
++    /** The uncurry combinator. */
++    public static final BuiltIn U = new BuiltIn(SKPrim.U);
+     /** Head of a list. */
+-    public static final BuiltIn HD = new BuiltIn('h');
++    public static final BuiltIn HD = new BuiltIn(SKPrim.HEAD);
+     /** Tail of a list. */
+-    public static final BuiltIn TL = new BuiltIn('t');
++    public static final BuiltIn TL = new BuiltIn(SKPrim.TAIL);
+     /** Strict sequence operator. */
+-    public static final BuiltIn SEQ = new BuiltIn('s');
++    public static final BuiltIn SEQ = new BuiltIn(SKPrim.SEQ);
++    /** Character casting operator. */
++    public static final BuiltIn CHAR = new BuiltIn(SKPrim.CHAR);
+ 
+     /** Display name of this operation. */
+-    private final char name;
++    private final SKPrim prim;
+ 
+     /**
+-     * Constructor taking the display name of the operation.
++     * Constructor.
+      * 
+-     * @param n
+-     *            name
++     * @param p
++     *            wrapped primitive
+      */
+-    private BuiltIn(final char n) {
+-        name = n;
+-        TABLE[n] = this;
++    private BuiltIn(final SKPrim p) {
++        prim = p;
++        TABLE[p.chr] = this;
+     }
+ 
+     @Override
+     public String toString() {
+-        return Character.toString(name);
++        return prim.toString();
+     }
+ 
+     /**
+      * Retrieves the BuiltIn associated with the given character.
+      * 
+      * @param c
+-     * @return
++     *            character for the BuiltIn
++     * @return associated BuiltIn if existent, {@code null} otherwise
+      */
+     public static BuiltIn forChar(final char c) {
+         final BuiltIn b = TABLE[c];
+@@ -109,5 +128,20 @@
+      */
+     public Expr app(final Expr... es) {
+         return App.create(this, es);
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        return this == other;
++    }
++
++    @Override
++    public int hashCode() {
++        return System.identityHashCode(this);
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.prim(prim);
+     }
+ }
+--- src/xi/ast/Char.java	Sat Dec 18 13:12:32 2010
++++ src/xi/ast/Char.java	Thu Jan 20 12:45:20 2011
+@@ -1,5 +1,7 @@
+ package xi.ast;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Character literal.
+  * 
+@@ -98,4 +100,18 @@
+         return String.valueOf(Character.toChars(cp));
+     }
+ 
++    @Override
++    public boolean equals(final Object other) {
++        return other instanceof Char && ((Char) other).cp == cp;
++    }
++
++    @Override
++    public int hashCode() {
++        return cp;
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.chr(cp);
++    }
+ }
+--- src/xi/ast/Expr.java	Sat Jan  1 23:03:21 2011
++++ src/xi/ast/Expr.java	Thu Jan 20 16:24:23 2011
+@@ -13,9 +13,6 @@
+  */
+ public abstract class Expr extends Node {
+ 
+-    /** -    final static boolean DISABLE_BC = false;
+-
+     /** Argument array. */
+     protected final Expr[] expr;
+ 
+@@ -95,4 +92,35 @@
+      * @return expression with inlined expression
+      */
+     public abstract Expr inline(final Name name, final Expr val);
++
++    /**
++     * Tries to match the given pattern against this subtree, filling gaps with
++     * the corresponding expressions. {@code match([K, null, null], 0, 3)}
++     * invoked on a subtree {@code ((K 1) 3)} should return {@code true},
++     * filling the pattern as follows: {@code [K, 1, 3]}.
++     * 
++     * @param pat
++     *            Pattern to match against
++     * @param l
++     *            left delimiter
++     * @param r
++     *            right delimiter
++     * @return whether the pattern matched.
++     */
++    abstract boolean match(final Expr[] pat, final int l, final int r);
++
++    /**
++     * Tries to match the given pattern against this subtree, returning a copy
++     * of the pattern with filled in gaps on success, {@code null} otherwise.
++     * {@code match([K, null, null])} invoked on a subtree {@code ((K 1) 3)}
++     * should return {@code [K, 1, 3]}.
++     * 
++     * @param pattern
++     *            Pattern to match against
++     * @return the matched expressions or {@code null}
++     */
++    public Expr[] match(final Expr[] pattern) {
++        final Expr[] copy = pattern.clone();
++        return match(copy, 0, copy.length) ? copy : null;
++    }
+ }
+--- src/xi/ast/Lambda.java	Sat Dec 18 20:49:04 2010
++++ src/xi/ast/Lambda.java	Sat Jan 22 20:17:21 2011
+@@ -3,6 +3,8 @@
+ import java.util.Deque;
+ import java.util.Set;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Lambda expression.
+  * 
+@@ -36,10 +38,20 @@
+         return !name.equals(var) && expr[0].hasFree(var);
+     }
+ 
++    /**
++     * Getter for the Lambda expression's body.
++     * 
++     * @return body expression
++     */
+     public Expr getBody() {
+         return expr[0];
+     }
+ 
++    /**
++     * Getter for the lambda expression's variable name.
++     * 
++     * @return variable name
++     */
+     public String getName() {
+         return name.getName();
+     }
+@@ -67,6 +79,31 @@
+             expr[0] = expr[0].inline(n, val);
+         }
+         return this;
++    }
++
++    @Override
++    public boolean match(final Expr[] pat, final int l, final int r) {
++        throw new IllegalStateException("Can +                + " unLambda().");
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        if (!(other instanceof Lambda)) {
++            return false;
++        }
++        final Lambda o = (Lambda) other;
++        return name.equals(o.name) && expr[0].equals(o.expr[0]);
++    }
++
++    @Override
++    public int hashCode() {
++        return name.hashCode() * 31 + expr[0].hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        throw new IllegalStateException("Can      }
+ 
+ }
+--- src/xi/ast/LetIn.java	Sat Jan 22 22:58:03 2011
++++ src/xi/ast/LetIn.java	Thu Jan 20 13:00:13 2011
+@@ -1,6 +1,14 @@
+ package xi.ast;
+ 
++import static xi.ast.BuiltIn.CONS;
++import static xi.ast.BuiltIn.K;
++import static xi.ast.BuiltIn.NIL;
++import static xi.ast.BuiltIn.TL;
++import static xi.ast.BuiltIn.U;
++import static xi.ast.BuiltIn.Y;
++
+ import java.util.ArrayList;
++import java.util.Collections;
+ import java.util.Deque;
+ import java.util.HashMap;
+ import java.util.HashSet;
+@@ -11,6 +19,8 @@
+ import java.util.Stack;
+ import java.util.Map.Entry;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * SASL let-in expression.
+  * 
+@@ -77,27 +87,50 @@
+     @Override
+     protected final Expr unLambda(final Name n) {
+         final Map<Name, Expr> map = defs.unLambda().getMap();
+-        final LinkedList<Name> sorted = topoSort(map);
++        final LinkedList<Set<Name>> sorted = topoSort(map);
+ 
+         Expr ex = getBody();
+-        while (!sorted.isEmpty()) {
+-            final Name name = sorted.pollLast();
+-            final Expr def = map.get(name);
+-            final int uses = ex.numOfUses(name);
+-            switch (uses) {
+-            case 0:
+-                // name unused, ignore it
+-                System.err.println("removing unused definition " + name + ": "
+-                        + def);
+-                break;
+-            case 1:
+-                // can be inlined
+-                System.err.println("inlining " + name + ": " + def);
+-                ex = ex.inline(name, def);
+-                break;
+-            default:
+-                ex = App.create(new Lambda(name.toString(), ex), map.get(name));
+-                break;
++        for (final Set<Name> names : sorted) {
++            if (names.size() == 1) {
++                final Name nm = names.iterator().next();
++                final Expr def = map.get(nm);
++                final int uses = ex.numOfUses(nm);
++                if (uses == 0) {
++                    // name unused, ignore it
++                    log.info("removing unused definition " + nm + ": " + def);
++                } else if (uses == 1 || def instanceof Value) {
++                    // can be inlined
++                    log.info("inlining " + nm + ": " + def);
++                    ex = ex.inline(nm, def);
++                } else {
++                    ex = App.create(new Lambda(nm.toString(), ex), map.get(nm));
++                }
++            } else {
++                final Name[] na = names.toArray(new Name[names.size()]);
++
++                Expr funs = NIL, res = K.app(ex);
++                for (final Name element : na) {
++                    funs = CONS.app(map.get(element), funs);
++                }
++
++                funs = K.app(funs);
++
++                for (final Name element : na) {
++                    funs = U.app(new Lambda(element.toString(), funs));
++                    if (res.hasFree(element)) {
++                        res = U.app(new Lambda(element.toString(), res));
++                    } else {
++                        // name unused, ignore it
++                        log.info("rewriting unused name: U { " + element
++                                + " -> f } ==> (f . tl)");
++                        final Name nm = Name.createName();
++                        res = new Lambda(nm.toString(), App.create(res, TL
++                                .app(nm)));
++                    }
++
++                }
++
++                ex = App.create(res, Y.app(funs));
+             }
+         }
+ 
+@@ -111,13 +144,14 @@
+      *            map of definitions
+      * @return ordered list of definitions
+      */
+-    private LinkedList<Name> topoSort(final Map<Name, Expr> map) {
++    private LinkedList<Set<Name>> topoSort(final Map<Name, Expr> map) {
+ 
+         final List<Name> names = new ArrayList<Name>(map.keySet());
+         final Map<Name, Set<Name>> refs = new HashMap<Name, Set<Name>>();
+ 
++        // find dependencies
+         for (final Entry<Name, Expr> e : map.entrySet()) {
+-            final Set<Name> ref = new HashSet<Name>(e.getValue().freeVars());
++            final Set<Name> ref = e.getValue().freeVars();
+             ref.retainAll(names);
+             refs.put(e.getKey(), ref);
+         }
+@@ -125,11 +159,27 @@
+         final Set<Name> marked = new HashSet<Name>();
+         final Stack<Name> stack = new Stack<Name>();
+         final LinkedList<Name> out = new LinkedList<Name>();
++        final HashMap<Name, Set<Name>> equiv = new HashMap<Name, Set<Name>>();
+         for (final Name n : names) {
+-            visit(n, refs, marked, stack, out);
++            visit(n, refs, marked, stack, out, equiv);
+         }
+ 
+-        return out;
++        marked.clear();
++        final LinkedList<Set<Name>> res = new LinkedList<Set<Name>>();
++        while (!out.isEmpty()) {
++            final Name n = out.pollLast();
++            if (marked.add(n)) {
++                final Set<Name> eq = equiv.get(n);
++                if (eq != null) {
++                    marked.addAll(eq);
++                    res.add(eq);
++                } else {
++                    res.add(Collections.singleton(n));
++                }
++            }
++        }
++
++        return res;
+     }
+ 
+     /**
+@@ -147,25 +197,34 @@
+      *            stack of current nodes
+      * @param out
+      *            output list
++     * @param equiv
++     *            equivalence classes
+      */
+     private void visit(final Name n, final Map<Name, Set<Name>> refs,
+             final Set<Name> marked, final Stack<Name> stack,
+-            final List<Name> out) {
++            final List<Name> out, final Map<Name, Set<Name>> equiv) {
+         if (marked.add(n)) { // name wasn't marked
+             stack.push(n);
+ 
+             for (final Name name : refs.get(n)) {
+-                visit(name, refs, marked, stack, out);
++                visit(name, refs, marked, stack, out, equiv);
+             }
+ 
+-            stack.pop();
+-            out.add(n);
++            out.add(stack.pop());
+         } else {
+             final int pos = stack.lastIndexOf(n);
+             if (pos >= 0) {
+-                // TODO support mutually recursive functions
+-                throw new IllegalArgumentException("found loop: "
+-                        + stack.subList(pos, stack.size()));
++                final Set<Name> eqClass = new HashSet<Name>();
++                for (final Name eq : stack.subList(pos, stack.size())) {
++                    eqClass.add(eq);
++                    final Set<Name> old = equiv.get(eq);
++                    if (old != null) {
++                        eqClass.addAll(old);
++                    }
++                }
++                for (final Name nm : eqClass) {
++                    equiv.put(nm, eqClass);
++                }
+             }
+         }
+     }
+@@ -185,10 +244,37 @@
+ 
+     @Override
+     public Expr inline(final Name name, final Expr val) {
+-        for (final Entry<Name, Expr> e : defs.getMap().entrySet()) {
+-            e.setValue(e.getValue().inline(name, val));
++        if (!defs.getMap().containsKey(name)) {
++            for (final Entry<Name, Expr> e : defs.getMap().entrySet()) {
++                e.setValue(e.getValue().inline(name, val));
++            }
++            expr[0] = expr[0].inline(name, val);
+         }
+-        expr[0] = expr[0].inline(name, val);
+         return this;
++    }
++
++    @Override
++    public boolean match(final Expr[] pat, final int l, final int r) {
++        throw new IllegalStateException("Can +                + " unLambda().");
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        if (!(other instanceof LetIn)) {
++            return false;
++        }
++        final LetIn o = (LetIn) other;
++        return defs.equals(o.defs) && expr[0].equals(o.expr[0]);
++    }
++
++    @Override
++    public int hashCode() {
++        return 31 * defs.hashCode() + expr[0].hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        throw new IllegalStateException("Can      }
+ }
+--- src/xi/ast/Module.java	Mon Dec 20 18:29:00 2010
++++ src/xi/ast/Module.java	Thu Jan 20 16:55:50 2011
+@@ -7,6 +7,8 @@
+ import java.util.TreeMap;
+ import java.util.Map.Entry;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * 
+  * @author Leo
+@@ -28,12 +30,9 @@
+     public Module(final boolean top) {
+         this(top, false);
+         if (top) {
+-            try {
+-                addDefinition(Name.valueOf("hd"), BuiltIn.HD);
+-                addDefinition(Name.valueOf("tl"), BuiltIn.TL);
+-            } catch (final Exception e) {
+-                throw new Error("Internal Error", e);
+-            }
++            addDefinition(Name.valueOf("hd"), BuiltIn.HD);
++            addDefinition(Name.valueOf("tl"), BuiltIn.TL);
++            addDefinition(Name.valueOf("char"), BuiltIn.CHAR);
+         }
+     }
+ 
+@@ -102,9 +101,6 @@
+         }
+         boolean inDefs = false;
+         for (final Entry<Name, Expr> def : defs.entrySet()) {
+-            if (def.getKey().equals(var)) {
+-                return false;
+-            }
+             inDefs |= def.getValue().hasFree(var);
+         }
+         return inDefs;
+@@ -124,14 +120,50 @@
+         final Module res = new Module(isTopLevel, true);
+         for (final Entry<Name, Expr> e : defs.entrySet()) {
+             final Name name = e.getKey();
+-            Expr nw = e.getValue().unLambda();
++            Expr nw = e.getValue();
+ 
+             // eliminate simple recursion
+             if (nw.hasFree(name)) {
+-                nw = Y.app(new Lambda(name.toString(), nw).unLambda());
++                nw = Y.app(new Lambda(name.toString(), nw));
+             }
+-            res.addDefinition(name, nw);
++            res.addDefinition(name, nw.unLambda());
+         }
+         return res;
++    }
++
++    @Override
++    public final boolean equals(final Object other) {
++        if (!(other instanceof Module)) {
++            return false;
++        }
++        final Module o = (Module) other;
++        if (defs.size() == o.defs.size()) {
++            for (final Entry<Name, Expr> e : defs.entrySet()) {
++                if (!o.defs.containsKey(e.getKey())
++                        || !e.getValue().equals(o.defs.get(e.getKey()))) {
++                    return false;
++                }
++            }
++            return true;
++        }
++        return false;
++    }
++
++    @Override
++    public final int hashCode() {
++        int hash = 0;
++        // order of definitions irrelevant
++        for (final Entry<Name, Expr> e : defs.entrySet()) {
++            hash ^= 31 * e.getKey().hashCode() + e.getValue().hashCode();
++        }
++        return hash;
++    }
++
++    @Override
++    public final void traverse(final SKVisitor v) {
++        for (final Entry<Name, Expr> e : defs.entrySet()) {
++            e.getValue().traverse(v);
++            v.def(e.getKey().toString());
++        }
+     }
+ }
+--- src/xi/ast/Name.java	Thu Dec 23 15:28:16 2010
++++ src/xi/ast/Name.java	Thu Jan 20 12:46:09 2011
+@@ -5,6 +5,8 @@
+ import java.util.Map;
+ import java.util.Set;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Name literal.
+  * 
+@@ -109,6 +111,11 @@
+     @Override
+     public Expr inline(final Name name, final Expr val) {
+         return equals(name) ? val : this;
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.var(name);
+     }
+ 
+ }
+--- src/xi/ast/Node.java	Mon Dec  6 11:49:02 2010
++++ src/xi/ast/Node.java	Thu Jan 20 12:42:50 2011
+@@ -1,31 +1,45 @@
+ package xi.ast;
+ 
++import java.util.logging.Logger;
++
++import xi.sk.SKTree;
++import xi.util.Logging;
++
+ /**
+  * Interface for subSASL expressions.
+  * 
+  * @author Leo
+  * @author Joschi
+  */
+-public abstract class Node {
++public abstract class Node implements SKTree {
++
++    /** Logger. */
++    static final Logger log = Logging.getLogger(Node.class);
++
++    @Override
++    public abstract String toString();
++
++    /**
++     * Checks if the given variable is free in this Syntax tree.
++     * 
++     * @param var
++     *            the variable
++     * @return {@code true} if the variable is free, {@code false} otherwise
++     */
++    public abstract boolean hasFree(final Name var);
++
++    /**
++     * Creates a new AST in which all names below the top level are replaced by
++     * combinators from the extended SK calculus.
++     * 
++     * @return transformed AST
++     */
++    public abstract Node unLambda();
+ 
+-	@Override
+-	public abstract String toString();
++    @Override
++    public abstract boolean equals(final Object other);
+ 
+-	/**
+-	 * Checks if the given variable is free in this Syntax tree.
+-	 * 
+-	 * @param var
+-	 *            the variable
+-	 * @return {@code true} if the variable is free, {@code false} otherwise
+-	 */
+-	public abstract boolean hasFree(final Name var);
+-
+-	/**
+-	 * Creates a new AST in which all names below the top level are replaced by
+-	 * combinators from the extended SK calculus.
+-	 * 
+-	 * @return transformed AST
+-	 */
+-	public abstract Node unLambda();
++    @Override
++    public abstract int hashCode();
+ 
+ }
+--- src/xi/ast/Num.java	Sat Dec 18 13:29:16 2010
++++ src/xi/ast/Num.java	Thu Jan 20 12:46:52 2011
+@@ -2,6 +2,8 @@
+ 
+ import java.math.BigInteger;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Integer literal.
+  * 
+@@ -88,6 +90,21 @@
+     @Override
+     public String toString() {
+         return val.toString();
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        return other instanceof Num && val.equals(((Num) other).val);
++    }
++
++    @Override
++    public int hashCode() {
++        return val.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.num(val);
+     }
+ 
+ }
+--- src/xi/ast/Str.java	Sat Dec 18 13:29:39 2010
++++ src/xi/ast/Str.java	Thu Jan 20 12:47:36 2011
+@@ -1,5 +1,7 @@
+ package xi.ast;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Very lazy String implementation. The list is created when needed or when the
+  * length is too short. Once a lazy String is split up (via hd and tl) it is
+@@ -48,6 +50,21 @@
+     @Override
+     public String toString() {
+         return str;
++    }
++
++    @Override
++    public boolean equals(final Object other) {
++        return other instanceof Str && str.equals(((Str) other).str);
++    }
++
++    @Override
++    public int hashCode() {
++        return str.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.str(str);
+     }
+ 
+ }
+--- src/xi/ast/Value.java	Thu Dec 23 15:40:29 2010
++++ src/xi/ast/Value.java	Mon Jan 17 09:24:33 2011
+@@ -34,4 +34,16 @@
+     public Expr inline(final Name name, final Expr val) {
+         return this;
+     }
++
++    @Override
++    public boolean match(final Expr[] pat, final int l, final int r) {
++        if (r - l != 1) {
++            return false;
++        }
++        if (pat[l] != null) {
++            return pat[l].equals(this);
++        }
++        pat[l] = this;
++        return true;
++    }
+ }
+--- src/xi/go/Eval.java	Sat Dec 25 22:01:01 2010
++++ src/xi/go/Eval.java	Sat Jan 22 20:23:20 2011
+@@ -1,24 +1,15 @@
+ package xi.go;
+ 
+-import java.io.File;
+-import java.io.FileReader;
+-import java.io.InputStreamReader;
+-import java.io.OutputStreamWriter;
+-import java.io.Reader;
+-import java.io.StringReader;
+-import java.io.StringWriter;
+ import java.util.HashMap;
+ import java.util.Map;
+ import java.util.Map.Entry;
++import java.util.logging.Logger;
+ 
+-import stefan.Cout;
+-import xi.ast.stefan.LazyTree;
+ import xi.go.cst.CstSKParser;
+ import xi.go.cst.Thunk;
+-import xi.lexer.Lexer;
+-import xi.parser.Parser;
+-import xi.parser.sk.SKParser;
+-import xi.util.GlueReader;
++import xi.sk.SKParser;
++import xi.sk.SKTree;
++import xi.util.Logging;
+ 
+ /**
+  * Evaluator.
+@@ -27,10 +18,20 @@
+  */
+ public class Eval {
+ 
+-    public static Map<String, Thunk> parse(final Reader r) {
++    /** Logger. */
++    static final Logger log = Logging.getLogger(Eval.class);
++
++    /**
++     * Parses the definitions inside an SKTree into a map.
++     * 
++     * @param tree
++     *            SKTree to read
++     * @return map of definitions
++     */
++    public static Map<String, Thunk> parse(final SKTree tree) {
+ 
+         final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
+-        final SKParser<Thunk> parser = new CstSKParser() {
++        final SKParser<Thunk> parser = new CstSKParser(false) {
+             @Override
+             public void def(final String name, final Thunk body) {
+                 if (fTable.put(name, body) != null) {
+@@ -40,11 +41,20 @@
+             }
+         };
+ 
+-        parser.read(r);
++        parser.read(tree);
+ 
+         return fTable;
+     }
+ 
++    /**
++     * Links the expression to execute through direct pointers.
++     * 
++     * @param fns
++     *            functions to link
++     * @param entry
++     *            start symbol
++     * @return linked expression
++     */
+     public static Thunk link(final Map<String, Thunk> fns, final String entry) {
+ 
+         if (!fns.containsKey(entry)) {
+@@ -64,46 +74,9 @@
+                 }
+             }
+         }
+-        Thunk main = fns.get(entry);
++        final Thunk main = fns.get(entry);
+         System.out.println("SK code: " + main);
+-        main = main.link(fns);
+-        return main;
+-    }
+-
+-    /**
+-     * Main method for the interpreter.
+-     * 
+-     * @param args
+-     *            currently unused
+-     * @throws Exception
+-     *             if anything goes wrong
+-     */
+-    public static void main(final String[] args) throws Exception {
+-        final Reader r;
+-        if (args.length == 0) {
+-            r = new InputStreamReader(System.in, "UTF-8");
+-        } else {
+-            final GlueReader g = new GlueReader();
+-            for (final String arg : args) {
+-                final File f = new File(arg);
+-                if (f.exists()) {
+-                    g.addReader(new FileReader(f));
+-                } else {
+-                    g.addReader(new StringReader(arg));
+-                }
+-            }
+-            r = g;
+-        }
+-
+-        final Lexer l = new Lexer(r);
+-        final StringWriter w = new StringWriter();
+-
+-        Cout.module(LazyTree.create(new Parser(l).parseValue().unLambda()), w);
+-
+-        final Thunk[] main = { link(parse(new StringReader(w.toString())),
+-                "main") };
+-
+-        VM.run(main, new OutputStreamWriter(System.out));
++        return main.link(fns);
+     }
+ 
+ }
+--- src/xi/go/VM.java	Sun Dec 26 14:14:59 2010
++++ src/xi/go/VM.java	Thu Jan 20 17:39:12 2011
+@@ -1,19 +1,15 @@
+ package xi.go;
+ 
+-import java.io.File;
+-import java.io.FileInputStream;
+ import java.io.IOException;
+-import java.io.InputStreamReader;
+-import java.io.OutputStreamWriter;
+ import java.io.Writer;
+-import java.nio.charset.Charset;
+ import java.util.BitSet;
+ import java.util.Stack;
++import java.util.logging.Logger;
+ 
+-import xi.go.cst.CstSKParser;
+ import xi.go.cst.Thunk;
+ import xi.go.cst.prim.List;
+ import xi.go.cst.prim.Value;
++import xi.util.Logging;
+ 
+ /**
+  * Front end of the virtual machine.
+@@ -23,8 +19,8 @@
+  */
+ public final class VM {
+ 
+-    /** UTF-8 charset instance. */
+-    public static final Charset UTF8 = Charset.forName("UTF-8");
++    /** Logger. */
++    static final Logger log = Logging.getLogger(VM.class);
+ 
+     /**
+      * Runs the given SK program on the VM and writes the output to the given
+@@ -82,56 +78,12 @@
+                     first--;
+                 }
+             }
++            out.flush();
+         } while (!stack.isEmpty());
+ 
+         out.append("\nPushes:     " + Thunk.pushes);
+         out.append("\nReductions: " + Thunk.reductions + "\n");
+         out.flush();
+-    }
+-
+-    /**
+-     * Test method.
+-     * 
+-     * @param args
+-     *            command line arguments
+-     * @throws IOException
+-     */
+-    public static void main(final String[] args) throws IOException {
+-        if (args.length == 0) {
+-            usage();
+-        }
+-
+-        final File f = new File(args[0]);
+-        if (!f.canRead()) {
+-            usage();
+-        }
+-
+-        final Thunk[] main = { null };
+-
+-        new CstSKParser() {
+-            @Override
+-            protected void def(final String name, final Thunk body) {
+-                if (main[0] != null || !name.equals("main")) {
+-                    throw new IllegalArgumentException("A linked SK file "
+-                            + "should -                }
+-                main[0] = body;
+-            }
+-        }.read(new InputStreamReader(new FileInputStream(f), UTF8));
+-
+-        if (main[0] == null) {
+-            throw new IllegalArgumentException("No main method.");
+-        }
+-
+-        VM.run(main, new OutputStreamWriter(System.out, UTF8));
+-    }
+-
+-    /**
+-     * Prints a usage message and exits.
+-     */
+-    private static final void usage() {
+-        System.err.println("Usage: sk <sk_file> <arg>...");
+-        System.exit(1);
+     }
+ 
+ }
+--- src/xi/go/cst/App.java	Sat Jan 22 22:58:03 2011
++++ src/xi/go/cst/App.java	Thu Jan 20 10:39:00 2011
+@@ -3,6 +3,8 @@
+ import java.util.Map;
+ import java.util.Set;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Application node.
+  * 
+@@ -42,7 +44,7 @@
+ 
+     @Override
+     public final String toString() {
+-        return "(" + left + " " + right + ")";
++        return left + " " + (right.isApp() ? "(" + right + ")" : right);
+     }
+ 
+     @Override
+@@ -76,6 +78,27 @@
+         final App a = new App(th, null);
+         a.right = new Thunk(a);
+         return a;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        if (!(obj instanceof App)) {
++            return false;
++        }
++        final App other = (App) obj;
++        return left.equals(other.left) && right.equals(other.right);
++    }
++
++    @Override
++    public int hashCode() {
++        return left.hashCode() ^ right.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        right.traverse(v);
++        left.traverse(v);
++        v.app();
+     }
+ 
+ }
+--- src/xi/go/cst/CstSKParser.java	Tue Dec 21 20:05:34 2010
++++ src/xi/go/cst/CstSKParser.java	Sat Jan 22 20:25:22 2011
+@@ -1,18 +1,61 @@
+ package xi.go.cst;
+ 
+ import java.math.BigInteger;
++import java.util.HashMap;
+ 
+ import xi.go.cst.prim.Bool;
+ import xi.go.cst.prim.Function;
+ import xi.go.cst.prim.List;
+ import xi.go.cst.prim.Ref;
+-import xi.parser.sk.SKParser;
+-
++import xi.sk.SKParser;
++import xi.sk.SKPrim;
++import xi.util.Logging;
++
++/**
++ * An abstract SK parser producing SK trees, leaving the decision about what to
++ * do with the parsed definition to the sumclass.
++ * 
++ * @author Leo Woerteler
++ */
+ public abstract class CstSKParser extends SKParser<Thunk> {
+ 
++    /** Sharing flag. */
++    private final HashMap<Thunk, Thunk> shared;
++
++    /**
++     * Constructor taking the sharing flag.
++     * 
++     * @param share
++     *            flag for sharing
++     */
++    public CstSKParser(final boolean share) {
++        shared = share ? new HashMap<Thunk, Thunk>() : null;
++    }
++
++    /**
++     * Sharing method.
++     * 
++     * @param val
++     *            value to share
++     * @return shared value
++     */
++    private Thunk get(final Thunk val) {
++        if (shared == null) {
++            return val;
++        }
++        Thunk shd = shared.get(val);
++        if (shd == null) {
++            shd = val;
++            shared.put(val, val);
++        } else {
++            Logging.getLogger(getClass()).info("sharing expression: " + val);
++        }
++        return shd;
++    }
++
+     @Override
+     public Thunk app(final Thunk f, final Thunk x) {
+-        return Thunk.app(f, x);
++        return get(Thunk.app(f, x));
+     }
+ 
+     @Override
+@@ -22,22 +65,22 @@
+ 
+     @Override
+     public Thunk character(final int cp) {
+-        return Thunk.chr(cp);
++        return get(Thunk.chr(cp));
+     }
+ 
+     @Override
+     public Thunk cons(final Thunk hd, final Thunk tl) {
+-        return List.get(hd, tl);
++        return get(List.get(hd, tl));
+     }
+ 
+     @Override
+     public Thunk num(final BigInteger n) {
+-        return Thunk.num(n);
++        return get(Thunk.num(n));
+     }
+ 
+     @Override
+-    public Thunk prim(final char p) {
+-        final Function.Def fun = Function.forChar(p);
++    public Thunk prim(final SKPrim p) {
++        final Function.Def fun = Function.forChar(p.chr);
+         if (fun == null) {
+             throw new IllegalArgumentException("Function '" + p
+                     + "' not defined.");
+@@ -47,12 +90,12 @@
+ 
+     @Override
+     public Thunk reference(final String name) {
+-        return Ref.get(name);
++        return get(Ref.get(name));
+     }
+ 
+     @Override
+     public Thunk string(final String str) {
+-        return Thunk.listFromStr(str);
++        return get(Thunk.listFromStr(str));
+     }
+ 
+     @Override
+--- src/xi/go/cst/Node.java	Tue Dec 21 20:05:34 2010
++++ src/xi/go/cst/Node.java	Thu Jan 20 10:37:40 2011
+@@ -4,6 +4,7 @@
+ import java.util.Set;
+ 
+ import xi.go.cst.prim.Function;
++import xi.sk.SKTree;
+ 
+ /**
+  * A node of the expression tree.
+@@ -11,7 +12,7 @@
+  * @author Leo
+  * @author Joschi
+  */
+-public abstract class Node {
++public abstract class Node implements SKTree {
+ 
+     /**
+      * Checks whether this is an application node.
+@@ -91,5 +92,11 @@
+      *         {@code null}
+      */
+     public abstract Thunk link(Map<String, Thunk> defs, Set<String> linked);
++
++    @Override
++    public abstract boolean equals(Object obj);
++
++    @Override
++    public abstract int hashCode();
+ 
+ }
+--- src/xi/go/cst/Thunk.java	Sat Jan 22 22:58:03 2011
++++ src/xi/go/cst/Thunk.java	Fri Jan 21 10:23:59 2011
+@@ -12,32 +12,67 @@
+ import xi.go.cst.prim.Num;
+ import xi.go.cst.prim.Str;
+ import xi.go.cst.prim.Value;
++import xi.sk.SKTree;
++import xi.sk.SKVisitor;
+ 
+ /**
++ * A thunk, wrapping every node of the SK tree and allowing to freely exchange
++ * the wrapped node for its evaluation result.
+  * 
+  * @author Leo
+  * @author Joschi
+- * 
+  */
+-public class Thunk {
++public class Thunk implements SKTree {
+ 
++    /** the wrapped {@link Node SK node}. */
+     private Node node;
+ 
+-    public static int pushes = 0;
+-    public static int reductions = 0;
++    /** Number of pushes in the current evaluation. */
++    public static volatile int pushes = 0;
++    /** Number of reductions in the current evaluation. */
++    public static volatile int reductions = 0;
+ 
++    /**
++     * Constructor.
++     * 
++     * @param nd
++     *            node to be wrapped
++     */
+     public Thunk(final Node nd) {
+         node = nd;
+     }
+ 
++    /**
++     * Creates a wrapped application node.
++     * 
++     * @param f
++     *            function to be applied
++     * @param x
++     *            value the function should be applied to
++     * @return the application node wrapped in a Thunk
++     */
+     public static Thunk app(final Thunk f, final Thunk x) {
+         return new Thunk(new App(f, x));
+     }
+ 
++    /**
++     * Creates a wrapped number node.
++     * 
++     * @param i
++     *            number to be wrapped
++     * @return Thunk with wrapped number node
++     */
+     public static Thunk num(final BigInteger i) {
+         return new Thunk(new Num(i));
+     }
+ 
++    /**
++     * Creates a wrapped character node.
++     * 
++     * @param cp
++     *            character to be wrapped
++     * @return Thunk with wrapped character node
++     */
+     public static Thunk chr(final int cp) {
+         return new Thunk(new Char(cp));
+     }
+@@ -77,12 +112,13 @@
+         Thunk curr = this;
+         while (!curr.isValue()) {
+             if (curr.isApp()) {
++                pushes++;
+                 stack.push(curr);
+                 curr = curr.node.getLeft();
+-                pushes++;
+             } else {
++                reductions++;
+                 final Function.Def funDef = curr.node.getFunction();
+-                if (stack.size() < funDef.cardinality) {
++                if (stack.size() < funDef.arity()) {
+                     throw new IllegalStateException("Not enough arguments for "
+                             + funDef);
+                 }
+@@ -91,13 +127,12 @@
+                     continue;
+                 }
+ 
+-                final Thunk[] args = new Thunk[funDef.cardinality];
+-                for (int i = 0; i < funDef.cardinality; i++) {
++                final Thunk[] args = new Thunk[funDef.arity()];
++                for (int i = 0; i < funDef.arity(); i++) {
+                     curr = stack.pop();
+                     args[i] = curr.node.getRight();
+                 }
+                 curr.node = funDef.apply(args);
+-                reductions++;
+             }
+         }
+         if (!stack.isEmpty()) {
+@@ -108,33 +143,91 @@
+         return (Value) node;
+     }
+ 
+-    private boolean isApp() {
+-        return node.isApp();
+-    }
+-
+-    private boolean isValue() {
+-        return node.isValue();
+-    }
+-
+     @Override
+     public String toString() {
+         return node.toString();
+     }
+ 
++    /**
++     * Links the application tree, i.e. replaces all references with the
++     * corresponding expressions.
++     * 
++     * @param defs
++     *            definitions
++     * @return a new thunk that this thunk should be replaced with, or {@code
++     *         null}
++     */
+     public Thunk link(final Map<String, Thunk> defs) {
+         return link(defs, new HashSet<String>());
+     }
+ 
++    /**
++     * Links the application tree, i.e. replaces all references with the
++     * corresponding expressions.
++     * 
++     * @param defs
++     *            definitions
++     * @param linked
++     *            set of already linked definitions to avoid loops
++     * @return a new thunk that this thunk should be replaced with, or {@code
++     *         null}
++     */
+     public Thunk link(final Map<String, Thunk> defs, final Set<String> linked) {
+         final Thunk res = node.link(defs, linked);
+         return res == null ? this : res;
+     }
+ 
++    /**
++     * Checks whether the node wrapped in this thunk is equivalent to the one
++     * inside the given thunk.
++     * 
++     * @param o
++     *            node to compare to.
++     * @return {@code true}, if both nodes are equal, {@code false} otherwise
++     */
+     public boolean eq(final Thunk o) {
+         return wHNF().eq(o.wHNF());
+     }
+ 
++    @Override
++    public boolean equals(final Object obj) {
++        return obj instanceof Thunk && node.equals(((Thunk) obj).node);
++    }
++
++    /**
++     * Checks whether the node wrapped in this Thunk is an application node.
++     * 
++     * @return result of check
++     */
++    boolean isApp() {
++        return node.isApp();
++    }
++
++    /**
++     * Checks whether the node wrapped in this Thunk is a name reference.
++     * 
++     * @return result of check
++     */
+     public boolean isRef() {
+         return node.isRef();
++    }
++
++    /**
++     * Checks whether the node wrapped in this Thunk is a value.
++     * 
++     * @return result of check
++     */
++    private boolean isValue() {
++        return node.isValue();
++    }
++
++    @Override
++    public int hashCode() {
++        return node.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        node.traverse(v);
+     }
+ }
+--- src/xi/go/cst/prim/Bool.java	Tue Dec 21 20:05:34 2010
++++ src/xi/go/cst/prim/Bool.java	Thu Jan 20 10:43:56 2011
+@@ -1,6 +1,7 @@
+ package xi.go.cst.prim;
+ 
+ import xi.go.cst.Thunk;
++import xi.sk.SKVisitor;
+ 
+ /**
+  * Boolean value.
+@@ -46,6 +47,21 @@
+     @Override
+     public boolean eq(final Value n) {
+         return this == n;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        return this == obj;
++    }
++
++    @Override
++    public int hashCode() {
++        return System.identityHashCode(this);
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.bool(getBool());
+     }
+ 
+ }
+--- src/xi/go/cst/prim/Char.java	Tue Dec 21 20:06:05 2010
++++ src/xi/go/cst/prim/Char.java	Thu Jan 20 10:46:52 2011
+@@ -2,6 +2,7 @@
+ 
+ import java.math.BigInteger;
+ 
++import xi.sk.SKVisitor;
+ import xi.util.StringUtils;
+ 
+ /**
+@@ -32,4 +33,8 @@
+         return true;
+     }
+ 
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.chr(value.intValue());
++    }
+ }
+--- src/xi/go/cst/prim/Function.java	Sun Dec 26 16:26:46 2010
++++ src/xi/go/cst/prim/Function.java	Thu Jan 20 16:08:54 2011
+@@ -7,6 +7,8 @@
+ import xi.go.cst.App;
+ import xi.go.cst.Node;
+ import xi.go.cst.Thunk;
++import xi.sk.SKPrim;
++import xi.sk.SKVisitor;
+ 
+ /**
+  * Built-in functions of the SK interpreter.
+@@ -24,7 +26,7 @@
+     public static enum Def {
+ 
+         /** The substitution combinator. */
+-        S('S', 3) {
++        S(SKPrim.S) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Thunk f = args[0], g = args[1], x = args[2];
+@@ -32,8 +34,17 @@
+             }
+         },
+ 
++        /** Another substitution combinator. */
++        S_PRIME(SKPrim.S_PRIME) {
++            @Override
++            public Node apply(final Thunk... args) {
++                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
++                return new App(app(c, app(f, x)), app(g, x));
++            }
++        },
++
+         /** The right-side substitution combinator. */
+-        B('B', 3) {
++        B(SKPrim.B) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Thunk f = args[0], g = args[1], x = args[2];
+@@ -41,8 +52,17 @@
+             }
+         },
+ 
++        /** The right-side substitution combinator. */
++        B_STAR(SKPrim.B_STAR) {
++            @Override
++            public Node apply(final Thunk... args) {
++                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
++                return new App(c, app(f, app(g, x)));
++            }
++        },
++
+         /** The left-side substitution combinator. */
+-        C('C', 3) {
++        C(SKPrim.C) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Thunk f = args[0], g = args[1], x = args[2];
+@@ -50,8 +70,17 @@
+             }
+         },
+ 
++        /** Another left-side substitution combinator. */
++        C_PRIME(SKPrim.C_PRIME) {
++            @Override
++            public Node apply(final Thunk... args) {
++                final Thunk c = args[0], f = args[1], g = args[2], x = args[3];
++                return new App(app(c, app(f, x)), g);
++            }
++        },
++
+         /** The constant combinator. */
+-        K('K') {
++        K(SKPrim.K) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return indirect(args[0]);
+@@ -59,7 +88,7 @@
+         },
+ 
+         /** The identity combinator. */
+-        I('I', 1) {
++        I(SKPrim.I) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 throw new IllegalStateException();
+@@ -68,7 +97,7 @@
+         },
+ 
+         /** The recursion combinator. */
+-        Y('Y', 1) {
++        Y(SKPrim.Y) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return App.loop(args[0]);
+@@ -76,7 +105,7 @@
+         },
+ 
+         /** The uncurry combinator. */
+-        U('U') {
++        U(SKPrim.U) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Thunk f = args[0];
+@@ -86,7 +115,7 @@
+         },
+ 
+         /** Addition. */
+-        ADD('+') {
++        ADD(SKPrim.ADD) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger a = args[0].wHNF().getNum();
+@@ -96,7 +125,7 @@
+         },
+ 
+         /** Subtraction. */
+-        SUB('-') {
++        SUB(SKPrim.SUB) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger a = args[0].wHNF().getNum();
+@@ -106,7 +135,7 @@
+         },
+ 
+         /** Multiplication. */
+-        MUL('*') {
++        MUL(SKPrim.MUL) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger a = args[0].wHNF().getNum();
+@@ -116,7 +145,7 @@
+         },
+ 
+         /** Division. */
+-        DIV('/') {
++        DIV(SKPrim.DIV) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger a = args[0].wHNF().getNum();
+@@ -126,7 +155,7 @@
+         },
+ 
+         /** Modulo. */
+-        MOD('%') {
++        MOD(SKPrim.MOD) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger a = args[0].wHNF().getNum();
+@@ -136,7 +165,7 @@
+         },
+ 
+         /** Logical negation. */
+-        NOT('!', 1) {
++        NOT(SKPrim.NOT) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return Bool.get(!args[0].wHNF().getBool());
+@@ -144,7 +173,7 @@
+         },
+ 
+         /** Numeric negation. */
+-        NEG('~', 1) {
++        NEG(SKPrim.NEG) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return new Num(args[0].wHNF().getNum().negate());
+@@ -152,7 +181,7 @@
+         },
+ 
+         /** Conditional operator. */
+-        COND('?', 3) {
++        COND(SKPrim.COND) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return indirect(args[args[0].wHNF().getBool() ? 1 : 2]);
+@@ -160,7 +189,7 @@
+         },
+ 
+         /** List construction. */
+-        CONS(':') {
++        CONS(SKPrim.CONS) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return new List(args[0], args[1]);
+@@ -168,7 +197,7 @@
+         },
+ 
+         /** Head of a list. */
+-        HEAD('h', 1) {
++        HEAD(SKPrim.HEAD) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 // get the cons node
+@@ -177,7 +206,7 @@
+         },
+ 
+         /** Tail of a list. */
+-        TAIL('t', 1) {
++        TAIL(SKPrim.TAIL) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 // get the cons node
+@@ -186,7 +215,7 @@
+         },
+ 
+         /** Less-than operator. */
+-        LT('L') {
++        LT(SKPrim.LT) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger x = args[0].wHNF().getNum();
+@@ -196,7 +225,7 @@
+         },
+ 
+         /** Less-than-or-equal operator. */
+-        LTE('l') {
++        LTE(SKPrim.LTE) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger x = args[0].wHNF().getNum();
+@@ -206,7 +235,7 @@
+         },
+ 
+         /** Equality operator. */
+-        EQ('e') {
++        EQ(SKPrim.EQ) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Value x = args[0].wHNF();
+@@ -216,7 +245,7 @@
+         },
+ 
+         /** Non-equality operator. */
+-        NEQ('n') {
++        NEQ(SKPrim.NEQ) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final Value x = args[0].wHNF();
+@@ -226,7 +255,7 @@
+         },
+ 
+         /** Greater-than-or-equal operator. */
+-        GTE('g') {
++        GTE(SKPrim.GTE) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger x = args[0].wHNF().getNum();
+@@ -236,7 +265,7 @@
+         },
+ 
+         /** Greater-than operator. */
+-        GT('G') {
++        GT(SKPrim.GT) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 final BigInteger x = args[0].wHNF().getNum();
+@@ -246,7 +275,7 @@
+         },
+ 
+         /** Logical conjunction. */
+-        AND('&') {
++        AND(SKPrim.AND) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return indirect(args[args[0].wHNF().getBool() ? 1 : 0]);
+@@ -254,7 +283,7 @@
+         },
+ 
+         /** Logical disjunction. */
+-        OR('|') {
++        OR(SKPrim.OR) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 return indirect(args[args[0].wHNF().getBool() ? 0 : 1]);
+@@ -262,7 +291,7 @@
+         },
+ 
+         /** Sequence operator. */
+-        SEQ('s') {
++        SEQ(SKPrim.SEQ) {
+             @Override
+             public Node apply(final Thunk... args) {
+                 args[0].wHNF();
+@@ -270,65 +299,43 @@
+             }
+         },
+ 
+-        /**
+-         * Does nothing -- is used to find duplicate symbol definitions in the
+-         * SK-Code.
+-         */
+-        NOP(' ') {
++        /** Character casting operator. */
++        CHAR(SKPrim.CHAR) {
+             @Override
+             public Node apply(final Thunk... args) {
+-                return null;
++                return Thunk.chr(args[0].wHNF().getNum().intValue()).wHNF();
+             }
+-        };
++        },
++
++        ;
+ 
+         /** Jump table from character code (ASCII) to definition. */
+         private static final Def[] FUN_MAP = new Def[1 << 7];
+         static {
+-            for (final char c : "i=\"<@TF_,'\r\n\t".toCharArray()) {
+-                FUN_MAP[c] = NOP;
+-            }
+-
+             for (final Def fun : values()) {
+-                if (FUN_MAP[fun.name] != null) {
++                if (FUN_MAP[fun.prim.chr] != null) {
+                     throw new IllegalStateException(
+-                            "duplicate symbol definition! " + fun.name);
++                            "duplicate symbol definition! " + fun.prim.chr);
+                 }
+-                FUN_MAP[fun.name] = fun;
++                FUN_MAP[fun.prim.chr] = fun;
+             }
+         }
+ 
+-        /** The function's cardinality. */
+-        public final int cardinality;
+-
+-        /** the function's name. */
+-        public final char name;
+-
+         /** The function's surrounding thunk. */
+         public final Thunk thunk;
+ 
+-        /**
+-         * Constructor taking the function's name and cardinality.
+-         * 
+-         * @param f
+-         *            function name
+-         * @param n
+-         *            cardinality
+-         */
+-        private Def(final char f, final int n) {
+-            name = f;
+-            cardinality = n;
+-            thunk = new Thunk(new Function(this));
+-        }
++        /** Wrapped primitive. */
++        public final SKPrim prim;
+ 
+         /**
+-         * Constructor taking the function's name, the cardinality is assumed to
+-         * be 2.
++         * Constructor.
+          * 
+-         * @param f
+-         *            function name
++         * @param p
++         *            primitive
+          */
+-        private Def(final char f) {
+-            this(f, 2);
++        private Def(final SKPrim p) {
++            prim = p;
++            thunk = new Thunk(new Function(this));
+         }
+ 
+         /**
+@@ -341,6 +348,15 @@
+         public abstract Node apply(final Thunk... args);
+ 
+         /**
++         * Number of arguments this function consumes.
++         * 
++         * @return arity of this function
++         */
++        public final int arity() {
++            return prim.arity;
++        }
++
++        /**
+          * Creates an indirection node to the {@link Thunk} {@code th}, i.e.
+          * {@code (I @ th)}.
+          * 
+@@ -352,6 +368,10 @@
+             return new App(I.thunk, th);
+         }
+ 
++        @Override
++        public String toString() {
++            return prim.name;
++        }
+     }
+ 
+     /** Definition of this function. */
+@@ -387,6 +407,21 @@
+     @Override
+     public Def getFunction() {
+         return fun;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        return obj instanceof Function && fun == ((Function) obj).fun;
++    }
++
++    @Override
++    public int hashCode() {
++        return fun.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.prim(fun.prim);
+     }
+ 
+ }
+--- src/xi/go/cst/prim/List.java	Sun Dec 26 11:30:19 2010
++++ src/xi/go/cst/prim/List.java	Thu Jan 20 10:51:55 2011
+@@ -4,6 +4,7 @@
+ import java.util.Set;
+ 
+ import xi.go.cst.Thunk;
++import xi.sk.SKVisitor;
+ 
+ /**
+  * List node.
+@@ -40,6 +41,21 @@
+         public boolean eq(final Value n) {
+             return this == n;
+         }
++
++        @Override
++        public int hashCode() {
++            return System.identityHashCode(this);
++        }
++
++        @Override
++        public boolean equals(final Object obj) {
++            return this == obj;
++        }
++
++        @Override
++        public void traverse(final SKVisitor v) {
++            v.nil();
++        }
+     };
+ 
+     /** Head of the list. */
+@@ -110,9 +126,30 @@
+         }
+         return getHead().eq(n.getHead()) && getTail().eq(n.getTail());
+     }
+-    
++
+     @Override
+     public boolean isList() {
+         return true;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        if (obj == EMPTY || !(obj instanceof List)) {
++            return false;
++        }
++        final List other = (List) obj;
++        return head.equals(other.head) && tail.equals(other.tail);
++    }
++
++    @Override
++    public int hashCode() {
++        return (head.hashCode() ^ tail.hashCode()) ^ -1;
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        tail.traverse(v);
++        head.traverse(v);
++        v.cons();
+     }
+ }
+--- src/xi/go/cst/prim/Num.java	Tue Dec 21 20:05:34 2010
++++ src/xi/go/cst/prim/Num.java	Thu Jan 20 10:46:44 2011
+@@ -2,6 +2,8 @@
+ 
+ import java.math.BigInteger;
+ 
++import xi.sk.SKVisitor;
++
+ /**
+  * Number node.
+  * 
+@@ -11,7 +13,7 @@
+ public class Num extends Value {
+ 
+     /** Numeric value of this node. */
+-    protected BigInteger value;
++    BigInteger value;
+ 
+     /**
+      * Constructor.
+@@ -36,5 +38,20 @@
+     @Override
+     public boolean eq(final Value n) {
+         return value.equals(n.getNum());
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        return obj instanceof Num && value.equals(((Num) obj).value);
++    }
++
++    @Override
++    public int hashCode() {
++        return value.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.num(value);
+     }
+ }
+--- src/xi/go/cst/prim/Ref.java	Tue Dec 21 20:06:05 2010
++++ src/xi/go/cst/prim/Ref.java	Thu Jan 20 10:52:50 2011
+@@ -5,6 +5,7 @@
+ import java.util.Set;
+ 
+ import xi.go.cst.Thunk;
++import xi.sk.SKVisitor;
+ 
+ /**
+  * Name reference.
+@@ -62,12 +63,27 @@
+ 
+     @Override
+     public boolean eq(final Value n) {
+-        return n instanceof Ref && ((Ref) n).fun.equals(fun);
++        return equals(n);
+     }
+ 
+     @Override
+     public boolean isRef() {
+         return true;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        return obj instanceof Ref && ((Ref) obj).fun.equals(fun);
++    }
++
++    @Override
++    public int hashCode() {
++        return fun.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.var(fun);
+     }
+ 
+ }
+--- src/xi/go/cst/prim/Str.java	Sat Dec 25 22:15:39 2010
++++ src/xi/go/cst/prim/Str.java	Thu Jan 20 10:54:05 2011
+@@ -1,6 +1,7 @@
+ package xi.go.cst.prim;
+ 
+ import xi.go.cst.Thunk;
++import xi.sk.SKVisitor;
+ 
+ /**
+  * String node.
+@@ -53,5 +54,20 @@
+     @Override
+     public boolean isList() {
+         return true;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        return obj instanceof Str && string.equals(((Str) obj).string);
++    }
++
++    @Override
++    public int hashCode() {
++        return string.hashCode();
++    }
++
++    @Override
++    public void traverse(final SKVisitor v) {
++        v.str(string);
+     }
+ }
+--- src/xi/go/cst/prim/Value.java	Sat Dec 25 22:14:59 2010
++++ src/xi/go/cst/prim/Value.java	Fri Jan 21 10:22:26 2011
+@@ -54,7 +54,7 @@
+     }
+ 
+     /**
+-     * Checks whether two nodes are equal.
++     * Checks whether two nodes are equivalent.
+      * 
+      * @param n
+      *            node to compare to.
+--- src/xi/lexer/Lexer.java	Sun Dec 26 16:26:46 2010
++++ src/xi/lexer/Lexer.java	Fri Jan 21 10:26:47 2011
+@@ -1,5 +1,5 @@
+-/* The following code was generated by JFlex 1.4.3 on 26.12.10 14:56 */
+-
++/* The following code was generated by JFlex 1.4.3 on 21.01.11 11:26 */
++
+ package xi.lexer;
+ 
+ import java_cup.runtime.Symbol;
+@@ -13,273 +13,273 @@
+  */
+ 
+ @SuppressWarnings("all")
+-
+-/**
+- * This class is a scanner generated by 
+- * <a href="http://www.jflex.de/">JFlex</a> 1.4.3
+- * on 26.12.10 14:56 from the specification file
+- * <tt>/Users/jenserat/Documents/Eclipse/saslc/flex/subsasl.flex</tt>
+- */
+-public final class Lexer implements java_cup.runtime.Scanner {
+-
+-  /** This character denotes the end of file */
+-  public static final int YYEOF = -1;
+-
+-  /** initial size of the lookahead buffer */
+-  private static final int ZZ_BUFFERSIZE = 16384;
+-
+-  /** lexical states */
+-  public static final int YYINITIAL = 0;
+-
+-  /**
+-   * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
+-   * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
+-   *                  at the beginning of a line
+-   * l is of the form l = 2*k, k a non negative integer
+-   */
+-  private static final int ZZ_LEXSTATE[] = { 
+-     0, 0
+-  };
+-
+-  /** 
+-   * Translates characters to character classes
+-   */
+-  private static final String ZZ_CMAP_PACKED = 
+-    "\11\0\1\3\1\2\1\0\1\3\1\1\22\0\1\3\1\33\1\21"+
+-    "\1\4\1\0\1\31\1\36\1\17\1\46\1\47\1\27\1\25\1\54"+
+-    "\1\26\1\42\1\30\12\5\1\40\1\55\1\34\1\32\1\35\1\0"+
+-    "\1\41\32\16\1\44\1\22\1\45\1\0\1\16\1\20\1\13\1\23"+
+-    "\2\16\1\11\1\12\1\16\1\53\1\52\2\16\1\14\1\16\1\24"+
+-    "\3\16\1\7\1\15\1\6\1\10\5\16\1\50\1\37\1\51\1\43"+
+-    "\147\0\1\16\153\0\1\16\ufead\0";
+-
+-  /** 
+-   * Translates characters to character classes
+-   */
+-  private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
+-
+-  /** 
+-   * Translates DFA states to action switch labels.
+-   */
+-  private static final int [] ZZ_ACTION = zzUnpackAction();
+-
+-  private static final String ZZ_ACTION_PACKED_0 =
+-    "\1\0\1\1\3\2\1\3\5\4\3\1\1\5\1\6"+
+-    "\1\7\1\10\1\11\1\12\1\13\1\14\1\15\1\16"+
+-    "\1\17\1\20\1\21\1\22\1\23\1\24\1\25\1\26"+
+-    "\1\27\1\30\1\31\1\4\1\32\1\33\5\4\6\0"+
+-    "\1\34\1\0\1\35\1\36\1\37\1\40\1\41\1\42"+
+-    "\1\43\1\44\1\45\1\46\4\4\1\47\1\50\1\1"+
+-    "\1\51\1\1\1\52\1\53\1\54\2\0";
+-
+-  private static int [] zzUnpackAction() {
+-    int [] result = new int[75];
+-    int offset = 0;
+-    offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
+-    return result;
+-  }
+-
+-  private static int zzUnpackAction(String packed, int offset, int [] result) {
+-    int i = 0;       /* index in packed string  */
+-    int j = offset;  /* index in unpacked array */
+-    int l = packed.length();
+-    while (i < l) {
+-      int count = packed.charAt(i++);
+-      int value = packed.charAt(i++);
+-      do result[j++] = value; while (--count > 0);
+-    }
+-    return j;
+-  }
+-
+-
+-  /** 
+-   * Translates a state to a row index in the transition table
+-   */
+-  private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
+-
+-  private static final String ZZ_ROWMAP_PACKED_0 =
+-    "\0\0\0\56\0\134\0\56\0\212\0\270\0\346\0\u0114"+
+-    "\0\u0142\0\u0170\0\u019e\0\u01cc\0\u01fa\0\u0228\0\56\0\u0256"+
+-    "\0\56\0\56\0\56\0\u0284\0\u02b2\0\u02e0\0\u030e\0\56"+
+-    "\0\56\0\56\0\56\0\u033c\0\56\0\56\0\56\0\56"+
+-    "\0\56\0\56\0\56\0\u036a\0\56\0\56\0\u0398\0\u03c6"+
+-    "\0\u03f4\0\u0422\0\u0450\0\u047e\0\u04ac\0\u04da\0\u0508\0\u0228"+
+-    "\0\u0536\0\56\0\u0564\0\56\0\56\0\56\0\56\0\56"+
+-    "\0\56\0\56\0\56\0\u0114\0\u0114\0\u0592\0\u05c0\0\u05ee"+
+-    "\0\u061c\0\u0114\0\56\0\u064a\0\56\0\u0678\0\u0114\0\u0114"+
+-    "\0\u0114\0\u0678\0\u06a6";
+-
+-  private static int [] zzUnpackRowMap() {
+-    int [] result = new int[75];
+-    int offset = 0;
+-    offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
+-    return result;
+-  }
+-
+-  private static int zzUnpackRowMap(String packed, int offset, int [] result) {
+-    int i = 0;  /* index in packed string  */
+-    int j = offset;  /* index in unpacked array */
+-    int l = packed.length();
+-    while (i < l) {
+-      int high = packed.charAt(i++) << 16;
+-      result[j++] = high | packed.charAt(i++);
+-    }
+-    return j;
+-  }
+-
+-  /** 
+-   * The transition table of the DFA
+-   */
+-  private static final int [] ZZ_TRANS = zzUnpackTrans();
+-
+-  private static final String ZZ_TRANS_PACKED_0 =
+-    "\1\2\1\3\2\4\1\5\1\6\1\7\2\10\1\11"+
+-    "\1\12\1\10\1\13\2\10\1\14\1\15\1\16\1\2"+
+-    "\2\10\1\17\1\20\1\21\1\22\1\23\1\24\1\25"+
+-    "\1\26\1\27\1\30\1\31\1\32\1\33\1\34\1\35"+
+-    "\1\36\1\37\1\40\1\41\1\42\1\43\1\44\1\10"+
+-    "\1\45\1\46\60\0\1\4\53\0\1\5\2\0\53\5"+
+-    "\5\0\1\6\55\0\2\10\1\47\10\10\3\0\2\10"+
+-    "\25\0\1\10\1\50\7\0\13\10\3\0\2\10\25\0"+
+-    "\2\10\7\0\7\10\1\51\3\10\3\0\2\10\25\0"+
+-    "\2\10\7\0\6\10\1\52\4\10\3\0\2\10\25\0"+
+-    "\2\10\7\0\4\10\1\53\6\10\3\0\2\10\25\0"+
+-    "\2\10\2\0\1\54\2\55\14\54\1\0\2\54\1\56"+
+-    "\33\54\6\0\11\57\4\0\2\57\25\0\2\57\2\0"+
+-    "\1\60\2\61\16\60\1\62\1\63\33\60\35\0\1\64"+
+-    "\52\0\1\65\55\0\1\66\2\0\1\67\46\0\1\70"+
+-    "\3\0\1\71\55\0\1\72\65\0\1\73\20\0\5\10"+
+-    "\1\74\5\10\3\0\1\10\1\75\25\0\2\10\7\0"+
+-    "\3\10\1\76\7\10\3\0\2\10\25\0\2\10\7\0"+
+-    "\4\10\1\77\6\10\3\0\2\10\25\0\2\10\7\0"+
+-    "\10\10\1\100\2\10\3\0\2\10\25\0\2\10\7\0"+
+-    "\7\10\1\101\3\10\3\0\2\10\25\0\2\10\7\0"+
+-    "\1\10\1\102\11\10\3\0\2\10\25\0\2\10\2\0"+
+-    "\17\55\1\103\55\55\1\2\44\55\2\54\2\55\1\54"+
+-    "\4\55\1\104\1\55\4\54\31\55\5\0\13\57\1\105"+
+-    "\2\0\2\57\25\0\2\57\2\0\21\61\1\2\42\61"+
+-    "\2\60\2\61\1\60\4\61\1\60\1\61\1\106\3\60"+
+-    "\31\61\5\0\4\10\1\107\6\10\3\0\2\10\25\0"+
+-    "\2\10\7\0\13\10\3\0\1\10\1\110\25\0\2\10"+
+-    "\7\0\4\10\1\111\6\10\3\0\2\10\25\0\2\10"+
+-    "\7\0\10\10\1\76\2\10\3\0\2\10\25\0\2\10"+
+-    "\21\0\1\103\36\0\1\112\2\0\16\112\1\62\1\113"+
+-    "\33\112\6\0\2\112\2\0\1\112\4\0\1\112\1\0"+
+-    "\4\112\31\0";
+-
+-  private static int [] zzUnpackTrans() {
+-    int [] result = new int[1748];
+-    int offset = 0;
+-    offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
+-    return result;
+-  }
+-
+-  private static int zzUnpackTrans(String packed, int offset, int [] result) {
+-    int i = 0;       /* index in packed string  */
+-    int j = offset;  /* index in unpacked array */
+-    int l = packed.length();
+-    while (i < l) {
+-      int count = packed.charAt(i++);
+-      int value = packed.charAt(i++);
+-      value--;
+-      do result[j++] = value; while (--count > 0);
+-    }
+-    return j;
+-  }
+-
+-
+-  /* error codes */
+-  private static final int ZZ_UNKNOWN_ERROR = 0;
+-  private static final int ZZ_NO_MATCH = 1;
+-  private static final int ZZ_PUSHBACK_2BIG = 2;
+-
+-  /* error messages for the codes above */
+-  private static final String ZZ_ERROR_MSG[] = {
+-    "Unkown internal scanner error",
+-    "Error: could not match input",
+-    "Error: pushback value was too large"
+-  };
+-
+-  /**
+-   * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
+-   */
+-  private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
+-
+-  private static final String ZZ_ATTRIBUTE_PACKED_0 =
+-    "\1\0\1\11\1\1\1\11\12\1\1\11\1\1\3\11"+
+-    "\4\1\4\11\1\1\7\11\1\1\2\11\5\1\6\0"+
+-    "\1\11\1\0\10\11\7\1\1\11\1\1\1\11\4\1"+
+-    "\2\0";
+-
+-  private static int [] zzUnpackAttribute() {
+-    int [] result = new int[75];
+-    int offset = 0;
+-    offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
+-    return result;
+-  }
+-
+-  private static int zzUnpackAttribute(String packed, int offset, int [] result) {
+-    int i = 0;       /* index in packed string  */
+-    int j = offset;  /* index in unpacked array */
+-    int l = packed.length();
+-    while (i < l) {
+-      int count = packed.charAt(i++);
+-      int value = packed.charAt(i++);
+-      do result[j++] = value; while (--count > 0);
+-    }
+-    return j;
+-  }
+-
+-  /** the input device */
+-  private java.io.Reader zzReader;
+-
+-  /** the current state of the DFA */
+-  private int zzState;
+-
+-  /** the current lexical state */
+-  private int zzLexicalState = YYINITIAL;
+-
+-  /** this buffer contains the current text to be matched and is
+-      the source of the yytext() string */
+-  private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
+-
+-  /** the textposition at the last accepting state */
+-  private int zzMarkedPos;
+-
+-  /** the current text position in the buffer */
+-  private int zzCurrentPos;
+-
+-  /** startRead marks the beginning of the yytext() string in the buffer */
+-  private int zzStartRead;
+-
+-  /** endRead marks the last character in the buffer, that has been read
+-      from input */
+-  private int zzEndRead;
+-
+-  /** number of newlines encountered up to the start of the matched text */
+-  private int yyline;
+-
+-  /** the number of characters up to the start of the matched text */
+-  private int yychar;
+-
+-  /**
+-   * the number of characters from the last newline up to the start of the 
+-   * matched text
+-   */
+-  private int yycolumn;
+-
+-  /** 
+-   * zzAtBOL == true <=> the scanner is currently at the beginning of a line
+-   */
+-  private boolean zzAtBOL = true;
+-
+-  /** zzAtEOF == true <=> the scanner is at the EOF */
+-  private boolean zzAtEOF;
+-
+-  /** denotes if the user-EOF-code has already been executed */
+-  private boolean zzEOFDone;
+-
+-  /* user code: */
++
++/**
++ * This class is a scanner generated by 
++ * <a href="http://www.jflex.de/">JFlex</a> 1.4.3
++ * on 21.01.11 11:26 from the specification file
++ * <tt>flex/subsasl.flex</tt>
++ */
++public final class Lexer implements java_cup.runtime.Scanner {
++
++  /** This character denotes the end of file */
++  public static final int YYEOF = -1;
++
++  /** initial size of the lookahead buffer */
++  private static final int ZZ_BUFFERSIZE = 16384;
++
++  /** lexical states */
++  public static final int YYINITIAL = 0;
++
++  /**
++   * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
++   * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
++   *                  at the beginning of a line
++   * l is of the form l = 2*k, k a non negative integer
++   */
++  private static final int ZZ_LEXSTATE[] = { 
++     0, 0
++  };
++
++  /** 
++   * Translates characters to character classes
++   */
++  private static final String ZZ_CMAP_PACKED = 
++    "\11\0\1\3\1\2\1\0\1\3\1\1\22\0\1\3\1\33\1\21"+
++    "\1\4\1\0\1\31\1\36\1\17\1\46\1\47\1\27\1\25\1\54"+
++    "\1\26\1\42\1\30\12\5\1\40\1\55\1\34\1\32\1\35\1\0"+
++    "\1\41\32\16\1\44\1\22\1\45\1\0\1\16\1\20\1\13\1\23"+
++    "\2\16\1\11\1\12\1\16\1\53\1\52\2\16\1\14\1\16\1\24"+
++    "\3\16\1\7\1\15\1\6\1\10\5\16\1\50\1\37\1\51\1\43"+
++    "\77\0\1\16\17\0\1\16\uff31\0";
++
++  /** 
++   * Translates characters to character classes
++   */
++  private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
++
++  /** 
++   * Translates DFA states to action switch labels.
++   */
++  private static final int [] ZZ_ACTION = zzUnpackAction();
++
++  private static final String ZZ_ACTION_PACKED_0 =
++    "\1\0\1\1\3\2\1\3\5\4\3\1\1\5\1\6"+
++    "\1\7\1\10\1\11\1\12\1\13\1\14\1\15\1\16"+
++    "\1\17\1\20\1\21\1\22\1\23\1\24\1\25\1\26"+
++    "\1\27\1\30\1\31\1\4\1\32\1\33\5\4\6\0"+
++    "\1\34\1\0\1\35\1\36\1\37\1\40\1\41\1\42"+
++    "\1\43\1\44\1\45\1\46\4\4\1\47\1\50\1\1"+
++    "\1\51\1\1\1\52\1\53\1\54\2\0";
++
++  private static int [] zzUnpackAction() {
++    int [] result = new int[75];
++    int offset = 0;
++    offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
++    return result;
++  }
++
++  private static int zzUnpackAction(String packed, int offset, int [] result) {
++    int i = 0;       /* index in packed string  */
++    int j = offset;  /* index in unpacked array */
++    int l = packed.length();
++    while (i < l) {
++      int count = packed.charAt(i++);
++      int value = packed.charAt(i++);
++      do result[j++] = value; while (--count > 0);
++    }
++    return j;
++  }
++
++
++  /** 
++   * Translates a state to a row index in the transition table
++   */
++  private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
++
++  private static final String ZZ_ROWMAP_PACKED_0 =
++    "\0\0\0\56\0\134\0\56\0\212\0\270\0\346\0\u0114"+
++    "\0\u0142\0\u0170\0\u019e\0\u01cc\0\u01fa\0\u0228\0\56\0\u0256"+
++    "\0\56\0\56\0\56\0\u0284\0\u02b2\0\u02e0\0\u030e\0\56"+
++    "\0\56\0\56\0\56\0\u033c\0\56\0\56\0\56\0\56"+
++    "\0\56\0\56\0\56\0\u036a\0\56\0\56\0\u0398\0\u03c6"+
++    "\0\u03f4\0\u0422\0\u0450\0\u047e\0\u04ac\0\u04da\0\u0508\0\u0228"+
++    "\0\u0536\0\56\0\u0564\0\56\0\56\0\56\0\56\0\56"+
++    "\0\56\0\56\0\56\0\u0114\0\u0114\0\u0592\0\u05c0\0\u05ee"+
++    "\0\u061c\0\u0114\0\56\0\u064a\0\56\0\u0678\0\u0114\0\u0114"+
++    "\0\u0114\0\u0678\0\u06a6";
++
++  private static int [] zzUnpackRowMap() {
++    int [] result = new int[75];
++    int offset = 0;
++    offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
++    return result;
++  }
++
++  private static int zzUnpackRowMap(String packed, int offset, int [] result) {
++    int i = 0;  /* index in packed string  */
++    int j = offset;  /* index in unpacked array */
++    int l = packed.length();
++    while (i < l) {
++      int high = packed.charAt(i++) << 16;
++      result[j++] = high | packed.charAt(i++);
++    }
++    return j;
++  }
++
++  /** 
++   * The transition table of the DFA
++   */
++  private static final int [] ZZ_TRANS = zzUnpackTrans();
++
++  private static final String ZZ_TRANS_PACKED_0 =
++    "\1\2\1\3\2\4\1\5\1\6\1\7\2\10\1\11"+
++    "\1\12\1\10\1\13\2\10\1\14\1\15\1\16\1\2"+
++    "\2\10\1\17\1\20\1\21\1\22\1\23\1\24\1\25"+
++    "\1\26\1\27\1\30\1\31\1\32\1\33\1\34\1\35"+
++    "\1\36\1\37\1\40\1\41\1\42\1\43\1\44\1\10"+
++    "\1\45\1\46\60\0\1\4\53\0\1\5\2\0\53\5"+
++    "\5\0\1\6\55\0\2\10\1\47\10\10\3\0\2\10"+
++    "\25\0\1\10\1\50\7\0\13\10\3\0\2\10\25\0"+
++    "\2\10\7\0\7\10\1\51\3\10\3\0\2\10\25\0"+
++    "\2\10\7\0\6\10\1\52\4\10\3\0\2\10\25\0"+
++    "\2\10\7\0\4\10\1\53\6\10\3\0\2\10\25\0"+
++    "\2\10\2\0\1\54\2\55\14\54\1\0\2\54\1\56"+
++    "\33\54\6\0\11\57\4\0\2\57\25\0\2\57\2\0"+
++    "\1\60\2\61\16\60\1\62\1\63\33\60\35\0\1\64"+
++    "\52\0\1\65\55\0\1\66\2\0\1\67\46\0\1\70"+
++    "\3\0\1\71\55\0\1\72\65\0\1\73\20\0\5\10"+
++    "\1\74\5\10\3\0\1\10\1\75\25\0\2\10\7\0"+
++    "\3\10\1\76\7\10\3\0\2\10\25\0\2\10\7\0"+
++    "\4\10\1\77\6\10\3\0\2\10\25\0\2\10\7\0"+
++    "\10\10\1\100\2\10\3\0\2\10\25\0\2\10\7\0"+
++    "\7\10\1\101\3\10\3\0\2\10\25\0\2\10\7\0"+
++    "\1\10\1\102\11\10\3\0\2\10\25\0\2\10\2\0"+
++    "\17\55\1\103\55\55\1\2\44\55\2\54\2\55\1\54"+
++    "\4\55\1\104\1\55\4\54\31\55\5\0\13\57\1\105"+
++    "\2\0\2\57\25\0\2\57\2\0\21\61\1\2\42\61"+
++    "\2\60\2\61\1\60\4\61\1\60\1\61\1\106\3\60"+
++    "\31\61\5\0\4\10\1\107\6\10\3\0\2\10\25\0"+
++    "\2\10\7\0\13\10\3\0\1\10\1\110\25\0\2\10"+
++    "\7\0\4\10\1\111\6\10\3\0\2\10\25\0\2\10"+
++    "\7\0\10\10\1\76\2\10\3\0\2\10\25\0\2\10"+
++    "\21\0\1\103\36\0\1\112\2\0\16\112\1\62\1\113"+
++    "\33\112\6\0\2\112\2\0\1\112\4\0\1\112\1\0"+
++    "\4\112\31\0";
++
++  private static int [] zzUnpackTrans() {
++    int [] result = new int[1748];
++    int offset = 0;
++    offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
++    return result;
++  }
++
++  private static int zzUnpackTrans(String packed, int offset, int [] result) {
++    int i = 0;       /* index in packed string  */
++    int j = offset;  /* index in unpacked array */
++    int l = packed.length();
++    while (i < l) {
++      int count = packed.charAt(i++);
++      int value = packed.charAt(i++);
++      value--;
++      do result[j++] = value; while (--count > 0);
++    }
++    return j;
++  }
++
++
++  /* error codes */
++  private static final int ZZ_UNKNOWN_ERROR = 0;
++  private static final int ZZ_NO_MATCH = 1;
++  private static final int ZZ_PUSHBACK_2BIG = 2;
++
++  /* error messages for the codes above */
++  private static final String ZZ_ERROR_MSG[] = {
++    "Unkown internal scanner error",
++    "Error: could not match input",
++    "Error: pushback value was too large"
++  };
++
++  /**
++   * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
++   */
++  private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
++
++  private static final String ZZ_ATTRIBUTE_PACKED_0 =
++    "\1\0\1\11\1\1\1\11\12\1\1\11\1\1\3\11"+
++    "\4\1\4\11\1\1\7\11\1\1\2\11\5\1\6\0"+
++    "\1\11\1\0\10\11\7\1\1\11\1\1\1\11\4\1"+
++    "\2\0";
++
++  private static int [] zzUnpackAttribute() {
++    int [] result = new int[75];
++    int offset = 0;
++    offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
++    return result;
++  }
++
++  private static int zzUnpackAttribute(String packed, int offset, int [] result) {
++    int i = 0;       /* index in packed string  */
++    int j = offset;  /* index in unpacked array */
++    int l = packed.length();
++    while (i < l) {
++      int count = packed.charAt(i++);
++      int value = packed.charAt(i++);
++      do result[j++] = value; while (--count > 0);
++    }
++    return j;
++  }
++
++  /** the input device */
++  private java.io.Reader zzReader;
++
++  /** the current state of the DFA */
++  private int zzState;
++
++  /** the current lexical state */
++  private int zzLexicalState = YYINITIAL;
++
++  /** this buffer contains the current text to be matched and is
++      the source of the yytext() string */
++  private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
++
++  /** the textposition at the last accepting state */
++  private int zzMarkedPos;
++
++  /** the current text position in the buffer */
++  private int zzCurrentPos;
++
++  /** startRead marks the beginning of the yytext() string in the buffer */
++  private int zzStartRead;
++
++  /** endRead marks the last character in the buffer, that has been read
++      from input */
++  private int zzEndRead;
++
++  /** number of newlines encountered up to the start of the matched text */
++  private int yyline;
++
++  /** the number of characters up to the start of the matched text */
++  private int yychar;
++
++  /**
++   * the number of characters from the last newline up to the start of the 
++   * matched text
++   */
++  private int yycolumn;
++
++  /** 
++   * zzAtBOL == true <=> the scanner is currently at the beginning of a line
++   */
++  private boolean zzAtBOL = true;
++
++  /** zzAtEOF == true <=> the scanner is at the EOF */
++  private boolean zzAtEOF;
++
++  /** denotes if the user-EOF-code has already been executed */
++  private boolean zzEOFDone;
++
++  /* user code: */
+ 
+     // the symbol table - will be created when needed
+     private static java.util.Map<Integer, String> symTable = null;
+@@ -372,558 +372,558 @@
+         return new Symbol(type, yyline, yycolumn, value);
+     }
+     
+-
+-
+-  /**
+-   * Creates a new scanner
+-   * There is also a java.io.InputStream version of this constructor.
+-   *
+-   * @param   in  the java.io.Reader to read input from.
+-   */
+-  public Lexer(java.io.Reader in) {
+-    this.zzReader = in;
+-  }
+-
+-  /**
+-   * Creates a new scanner.
+-   * There is also java.io.Reader version of this constructor.
+-   *
+-   * @param   in  the java.io.Inputstream to read input from.
+-   */
+-  public Lexer(java.io.InputStream in) {
+-    this(new java.io.InputStreamReader(in));
+-  }
+-
+-  /** 
+-   * Unpacks the compressed character translation table.
+-   *
+-   * @param packed   the packed character translation table
+-   * @return         the unpacked character translation table
+-   */
+-  private static char [] zzUnpackCMap(String packed) {
+-    char [] map = new char[0x10000];
+-    int i = 0;  /* index in packed string  */
+-    int j = 0;  /* index in unpacked array */
+-    while (i < 130) {
+-      int  count = packed.charAt(i++);
+-      char value = packed.charAt(i++);
+-      do map[j++] = value; while (--count > 0);
+-    }
+-    return map;
+-  }
+-
+-
+-  /**
+-   * Refills the input buffer.
+-   *
+-   * @return      <code>false</code>, iff there was new input.
+-   * 
+-   * @exception   java.io.IOException  if any I/O-Error occurs
+-   */
+-  private boolean zzRefill() throws java.io.IOException {
+-
+-    /* first: make room (if you can) */
+-    if (zzStartRead > 0) {
+-      System.arraycopy(zzBuffer, zzStartRead,
+-                       zzBuffer, 0,
+-                       zzEndRead-zzStartRead);
+-
+-      /* translate stored positions */
+-      zzEndRead-= zzStartRead;
+-      zzCurrentPos-= zzStartRead;
+-      zzMarkedPos-= zzStartRead;
+-      zzStartRead = 0;
+-    }
+-
+-    /* is the buffer big enough? */
+-    if (zzCurrentPos >= zzBuffer.length) {
+-      /* if not: blow it up */
+-      char newBuffer[] = new char[zzCurrentPos*2];
+-      System.arraycopy(zzBuffer, 0, newBuffer, 0, zzBuffer.length);
+-      zzBuffer = newBuffer;
+-    }
+-
+-    /* finally: fill the buffer with new input */
+-    int numRead = zzReader.read(zzBuffer, zzEndRead,
+-                                            zzBuffer.length-zzEndRead);
+-
+-    if (numRead > 0) {
+-      zzEndRead+= numRead;
+-      return false;
+-    }
+-    // unlikely but not impossible: read 0 characters, but not at end of stream    
+-    if (numRead == 0) {
+-      int c = zzReader.read();
+-      if (c == -1) {
+-        return true;
+-      } else {
+-        zzBuffer[zzEndRead++] = (char) c;
+-        return false;
+-      }     
+-    }
+-
+-	// numRead < 0
+-    return true;
+-  }
+-
+-    
+-  /**
+-   * Closes the input stream.
+-   */
+-  public final void yyclose() throws java.io.IOException {
+-    zzAtEOF = true;            /* indicate end of file */
+-    zzEndRead = zzStartRead;  /* invalidate buffer    */
+-
+-    if (zzReader != null)
+-      zzReader.close();
+-  }
+-
+-
+-  /**
+-   * Resets the scanner to read from a new input stream.
+-   * Does not close the old reader.
+-   *
+-   * All internal variables are reset, the old input stream 
+-   * <b>cannot</b> be reused (internal buffer is discarded and lost).
+-   * Lexical state is set to <tt>ZZ_INITIAL</tt>.
+-   *
+-   * @param reader   the new input stream 
+-   */
+-  public final void yyreset(java.io.Reader reader) {
+-    zzReader = reader;
+-    zzAtBOL  = true;
+-    zzAtEOF  = false;
+-    zzEOFDone = false;
+-    zzEndRead = zzStartRead = 0;
+-    zzCurrentPos = zzMarkedPos = 0;
+-    yyline = yychar = yycolumn = 0;
+-    zzLexicalState = YYINITIAL;
+-  }
+-
+-
+-  /**
+-   * Returns the current lexical state.
+-   */
+-  public final int yystate() {
+-    return zzLexicalState;
+-  }
+-
+-
+-  /**
+-   * Enters a new lexical state
+-   *
+-   * @param newState the new lexical state
+-   */
+-  public final void yybegin(int newState) {
+-    zzLexicalState = newState;
+-  }
+-
+-
+-  /**
+-   * Returns the text matched by the current regular expression.
+-   */
+-  public final String yytext() {
+-    return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
+-  }
+-
+-
+-  /**
+-   * Returns the character at position <tt>pos</tt> from the 
+-   * matched text. 
+-   * 
+-   * It is equivalent to yytext().charAt(pos), but faster
+-   *
+-   * @param pos the position of the character to fetch. 
+-   *            A value from 0 to yylength()-1.
+-   *
+-   * @return the character at position pos
+-   */
+-  public final char yycharat(int pos) {
+-    return zzBuffer[zzStartRead+pos];
+-  }
+-
+-
+-  /**
+-   * Returns the length of the matched text region.
+-   */
+-  public final int yylength() {
+-    return zzMarkedPos-zzStartRead;
+-  }
+-
+-
+-  /**
+-   * Reports an error that occured while scanning.
+-   *
+-   * In a wellformed scanner (no or -   * yypushback(int) and a match-all fallback rule) this method 
+-   * will -   * If this method is called, something is seriously wrong
+-   * (e.g. a JFlex bug producing a faulty scanner etc.).
+-   *
+-   * Usual syntax/scanner level error handling should be done
+-   * in error fallback rules.
+-   *
+-   * @param   errorCode  the code of the errormessage to display
+-   */
+-  private void zzScanError(int errorCode) {
+-    String message;
+-    try {
+-      message = ZZ_ERROR_MSG[errorCode];
+-    }
+-    catch (ArrayIndexOutOfBoundsException e) {
+-      message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
+-    }
+-
+-    throw new Error(message);
+-  } 
+-
+-
+-  /**
+-   * Pushes the specified amount of characters back into the input stream.
+-   *
+-   * They will be read again by then next call of the scanning method
+-   *
+-   * @param number  the number of characters to be read again.
+-   *                This number must not be greater than yylength()!
+-   */
+-  public void yypushback(int number)  {
+-    if ( number > yylength() )
+-      zzScanError(ZZ_PUSHBACK_2BIG);
+-
+-    zzMarkedPos -= number;
+-  }
+-
+-
+-  /**
+-   * Contains user EOF-code, which will be executed exactly once,
+-   * when the end of file is reached
+-   */
+-  private void zzDoEOF() throws java.io.IOException {
+-    if (!zzEOFDone) {
+-      zzEOFDone = true;
+-      yyclose();
+-    }
+-  }
+-
+-
+-  /**
+-   * Resumes scanning until the next regular expression is matched,
+-   * the end of input is encountered or an I/O-Error occurs.
+-   *
+-   * @return      the next token
+-   * @exception   java.io.IOException  if any I/O-Error occurs
+-   */
+-  public java_cup.runtime.Symbol next_token() throws java.io.IOException {
+-    int zzInput;
+-    int zzAction;
+-
+-    // cached fields:
+-    int zzCurrentPosL;
+-    int zzMarkedPosL;
+-    int zzEndReadL = zzEndRead;
+-    char [] zzBufferL = zzBuffer;
+-    char [] zzCMapL = ZZ_CMAP;
+-
+-    int [] zzTransL = ZZ_TRANS;
+-    int [] zzRowMapL = ZZ_ROWMAP;
+-    int [] zzAttrL = ZZ_ATTRIBUTE;
+-
+-    while (true) {
+-      zzMarkedPosL = zzMarkedPos;
+-
+-      boolean zzR = false;
+-      for (zzCurrentPosL = zzStartRead; zzCurrentPosL < zzMarkedPosL;
+-                                                             zzCurrentPosL++) {
+-        switch (zzBufferL[zzCurrentPosL]) {
+-        case '\u000B':
+-        case '\u000C':
+-        case '\u0085':
+-        case '\u2028':
+-        case '\u2029':
+-          yyline++;
+-          yycolumn = 0;
+-          zzR = false;
+-          break;
+-        case '\r':
+-          yyline++;
+-          yycolumn = 0;
+-          zzR = true;
+-          break;
+-        case '\n':
+-          if (zzR)
+-            zzR = false;
+-          else {
+-            yyline++;
+-            yycolumn = 0;
+-          }
+-          break;
+-        default:
+-          zzR = false;
+-          yycolumn++;
+-        }
+-      }
+-
+-      if (zzR) {
+-        // peek one character ahead if it is \n (if we have counted one line too much)
+-        boolean zzPeek;
+-        if (zzMarkedPosL < zzEndReadL)
+-          zzPeek = zzBufferL[zzMarkedPosL] == '\n';
+-        else if (zzAtEOF)
+-          zzPeek = false;
+-        else {
+-          boolean eof = zzRefill();
+-          zzEndReadL = zzEndRead;
+-          zzMarkedPosL = zzMarkedPos;
+-          zzBufferL = zzBuffer;
+-          if (eof) 
+-            zzPeek = false;
+-          else 
+-            zzPeek = zzBufferL[zzMarkedPosL] == '\n';
+-        }
+-        if (zzPeek) yyline--;
+-      }
+-      zzAction = -1;
+-
+-      zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
+-  
+-      zzState = ZZ_LEXSTATE[zzLexicalState];
+-
+-
+-      zzForAction: {
+-        while (true) {
+-    
+-          if (zzCurrentPosL < zzEndReadL)
+-            zzInput = zzBufferL[zzCurrentPosL++];
+-          else if (zzAtEOF) {
+-            zzInput = YYEOF;
+-            break zzForAction;
+-          }
+-          else {
+-            // store back cached positions
+-            zzCurrentPos  = zzCurrentPosL;
+-            zzMarkedPos   = zzMarkedPosL;
+-            boolean eof = zzRefill();
+-            // get translated positions and possibly new buffer
+-            zzCurrentPosL  = zzCurrentPos;
+-            zzMarkedPosL   = zzMarkedPos;
+-            zzBufferL      = zzBuffer;
+-            zzEndReadL     = zzEndRead;
+-            if (eof) {
+-              zzInput = YYEOF;
+-              break zzForAction;
+-            }
+-            else {
+-              zzInput = zzBufferL[zzCurrentPosL++];
+-            }
+-          }
+-          int zzNext = zzTransL[ zzRowMapL[zzState] + zzCMapL[zzInput] ];
+-          if (zzNext == -1) break zzForAction;
+-          zzState = zzNext;
+-
+-          int zzAttributes = zzAttrL[zzState];
+-          if ( (zzAttributes & 1) == 1 ) {
+-            zzAction = zzState;
+-            zzMarkedPosL = zzCurrentPosL;
+-            if ( (zzAttributes & 8) == 8 ) break zzForAction;
+-          }
+-
+-        }
+-      }
+-
+-      // store back cached position
+-      zzMarkedPos = zzMarkedPosL;
+-
+-      switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
+-        case 4: 
+-          { return symbol(Terminal.NAME, yytext());
+-          }
+-        case 45: break;
+-        case 34: 
+-          { return symbol(Terminal.LE);
+-          }
+-        case 46: break;
+-        case 2: 
+-          { break;
+-          }
+-        case 47: break;
+-        case 29: 
+-          { return symbol(Terminal.TO);
+-          }
+-        case 48: break;
+-        case 6: 
+-          { return symbol(Terminal.MINUS);
+-          }
+-        case 49: break;
+-        case 23: 
+-          { return symbol(Terminal.PAR_R);
+-          }
+-        case 50: break;
+-        case 32: 
+-          { return symbol(Terminal.SEQ);
+-          }
+-        case 51: break;
+-        case 25: 
+-          { return symbol(Terminal.BRACE_R);
+-          }
+-        case 52: break;
+-        case 13: 
+-          { return symbol(Terminal.GT);
+-          }
+-        case 53: break;
+-        case 20: 
+-          { return symbol(Terminal.BRACK_L);
+-          }
+-        case 54: break;
+-        case 12: 
+-          { return symbol(Terminal.LT);
+-          }
+-        case 55: break;
+-        case 5: 
+-          { return symbol(Terminal.PLUS);
+-          }
+-        case 56: break;
+-        case 11: 
+-          { return symbol(Terminal.NOT);
+-          }
+-        case 57: break;
+-        case 14: 
+-          { return symbol(Terminal.AND);
+-          }
+-        case 58: break;
+-        case 26: 
+-          { return symbol(Terminal.COMMA);
+-          }
+-        case 59: break;
+-        case 8: 
+-          { return symbol(Terminal.DIV);
+-          }
+-        case 60: break;
+-        case 44: 
+-          { return symbol(Terminal.ELSE);
+-          }
+-        case 61: break;
+-        case 41: 
++
++
++  /**
++   * Creates a new scanner
++   * There is also a java.io.InputStream version of this constructor.
++   *
++   * @param   in  the java.io.Reader to read input from.
++   */
++  public Lexer(java.io.Reader in) {
++    this.zzReader = in;
++  }
++
++  /**
++   * Creates a new scanner.
++   * There is also java.io.Reader version of this constructor.
++   *
++   * @param   in  the java.io.Inputstream to read input from.
++   */
++  public Lexer(java.io.InputStream in) {
++    this(new java.io.InputStreamReader(in));
++  }
++
++  /** 
++   * Unpacks the compressed character translation table.
++   *
++   * @param packed   the packed character translation table
++   * @return         the unpacked character translation table
++   */
++  private static char [] zzUnpackCMap(String packed) {
++    char [] map = new char[0x10000];
++    int i = 0;  /* index in packed string  */
++    int j = 0;  /* index in unpacked array */
++    while (i < 130) {
++      int  count = packed.charAt(i++);
++      char value = packed.charAt(i++);
++      do map[j++] = value; while (--count > 0);
++    }
++    return map;
++  }
++
++
++  /**
++   * Refills the input buffer.
++   *
++   * @return      <code>false</code>, iff there was new input.
++   * 
++   * @exception   java.io.IOException  if any I/O-Error occurs
++   */
++  private boolean zzRefill() throws java.io.IOException {
++
++    /* first: make room (if you can) */
++    if (zzStartRead > 0) {
++      System.arraycopy(zzBuffer, zzStartRead,
++                       zzBuffer, 0,
++                       zzEndRead-zzStartRead);
++
++      /* translate stored positions */
++      zzEndRead-= zzStartRead;
++      zzCurrentPos-= zzStartRead;
++      zzMarkedPos-= zzStartRead;
++      zzStartRead = 0;
++    }
++
++    /* is the buffer big enough? */
++    if (zzCurrentPos >= zzBuffer.length) {
++      /* if not: blow it up */
++      char newBuffer[] = new char[zzCurrentPos*2];
++      System.arraycopy(zzBuffer, 0, newBuffer, 0, zzBuffer.length);
++      zzBuffer = newBuffer;
++    }
++
++    /* finally: fill the buffer with new input */
++    int numRead = zzReader.read(zzBuffer, zzEndRead,
++                                            zzBuffer.length-zzEndRead);
++
++    if (numRead > 0) {
++      zzEndRead+= numRead;
++      return false;
++    }
++    // unlikely but not impossible: read 0 characters, but not at end of stream    
++    if (numRead == 0) {
++      int c = zzReader.read();
++      if (c == -1) {
++        return true;
++      } else {
++        zzBuffer[zzEndRead++] = (char) c;
++        return false;
++      }     
++    }
++
++	// numRead < 0
++    return true;
++  }
++
++    
++  /**
++   * Closes the input stream.
++   */
++  public final void yyclose() throws java.io.IOException {
++    zzAtEOF = true;            /* indicate end of file */
++    zzEndRead = zzStartRead;  /* invalidate buffer    */
++
++    if (zzReader != null)
++      zzReader.close();
++  }
++
++
++  /**
++   * Resets the scanner to read from a new input stream.
++   * Does not close the old reader.
++   *
++   * All internal variables are reset, the old input stream 
++   * <b>cannot</b> be reused (internal buffer is discarded and lost).
++   * Lexical state is set to <tt>ZZ_INITIAL</tt>.
++   *
++   * @param reader   the new input stream 
++   */
++  public final void yyreset(java.io.Reader reader) {
++    zzReader = reader;
++    zzAtBOL  = true;
++    zzAtEOF  = false;
++    zzEOFDone = false;
++    zzEndRead = zzStartRead = 0;
++    zzCurrentPos = zzMarkedPos = 0;
++    yyline = yychar = yycolumn = 0;
++    zzLexicalState = YYINITIAL;
++  }
++
++
++  /**
++   * Returns the current lexical state.
++   */
++  public final int yystate() {
++    return zzLexicalState;
++  }
++
++
++  /**
++   * Enters a new lexical state
++   *
++   * @param newState the new lexical state
++   */
++  public final void yybegin(int newState) {
++    zzLexicalState = newState;
++  }
++
++
++  /**
++   * Returns the text matched by the current regular expression.
++   */
++  public final String yytext() {
++    return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
++  }
++
++
++  /**
++   * Returns the character at position <tt>pos</tt> from the 
++   * matched text. 
++   * 
++   * It is equivalent to yytext().charAt(pos), but faster
++   *
++   * @param pos the position of the character to fetch. 
++   *            A value from 0 to yylength()-1.
++   *
++   * @return the character at position pos
++   */
++  public final char yycharat(int pos) {
++    return zzBuffer[zzStartRead+pos];
++  }
++
++
++  /**
++   * Returns the length of the matched text region.
++   */
++  public final int yylength() {
++    return zzMarkedPos-zzStartRead;
++  }
++
++
++  /**
++   * Reports an error that occured while scanning.
++   *
++   * In a wellformed scanner (no or +   * yypushback(int) and a match-all fallback rule) this method 
++   * will +   * If this method is called, something is seriously wrong
++   * (e.g. a JFlex bug producing a faulty scanner etc.).
++   *
++   * Usual syntax/scanner level error handling should be done
++   * in error fallback rules.
++   *
++   * @param   errorCode  the code of the errormessage to display
++   */
++  private void zzScanError(int errorCode) {
++    String message;
++    try {
++      message = ZZ_ERROR_MSG[errorCode];
++    }
++    catch (ArrayIndexOutOfBoundsException e) {
++      message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
++    }
++
++    throw new Error(message);
++  } 
++
++
++  /**
++   * Pushes the specified amount of characters back into the input stream.
++   *
++   * They will be read again by then next call of the scanning method
++   *
++   * @param number  the number of characters to be read again.
++   *                This number must not be greater than yylength()!
++   */
++  public void yypushback(int number)  {
++    if ( number > yylength() )
++      zzScanError(ZZ_PUSHBACK_2BIG);
++
++    zzMarkedPos -= number;
++  }
++
++
++  /**
++   * Contains user EOF-code, which will be executed exactly once,
++   * when the end of file is reached
++   */
++  private void zzDoEOF() throws java.io.IOException {
++    if (!zzEOFDone) {
++      zzEOFDone = true;
++      yyclose();
++    }
++  }
++
++
++  /**
++   * Resumes scanning until the next regular expression is matched,
++   * the end of input is encountered or an I/O-Error occurs.
++   *
++   * @return      the next token
++   * @exception   java.io.IOException  if any I/O-Error occurs
++   */
++  public java_cup.runtime.Symbol next_token() throws java.io.IOException {
++    int zzInput;
++    int zzAction;
++
++    // cached fields:
++    int zzCurrentPosL;
++    int zzMarkedPosL;
++    int zzEndReadL = zzEndRead;
++    char [] zzBufferL = zzBuffer;
++    char [] zzCMapL = ZZ_CMAP;
++
++    int [] zzTransL = ZZ_TRANS;
++    int [] zzRowMapL = ZZ_ROWMAP;
++    int [] zzAttrL = ZZ_ATTRIBUTE;
++
++    while (true) {
++      zzMarkedPosL = zzMarkedPos;
++
++      boolean zzR = false;
++      for (zzCurrentPosL = zzStartRead; zzCurrentPosL < zzMarkedPosL;
++                                                             zzCurrentPosL++) {
++        switch (zzBufferL[zzCurrentPosL]) {
++        case '\u000B':
++        case '\u000C':
++        case '\u0085':
++        case '\u2028':
++        case '\u2029':
++          yyline++;
++          yycolumn = 0;
++          zzR = false;
++          break;
++        case '\r':
++          yyline++;
++          yycolumn = 0;
++          zzR = true;
++          break;
++        case '\n':
++          if (zzR)
++            zzR = false;
++          else {
++            yyline++;
++            yycolumn = 0;
++          }
++          break;
++        default:
++          zzR = false;
++          yycolumn++;
++        }
++      }
++
++      if (zzR) {
++        // peek one character ahead if it is \n (if we have counted one line too much)
++        boolean zzPeek;
++        if (zzMarkedPosL < zzEndReadL)
++          zzPeek = zzBufferL[zzMarkedPosL] == '\n';
++        else if (zzAtEOF)
++          zzPeek = false;
++        else {
++          boolean eof = zzRefill();
++          zzEndReadL = zzEndRead;
++          zzMarkedPosL = zzMarkedPos;
++          zzBufferL = zzBuffer;
++          if (eof) 
++            zzPeek = false;
++          else 
++            zzPeek = zzBufferL[zzMarkedPosL] == '\n';
++        }
++        if (zzPeek) yyline--;
++      }
++      zzAction = -1;
++
++      zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
++  
++      zzState = ZZ_LEXSTATE[zzLexicalState];
++
++
++      zzForAction: {
++        while (true) {
++    
++          if (zzCurrentPosL < zzEndReadL)
++            zzInput = zzBufferL[zzCurrentPosL++];
++          else if (zzAtEOF) {
++            zzInput = YYEOF;
++            break zzForAction;
++          }
++          else {
++            // store back cached positions
++            zzCurrentPos  = zzCurrentPosL;
++            zzMarkedPos   = zzMarkedPosL;
++            boolean eof = zzRefill();
++            // get translated positions and possibly new buffer
++            zzCurrentPosL  = zzCurrentPos;
++            zzMarkedPosL   = zzMarkedPos;
++            zzBufferL      = zzBuffer;
++            zzEndReadL     = zzEndRead;
++            if (eof) {
++              zzInput = YYEOF;
++              break zzForAction;
++            }
++            else {
++              zzInput = zzBufferL[zzCurrentPosL++];
++            }
++          }
++          int zzNext = zzTransL[ zzRowMapL[zzState] + zzCMapL[zzInput] ];
++          if (zzNext == -1) break zzForAction;
++          zzState = zzNext;
++
++          int zzAttributes = zzAttrL[zzState];
++          if ( (zzAttributes & 1) == 1 ) {
++            zzAction = zzState;
++            zzMarkedPosL = zzCurrentPosL;
++            if ( (zzAttributes & 8) == 8 ) break zzForAction;
++          }
++
++        }
++      }
++
++      // store back cached position
++      zzMarkedPos = zzMarkedPosL;
++
++      switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
++        case 4: 
++          { return symbol(Terminal.NAME, yytext());
++          }
++        case 45: break;
++        case 34: 
++          { return symbol(Terminal.LE);
++          }
++        case 46: break;
++        case 2: 
++          { break;
++          }
++        case 47: break;
++        case 29: 
++          { return symbol(Terminal.TO);
++          }
++        case 48: break;
++        case 6: 
++          { return symbol(Terminal.MINUS);
++          }
++        case 49: break;
++        case 23: 
++          { return symbol(Terminal.PAR_R);
++          }
++        case 50: break;
++        case 32: 
++          { return symbol(Terminal.SEQ);
++          }
++        case 51: break;
++        case 25: 
++          { return symbol(Terminal.BRACE_R);
++          }
++        case 52: break;
++        case 13: 
++          { return symbol(Terminal.GT);
++          }
++        case 53: break;
++        case 20: 
++          { return symbol(Terminal.BRACK_L);
++          }
++        case 54: break;
++        case 12: 
++          { return symbol(Terminal.LT);
++          }
++        case 55: break;
++        case 5: 
++          { return symbol(Terminal.PLUS);
++          }
++        case 56: break;
++        case 11: 
++          { return symbol(Terminal.NOT);
++          }
++        case 57: break;
++        case 14: 
++          { return symbol(Terminal.AND);
++          }
++        case 58: break;
++        case 26: 
++          { return symbol(Terminal.COMMA);
++          }
++        case 59: break;
++        case 8: 
++          { return symbol(Terminal.DIV);
++          }
++        case 60: break;
++        case 44: 
++          { return symbol(Terminal.ELSE);
++          }
++        case 61: break;
++        case 41: 
+           { final String s = yytext();
+-                      return symbol(Terminal.INAME, s.substring(1, s.length() - 1));
+-          }
+-        case 62: break;
+-        case 9: 
+-          { return symbol(Terminal.MOD);
+-          }
+-        case 63: break;
+-        case 28: 
+-          { return symbol(Terminal.STR, decode(yytext()));
+-          }
+-        case 64: break;
+-        case 43: 
+-          { return symbol(Terminal.THEN);
+-          }
+-        case 65: break;
+-        case 3: 
+-          { return symbol(Terminal.NUM, new BigInteger(yytext()));
+-          }
+-        case 66: break;
+-        case 10: 
+-          { return symbol(Terminal.DEF);
+-          }
+-        case 67: break;
+-        case 21: 
+-          { return symbol(Terminal.BRACK_R);
+-          }
+-        case 68: break;
+-        case 19: 
+-          { return symbol(Terminal.UMINUS);
+-          }
+-        case 69: break;
+-        case 27: 
+-          { return symbol(Terminal.SEMI);
+-          }
+-        case 70: break;
+-        case 37: 
+-          { return symbol(Terminal.IF);
+-          }
+-        case 71: break;
+-        case 1: 
+-          { return symbol(Terminal.error, yytext());
+-          }
+-        case 72: break;
+-        case 36: 
+-          { return symbol(Terminal.ELLIPSE);
+-          }
+-        case 73: break;
+-        case 40: 
+-          { return symbol(Terminal.CHAR, charDecode(yytext()));
+-          }
+-        case 74: break;
+-        case 33: 
+-          { return symbol(Terminal.FROM);
+-          }
+-        case 75: break;
+-        case 17: 
+-          { return symbol(Terminal.APP);
+-          }
+-        case 76: break;
+-        case 39: 
+-          { return symbol(Terminal.LET);
+-          }
+-        case 77: break;
+-        case 38: 
+-          { return symbol(Terminal.IN);
+-          }
+-        case 78: break;
+-        case 15: 
+-          { return symbol(Terminal.OR);
+-          }
+-        case 79: break;
+-        case 30: 
+-          { return symbol(Terminal.EQ);
+-          }
+-        case 80: break;
+-        case 18: 
+-          { return symbol(Terminal.COMP);
+-          }
+-        case 81: break;
+-        case 31: 
+-          { return symbol(Terminal.NE);
+-          }
+-        case 82: break;
+-        case 22: 
+-          { return symbol(Terminal.PAR_L);
+-          }
+-        case 83: break;
+-        case 16: 
+-          { return symbol(Terminal.CONS);
+-          }
+-        case 84: break;
+-        case 7: 
+-          { return symbol(Terminal.TIMES);
+-          }
+-        case 85: break;
+-        case 24: 
+-          { return symbol(Terminal.BRACE_L);
+-          }
+-        case 86: break;
+-        case 42: 
+-          { return symbol(Terminal.BLN, Boolean.valueOf(yytext()));
+-          }
+-        case 87: break;
+-        case 35: 
+-          { return symbol(Terminal.GE);
+-          }
+-        case 88: break;
+-        default: 
+-          if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
+-            zzAtEOF = true;
+-            zzDoEOF();
++                      return symbol(Terminal.INAME, s.substring(1, s.length() - 1));
++          }
++        case 62: break;
++        case 9: 
++          { return symbol(Terminal.MOD);
++          }
++        case 63: break;
++        case 28: 
++          { return symbol(Terminal.STR, decode(yytext()));
++          }
++        case 64: break;
++        case 43: 
++          { return symbol(Terminal.THEN);
++          }
++        case 65: break;
++        case 3: 
++          { return symbol(Terminal.NUM, new BigInteger(yytext()));
++          }
++        case 66: break;
++        case 10: 
++          { return symbol(Terminal.DEF);
++          }
++        case 67: break;
++        case 21: 
++          { return symbol(Terminal.BRACK_R);
++          }
++        case 68: break;
++        case 19: 
++          { return symbol(Terminal.UMINUS);
++          }
++        case 69: break;
++        case 27: 
++          { return symbol(Terminal.SEMI);
++          }
++        case 70: break;
++        case 37: 
++          { return symbol(Terminal.IF);
++          }
++        case 71: break;
++        case 1: 
++          { return symbol(Terminal.error, yytext());
++          }
++        case 72: break;
++        case 36: 
++          { return symbol(Terminal.ELLIPSE);
++          }
++        case 73: break;
++        case 40: 
++          { return symbol(Terminal.CHAR, charDecode(yytext()));
++          }
++        case 74: break;
++        case 33: 
++          { return symbol(Terminal.FROM);
++          }
++        case 75: break;
++        case 17: 
++          { return symbol(Terminal.APP);
++          }
++        case 76: break;
++        case 39: 
++          { return symbol(Terminal.LET);
++          }
++        case 77: break;
++        case 38: 
++          { return symbol(Terminal.IN);
++          }
++        case 78: break;
++        case 15: 
++          { return symbol(Terminal.OR);
++          }
++        case 79: break;
++        case 30: 
++          { return symbol(Terminal.EQ);
++          }
++        case 80: break;
++        case 18: 
++          { return symbol(Terminal.COMP);
++          }
++        case 81: break;
++        case 31: 
++          { return symbol(Terminal.NE);
++          }
++        case 82: break;
++        case 22: 
++          { return symbol(Terminal.PAR_L);
++          }
++        case 83: break;
++        case 16: 
++          { return symbol(Terminal.CONS);
++          }
++        case 84: break;
++        case 7: 
++          { return symbol(Terminal.TIMES);
++          }
++        case 85: break;
++        case 24: 
++          { return symbol(Terminal.BRACE_L);
++          }
++        case 86: break;
++        case 42: 
++          { return symbol(Terminal.BLN, Boolean.valueOf(yytext()));
++          }
++        case 87: break;
++        case 35: 
++          { return symbol(Terminal.GE);
++          }
++        case 88: break;
++        default: 
++          if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
++            zzAtEOF = true;
++            zzDoEOF();
+               {     return symbol(Terminal.EOF);
+- }
+-          } 
+-          else {
+-            zzScanError(ZZ_NO_MATCH);
+-          }
+-      }
+-    }
+-  }
+-
+-
+-}
++ }
++          } 
++          else {
++            zzScanError(ZZ_NO_MATCH);
++          }
++      }
++    }
++  }
++
++
++}
+--- src/xi/linker/Linker.java	Sun Dec 26 17:12:21 2010
++++ src/xi/linker/Linker.java	Fri Jan 21 12:53:08 2011
+@@ -1,29 +1,19 @@
+ package xi.linker;
+ 
+-import static xi.go.VM.UTF8;
+-
+-import java.io.File;
+-import java.io.FileInputStream;
+-import java.io.FileOutputStream;
+ import java.io.IOException;
+-import java.io.InputStreamReader;
+-import java.io.OutputStreamWriter;
+ import java.io.Reader;
+-import java.io.Writer;
+ import java.util.ArrayDeque;
+-import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Queue;
+ import java.util.Map.Entry;
+ 
+-import stefan.Cout;
++import xi.ast.AstSKParser;
+ import xi.ast.Expr;
+ import xi.ast.LetIn;
+ import xi.ast.Module;
+ import xi.ast.Name;
+-import xi.ast.stefan.LazyTree;
+ 
+ /**
+  * A linker for the SK output.
+@@ -47,12 +37,21 @@
+         final Map<String, Expr> module = new HashMap<String, Expr>();
+         final AstSKParser parser = new AstSKParser(module);
+         for (final Reader r : ins) {
++            // keeps the possibility to overwrite functions in other files
+             parser.read(r);
+             defs.putAll(module);
+             module.clear();
+         }
+     }
+ 
++    /**
++     * Creates an expression without name references by fusing all needed
++     * definitions into the one associated with the name {@code startSym}.
++     * 
++     * @param startSym
++     *            start symbol
++     * @return linked expression
++     */
+     public Expr link(final String startSym) {
+         final Map<String, Expr> required = new HashMap<String, Expr>();
+         final Queue<String> queue = new ArrayDeque<String>();
+@@ -83,54 +82,4 @@
+         return let.unLambda();
+     }
+ 
+-    public static void main(final String[] args) throws Exception {
+-        String start = "main";
+-        final ArrayList<Reader> inputs = new ArrayList<Reader>();
+-        Writer out = new OutputStreamWriter(System.out);
+-        boolean invalid = false;
+-        for (int i = 0; i < args.length; i++) {
+-            if (args[i].equals("-start")) {
+-                if (i == args.length - 1) {
+-                    invalid = true;
+-                    break;
+-                }
+-                start = args[++i];
+-            } else if ("-out".equals(args[i])) {
+-                if (i == args.length - 1) {
+-                    invalid = true;
+-                    break;
+-                }
+-                out = new OutputStreamWriter(new FileOutputStream(args[i]),
+-                        UTF8);
+-            } else if ("-".equals(args[i])) {
+-                inputs.add(new InputStreamReader(System.in));
+-            } else {
+-                final File f = new File(args[i]);
+-                if (!f.isFile()) {
+-                    invalid = true;
+-                    break;
+-                }
+-                inputs.add(new InputStreamReader(new FileInputStream(f), UTF8));
+-            }
+-        }
+-        if (invalid) {
+-            System.err.println("Usage: sasln [-start <start_sym>] "
+-                    + "[-out <dest_file>] <sklib>...\n"
+-                    + "\t<start_sym>: function name used as entry point,"
+-                    + " default is 'main'.\n"
+-                    + "\t<dest_file>: File to write to, default is STDOUT.\n"
+-                    + "\t<sklib>: a file containing an SK library,"
+-                    + " '-' means STDIN.\n");
+-            return;
+-        }
+-        if (inputs.isEmpty()) {
+-            inputs.add(new InputStreamReader(System.in));
+-        }
+-        final Linker linker = new Linker(inputs);
+-        final Expr linked = linker.link(start);
+-        final Module mod = new Module(false);
+-        mod.addDefinition(Name.valueOf("main"), linked);
+-
+-        Cout.module(LazyTree.create(mod), out);
+-    }
+ }
+--- src/xi/parser/ListComp.java	Mon Dec 20 11:10:56 2010
++++ src/xi/parser/ListComp.java	Thu Jan 20 17:23:22 2011
+@@ -12,7 +12,7 @@
+  * 
+  * @author Leo
+  */
+-public class ListComp {
++class ListComp {
+ 
+     /** Monadic function 'bind' (>>=). */
+     private static final Name BIND = Name.valueOf("bindList");
+--- src/xi/parser/ParseError.java	Mon Dec  6 11:00:54 2010
++++ src/xi/parser/ParseError.java	Sat Jan 22 20:03:26 2011
+@@ -4,25 +4,50 @@
+ import xi.ast.Expr;
+ import xi.ast.Name;
+ 
++/**
++ * Thrown when a parse error occurs.
++ * 
++ * @author Leo Woerteler
++ */
+ public class ParseError {
+ 
+-	public static final Expr expr = Name.valueOf("$ERROR$");
++    /** Pseudo expression for error output. */
++    public static final Expr expr = Name.valueOf("$ERROR$");
+ 
+-	private final Symbol sym;
+-
+-	private final String msg;
+-
+-	public ParseError(final Symbol sym, final String msg) {
+-		this.sym = sym;
+-		this.msg = msg;
+-	}
+-
+-	public Symbol getSymbol() {
+-		return sym;
+-	}
+-
+-	public String getMessage() {
+-		return msg;
+-	}
++    /** Symbol that caused the error. */
++    private final Symbol sym;
++    /** Error message. */
++    private final String msg;
++
++    /**
++     * Constructor.
++     * 
++     * @param sym
++     *            offending symbol
++     * @param msg
++     *            error message
++     */
++    public ParseError(final Symbol sym, final String msg) {
++        this.sym = sym;
++        this.msg = msg;
++    }
++
++    /**
++     * Getter for this error's symbol.
++     * 
++     * @return symbol
++     */
++    public Symbol getSymbol() {
++        return sym;
++    }
++
++    /**
++     * Getter for this error's message.
++     * 
++     * @return message
++     */
++    public String getMessage() {
++        return msg;
++    }
+ 
+ }
+--- src/xi/parser/Parser.java	Mon Dec 20 11:14:32 2010
++++ src/xi/parser/Parser.java	Fri Jan 21 10:42:18 2011
+@@ -1,7 +1,7 @@
+ 
+ //----------------------------------------------------
+ // The following code was generated by CUP v0.11a beta 20060608
+-// Mon Dec 20 12:14:31 CET 2010
++// Fri Jan 21 11:42:17 CET 2011
+ //----------------------------------------------------
+ 
+ package xi.parser;
+@@ -12,7 +12,7 @@
+ import java.math.BigInteger;
+ 
+ /** CUP v0.11a beta 20060608 generated parser.
+-  * @version Mon Dec 20 12:14:31 CET 2010
++  * @version Fri Jan 21 11:42:17 CET 2011
+   */
+ @SuppressWarnings("all")
+ public class Parser extends java_cup.runtime.lr_parser {
+--- src/xi/parser/Terminal.java	Mon Dec 20 11:14:31 2010
++++ src/xi/parser/Terminal.java	Fri Jan 21 10:42:18 2011
+@@ -1,7 +1,7 @@
+ 
+ //----------------------------------------------------
+ // The following code was generated by CUP v0.11a beta 20060608
+-// Mon Dec 20 12:14:31 CET 2010
++// Fri Jan 21 11:42:17 CET 2011
+ //----------------------------------------------------
+ 
+ package xi.parser;
+--- src/xi/util/StringUtils.java	Sat Dec 18 15:29:14 2010
++++ src/xi/util/StringUtils.java	Fri Jan 21 12:17:58 2011
+@@ -150,4 +150,16 @@
+         return res;
+     }
+ 
++    /**
++     * Escapes +     * '\' => '\\'}
++     * 
++     * @param str
++     *            The String to escape.
++     * @return The escaped String.
++     */
++    public static String primitiveEscape(final String str) {
++        return str.replace("\\", "\\\\").replace("\"", "\\\"");
++    }
++
+ }
+--- test/test.sasl	Sat Jan 22 22:58:03 2011
++++ test/test.sasl	Fri Jan 21 12:59:53 2011
+@@ -1,3 +1,3 @@
+-main
+-  = take 10 @ map {x -> x * x} @ cycle [x ; x <- [1,3..20], x < 8]
+-  ;
+\ No newline at end of file
++main = iterate plus1 0;
++
++plus1 x = x + 1;
+\ No newline at end of file

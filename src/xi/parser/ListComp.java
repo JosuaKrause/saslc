@@ -2,10 +2,10 @@ package xi.parser;
 
 import java.util.ArrayList;
 
-import xi.ast.App;
-import xi.ast.Expr;
-import xi.ast.Lambda;
-import xi.ast.Name;
+import xi.compiler.App;
+import xi.compiler.Expr;
+import xi.compiler.Lambda;
+import xi.compiler.Name;
 
 /**
  * Helper class for list comprehension parsing.

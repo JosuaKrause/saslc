@@ -15,17 +15,17 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import xi.ast.Expr;
-import xi.ast.Module;
-import xi.ast.Name;
-import xi.ast.Node;
-import xi.go.VM;
-import xi.go.cst.CstSKParser;
-import xi.go.cst.Thunk;
+import xi.compiler.Expr;
+import xi.compiler.Module;
+import xi.compiler.Name;
+import xi.compiler.Node;
 import xi.lexer.Lexer;
 import xi.optimizer.OptLevel;
 import xi.optimizer.Optimizer;
 import xi.parser.Parser;
+import xi.runtime.VM;
+import xi.runtime.ast.CstSKParser;
+import xi.runtime.ast.Thunk;
 import xi.sk.SKWriter;
 import xi.util.IOUtils;
 

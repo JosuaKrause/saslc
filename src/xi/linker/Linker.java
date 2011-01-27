@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
 
-import xi.ast.AstSKParser;
-import xi.ast.Expr;
-import xi.ast.LetIn;
-import xi.ast.Module;
-import xi.ast.Name;
+import xi.compiler.AstSKParser;
+import xi.compiler.Expr;
+import xi.compiler.LetIn;
+import xi.compiler.Module;
+import xi.compiler.Name;
 
 /**
  * A linker for the SK output.
