@@ -3,3 +3,4 @@ dump
 *.jar
 *.sk
 *.sklib
+*.diff
