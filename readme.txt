@@ -1,4 +1,6 @@
 #
+# This branch is no longer maintained because of structural changes!
+#
 # saslc is a little compiler for the declarative language SASL.
 #
 # Building the project:
