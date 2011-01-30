@@ -1,4 +1,6 @@
 #
+# This branch is no longer maintained because of structural changes!
+#
 # saslc is a little compiler for the declarative language SASL.
 # This version comes with a multi-threaded execution environment which
 # evaluates for example the following subexpressions "(3 + 5)" and "(9 - 2)"
