@@ -169,7 +169,7 @@ enumFromThenTo a b c
 cat xs ys
     = if [] == xs
       then ys
-      else hd xs : (tl xs) `cat` ys
+      else hd xs : ((tl xs) `cat` ys)
     ;
 
 # Flattens a list of lists.

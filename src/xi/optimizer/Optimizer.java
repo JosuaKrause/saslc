@@ -75,6 +75,8 @@ public class Optimizer extends AstSKParser {
     private static final Expr[] K_PAT = { BuiltIn.K, null };
     /** Pattern for (S f g). */
     private static final Expr[] S_PAT = { BuiltIn.S, null, null };
+    /** Pattern for (I x). */
+    private static final Expr[] I_PAT = { BuiltIn.I, null };
 
     /**
      * Optimizes an SK expression via pattern matching.
@@ -84,6 +86,12 @@ public class Optimizer extends AstSKParser {
      * @return potentially optimized expression
      */
     public static Expr optimize(final Expr e) {
+
+        final Expr[] i = e.match(I_PAT);
+        if (i != null) {
+            // e = I x
+            return i[1];
+        }
 
         final Expr[] s = e.match(S_PAT);
         if (s != null) {
@@ -154,6 +162,22 @@ public class Optimizer extends AstSKParser {
             if (b != null) {
                 // C (B b1 b2) g ==> C' b1 b2 g
                 return BuiltIn.C_PRIME.app(b[1], b[2], g);
+            }
+        }
+
+        final Expr[] b = e.match(B_PAT);
+        if (b != null) {
+            final Expr f = b[1];
+            final Expr g = b[2];
+            // B f I ==> f
+            if (g == BuiltIn.I) {
+                return f;
+            }
+
+            final Expr[] bStar = g.match(B_PAT);
+            if (bStar != null) {
+                // B f (B b1 b2) ==> B* f b1 b2
+                return BuiltIn.B_STAR.app(f, bStar[1], bStar[2]);
             }
         }
 
