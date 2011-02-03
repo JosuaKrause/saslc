@@ -249,7 +249,7 @@ quickSort lt xs
         pr = partition rest,
         lts = fst pr,
         gtes = snd pr
-      in quickSort lt lts `cat` [pivot] `cat` quickSort lt gtes
+      in quickSort lt lts `cat` (pivot : quickSort lt gtes)
   ;
 
 mergeSort lt xs
