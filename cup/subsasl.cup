@@ -109,6 +109,7 @@ expr        ::= LET defs:ds IN expr:e         {: RESULT = new LetIn(ds, e); :}
               | condexpr:c                    {: RESULT = c; :}
               ;
 defs        ::= NAME:n def:d COMMA defs:ds    {: RESULT = parser.addDefinition(ds, n, d); :}
+              | NAME:n def:d COMMA            {: RESULT = parser.addDefinition(new Module(false), n, d); :}
               | NAME:n def:d                  {: RESULT = parser.addDefinition(new Module(false), n, d); :}
               ;
 condexpr    ::= IF expr:i THEN expr:t
