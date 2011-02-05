@@ -80,7 +80,7 @@ terminal Character  CHAR;
 
 /* Non terminals */
 non terminal  Module           sasl, module, defs;
-non terminal  Expr             def, expr, condexpr, lambdaexpr, prefixexpr;
+non terminal  Expr             def, expr, condexpr, lambdaexpr, prefixexpr, tupel;
 non terminal  Expr             infixexpr, comb, simple, constant, list, s_list, e_to;
 non terminal  Expr[]           c_list;
 non terminal  ListComp         listcmp;
@@ -146,7 +146,11 @@ comb        ::= comb:c simple:s               {: RESULT = App.create(c, s); :}
 simple      ::= NAME:n                        {: RESULT = Name.valueOf(n); :}
               | constant:c                    {: RESULT = c; :}
               | BRACE_L lambdaexpr:l BRACE_R  {: RESULT = l; :}
+              | PAR_L expr:e COMMA tupel:t    {: RESULT = new Tupel(e); :}
               | PAR_L expr:e PAR_R            {: RESULT = e; :}
+              ;
+tupel       ::= expr:e COMMA tupel:t          {: RESULT = new Tupel(e, t); :}
+              | expr:e PAR_R                  {: RESULT = e; :}
               ;
 lambdaexpr  ::= NAME:n lambdaexpr:l           {: RESULT = new Lambda(n, l); :}
               | NAME:n TO expr:e              {: RESULT = new Lambda(n, e); :}
