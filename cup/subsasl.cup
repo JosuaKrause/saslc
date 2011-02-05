@@ -1,6 +1,6 @@
 package xi.parser;
 
-import xi.ast.*;
+import xi.compiler.*;
 import java.util.LinkedList;
 import java_cup.runtime.Symbol;
 import java.math.BigInteger;
