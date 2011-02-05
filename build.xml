@@ -7,8 +7,6 @@
 	<property name="flexDest" value="/xi/lexer/"/>
 	<property name="cupSrc" location="cup/subsasl.cup"/>
 	<property name="cupDest" value="/xi/parser/"/>
-	<property name="stefan" value="/stefan"/>
-	<property name="convert" value="/xi/ast/stefan"/>
 	<!-- libraries -->
 	<property name="cup" location="lib/java-cup-11a.jar"/>
 	<property name="jflex" location="lib/JFlex.jar"/>
@@ -70,7 +68,7 @@ public class Terminal]]></replacevalue>
 				<attribute name="Class-Path" value="."/>
 			</manifest>
 			<fileset dir="${bin}">
-				<exclude name="/xi/go/**"/>
+				<exclude name="/xi/runtime/**"/>
 				<exclude name="/xi/lexer/**"/>
 				<exclude name="/xi/parser/**"/>
 				<exclude name="/java_cup/**"/>
@@ -83,7 +81,7 @@ public class Terminal]]></replacevalue>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${bin}">
-                <exclude name="/xi/go/**"/>
+                <exclude name="/xi/runtime/**"/>
                 <exclude name="/xi/lexer/**"/>
                 <exclude name="/xi/parser/**"/>
                 <exclude name="/java_cup/**"/>
@@ -119,7 +117,7 @@ public class Terminal]]></replacevalue>
 				<attribute name="Class-Path" value="."/>
 			</manifest>
 			<fileset dir="${bin}">
-				<exclude name="/xi/go/**"/>
+				<exclude name="/xi/runtime/**"/>
 				<exclude name="/xi/linker/**"/>
 				<exclude name="/java_cup/**"/>
 			</fileset>
@@ -134,7 +132,7 @@ public class Terminal]]></replacevalue>
 			<fileset dir="${bin}">
 				<exclude name="/xi/lexer/**"/>
 				<exclude name="/xi/parser/**"/>
-				<exclude name="/xi/ast/**"/>
+				<exclude name="/xi/compiler/**"/>
 				<exclude name="/xi/linker/**"/>
 				<exclude name="/java_cup/**"/>
 			</fileset>
