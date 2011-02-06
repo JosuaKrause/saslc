@@ -168,8 +168,8 @@ public class Thunk implements SKTree {
      * 
      * @param defs
      *            definitions
-     * @return a new thunk that this thunk should be replaced with, or {@code
-     *         null}
+     * @return a new thunk that this thunk should be replaced with, or the same
+     *         thunk
      */
     public Thunk link(final Map<String, Thunk> defs) {
         return link(defs, new HashSet<String>());
@@ -183,8 +183,8 @@ public class Thunk implements SKTree {
      *            definitions
      * @param linked
      *            set of already linked definitions to avoid loops
-     * @return a new thunk that this thunk should be replaced with, or {@code
-     *         null}
+     * @return a new thunk that this thunk should be replaced with, or the same
+     *         thunk
      */
     public Thunk link(final Map<String, Thunk> defs, final Set<String> linked) {
         final Thunk res = node.link(defs, linked);
@@ -206,6 +206,11 @@ public class Thunk implements SKTree {
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof Thunk && node.equals(((Thunk) obj).node);
+    }
+
+    @Override
+    public int hashCode() {
+        return node.hashCode();
     }
 
     /**
@@ -233,11 +238,6 @@ public class Thunk implements SKTree {
      */
     private boolean isValue() {
         return node.isValue();
-    }
-
-    @Override
-    public int hashCode() {
-        return node.hashCode();
     }
 
     @Override

@@ -197,6 +197,15 @@ public class SKReader {
                 final String ref = getName();
                 visitor.var(ref);
                 continue;
+            case '(':
+                visitor.tuple(true);
+                break;
+            case ')':
+                visitor.tuple(false);
+                break;
+            case '.':
+                visitor.nextInTuple();
+                break;
             case '\'':
                 final char chr = next();
                 int cp;

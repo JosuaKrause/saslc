@@ -109,7 +109,7 @@ public abstract class Node implements SKTree {
      * @param linked
      *            set of already linked definitions to avoid loops
      * @return a new thunk that this node's thunk should be replaced with, or
-     *         {@code null}
+     *         {@code null} when the thunk should not be replaced
      */
     public abstract Thunk link(Map<String, Thunk> defs, Set<String> linked);
 
