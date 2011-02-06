@@ -51,6 +51,26 @@ public abstract class Node implements SKTree {
     }
 
     /**
+     * Checks whether this is a tuple.
+     * 
+     * @return {@code true}, if this is a tuple.
+     */
+    public boolean isTuple() {
+        return false;
+    }
+
+    /**
+     * Returns the thunk at the given position of the tuple.
+     * 
+     * @param pos
+     *            The position.
+     * @return The thunk.
+     */
+    public Thunk getAtTuple(final int pos) {
+        throw new UnsupportedOperationException("Not a tuple.");
+    }
+
+    /**
      * Getter for the left child of an application node.
      * 
      * @return left child

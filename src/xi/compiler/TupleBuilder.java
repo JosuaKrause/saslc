@@ -14,14 +14,10 @@ public class TupleBuilder {
     private final LinkedList<Expr> list;
 
     /**
-     * Creates a tuple builder containing the expression {@code e}.
-     * 
-     * @param e
-     *            The first expression.
+     * Creates an empty tuple builder.
      */
-    public TupleBuilder(final Expr e) {
+    public TupleBuilder() {
         list = new LinkedList<Expr>();
-        list.add(e);
     }
 
     /**
@@ -32,6 +28,18 @@ public class TupleBuilder {
      * @return This TupleBuilder.
      */
     public TupleBuilder addFirst(final Expr e) {
+        list.addFirst(e);
+        return this;
+    }
+
+    /**
+     * Appends the expression to the list.
+     * 
+     * @param e
+     *            The last expression.
+     * @return This TupleBuilder.
+     */
+    public TupleBuilder addLast(final Expr e) {
         list.addFirst(e);
         return this;
     }

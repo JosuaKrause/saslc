@@ -11,9 +11,11 @@ import java.util.Stack;
  * @author Leo
  * @param <T>
  *            type of the values to construct
+ * @param <B>
+ *            type of the tuple builder
  * 
  */
-public abstract class SKParser<T> {
+public abstract class SKParser<T, B> {
 
     /**
      * Reads from a SKTree.
@@ -144,7 +146,7 @@ public abstract class SKParser<T> {
     /**
      * @return Creates a new tuple builder.
      */
-    protected abstract T startTuple();
+    protected abstract B startTuple();
 
     /**
      * Adds the next body to the tuple builder.
@@ -154,7 +156,7 @@ public abstract class SKParser<T> {
      * @param builder
      *            The tuple builder.
      */
-    protected abstract void nextInTuple(T body, T builder);
+    protected abstract void nextInTuple(T body, B builder);
 
     /**
      * Makes a real tuple out of a tuple builder.
@@ -163,7 +165,7 @@ public abstract class SKParser<T> {
      *            The tuple builder.
      * @return The fully functional tuple.
      */
-    protected abstract T endTuple(T builder);
+    protected abstract T endTuple(B builder);
 
     /**
      * An SKVisitor that uses a stack to reproduce the SK tree.
@@ -176,6 +178,9 @@ public abstract class SKParser<T> {
         /** The stack holding unconsumed subtrees. */
         private final Stack<T> stack;
 
+        /** The stack holding currently active tuple builder. */
+        private final Stack<B> builderStack;
+
         /**
          * Creates a visitor.
          * 
@@ -184,6 +189,7 @@ public abstract class SKParser<T> {
          */
         public ParserSKVisitor(final Stack<T> s) {
             stack = s;
+            builderStack = new Stack<B>();
         }
 
         @Override
@@ -241,21 +247,19 @@ public abstract class SKParser<T> {
         @Override
         public void nextInTuple() {
             final T body = stack.pop();
-            SKParser.this.nextInTuple(body, stack.peek());
+            SKParser.this.nextInTuple(body, builderStack.peek());
         }
 
         @Override
         public void tuple(final boolean start) {
-            T tupel;
             if (start) {
-                tupel = SKParser.this.startTuple();
-            } else {
-                final T body = stack.pop();
-                final T builder = stack.pop();
-                SKParser.this.nextInTuple(body, builder);
-                tupel = SKParser.this.endTuple(builder);
+                builderStack.push(SKParser.this.startTuple());
+                return;
             }
-            stack.push(tupel);
+            final T body = stack.pop();
+            final B builder = builderStack.pop();
+            SKParser.this.nextInTuple(body, builder);
+            stack.push(SKParser.this.endTuple(builder));
         }
 
     }

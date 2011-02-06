@@ -375,7 +375,7 @@ public final class Function extends Prim {
          *            Thunk to wrap
          * @return the indirection node
          */
-        private static Node indirect(final Thunk th) {
+        public static Node indirect(final Thunk th) {
             return new App(I.thunk, th);
         }
 

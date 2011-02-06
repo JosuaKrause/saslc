@@ -152,7 +152,7 @@ simple      ::= NAME:n                        {: RESULT = Name.valueOf(n); :}
               | PAR_L expr:e PAR_R            {: RESULT = e; :}
               ;
 tuple       ::= expr:e COMMA tuple:t          {: RESULT = t.addFirst(e); :}
-              | expr:e PAR_R                  {: RESULT = new TupleBuilder(e); :}
+              | expr:e PAR_R                  {: RESULT = new TupleBuilder().addFirst(e); :}
               ;
 lambdaexpr  ::= NAME:n lambdaexpr:l           {: RESULT = new Lambda(n, l); :}
               | NAME:n TO expr:e              {: RESULT = new Lambda(n, e); :}

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import xi.runtime.ast.CstSKParser;
 import xi.runtime.ast.Thunk;
+import xi.runtime.ast.TupleBuilder;
 import xi.sk.SKParser;
 import xi.sk.SKTree;
 import xi.util.Logging;
@@ -31,7 +32,7 @@ public class Eval {
     public static Map<String, Thunk> parse(final SKTree tree) {
 
         final Map<String, Thunk> fTable = new HashMap<String, Thunk>();
-        final SKParser<Thunk> parser = new CstSKParser(false) {
+        final SKParser<Thunk, TupleBuilder> parser = new CstSKParser(false) {
             @Override
             public void def(final String name, final Thunk body) {
                 if (fTable.put(name, body) != null) {

@@ -112,11 +112,18 @@ public class Thunk implements SKTree {
         Thunk curr = this;
         while (!curr.isValue()) {
             if (curr.isApp()) {
-                pushes++;
+                ++pushes;
                 stack.push(curr);
                 curr = curr.node.getLeft();
+            } else if (curr.isTuple()) {
+                final Thunk app = stack.pop();
+                // TODO: no implicit conversion
+                // implicit BigInt -> Integer conversion with loss of precision
+                final int pos = app.node.getRight().wHNF().getNum().intValue();
+                final Thunk res = curr.node.getAtTuple(pos);
+                curr.node = Function.Def.indirect(res);
             } else {
-                reductions++;
+                ++reductions;
                 final Function.Def funDef = curr.node.getFunction();
                 if (stack.size() < funDef.arity()) {
                     throw new IllegalStateException("Not enough arguments for "
@@ -141,6 +148,13 @@ public class Thunk implements SKTree {
         }
         node = curr.node;
         return (Value) node;
+    }
+
+    /**
+     * @return Whether this thunk contains a tuple.
+     */
+    private boolean isTuple() {
+        return node.isTuple();
     }
 
     @Override

@@ -18,7 +18,7 @@ import xi.util.Logging;
  * @author Leo Woerteler
  * @author Joschi
  */
-public abstract class CstSKParser extends SKParser<Thunk> {
+public abstract class CstSKParser extends SKParser<Thunk, TupleBuilder> {
 
     /** Sharing flag. */
     private final HashMap<Thunk, Thunk> shared;
@@ -105,20 +105,17 @@ public abstract class CstSKParser extends SKParser<Thunk> {
     }
 
     @Override
-    protected Thunk startTuple() {
-        // TODO Auto-generated method stub
-        return null;
+    protected TupleBuilder startTuple() {
+        return new TupleBuilder();
     }
 
     @Override
-    protected void nextInTuple(final Thunk body, final Thunk builder) {
-        // TODO Auto-generated method stub
-
+    protected void nextInTuple(final Thunk body, final TupleBuilder builder) {
+        builder.addLast(body);
     }
 
     @Override
-    protected Thunk endTuple(final Thunk builder) {
-        // TODO Auto-generated method stub
-        return null;
+    protected Thunk endTuple(final TupleBuilder builder) {
+        return new Thunk(new Tuple(builder));
     }
 }

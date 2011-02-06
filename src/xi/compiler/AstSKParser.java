@@ -12,7 +12,7 @@ import xi.sk.SKPrim;
  * @author Leo Woerteler
  * @author Joschi
  */
-public class AstSKParser extends SKParser<Expr> {
+public class AstSKParser extends SKParser<Expr, TupleBuilder> {
 
     /** Definition map. */
     private final Map<String, Expr> defs;
@@ -81,21 +81,18 @@ public class AstSKParser extends SKParser<Expr> {
     }
 
     @Override
-    protected Expr startTuple() {
-        // TODO Auto-generated method stub
-        return null;
+    protected TupleBuilder startTuple() {
+        return new TupleBuilder();
     }
 
     @Override
-    protected void nextInTuple(final Expr body, final Expr builder) {
-        // TODO Auto-generated method stub
-
+    protected void nextInTuple(final Expr body, final TupleBuilder builder) {
+        builder.addLast(body);
     }
 
     @Override
-    protected Expr endTuple(final Expr builder) {
-        // TODO Auto-generated method stub
-        return null;
+    protected Expr endTuple(final TupleBuilder builder) {
+        return new Tuple(builder);
     }
 
 }
