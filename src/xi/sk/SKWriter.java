@@ -12,6 +12,7 @@ import xi.util.StringUtils;
  * Writes SK code to an output stream.
  * 
  * @author Leo Woerteler
+ * @author Joschi
  */
 public class SKWriter implements SKVisitor, Closeable {
 
@@ -97,6 +98,16 @@ public class SKWriter implements SKVisitor, Closeable {
     @Override
     public void var(final String fv) {
         sb.append('<').append(fv).append('>');
+    }
+
+    @Override
+    public void nextInTuple() {
+        sb.append('.');
+    }
+
+    @Override
+    public void tuple(final boolean start) {
+        sb.append(start ? '(' : ')');
     }
 
     /**

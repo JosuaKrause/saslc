@@ -16,6 +16,7 @@ import xi.util.Logging;
  * do with the parsed definition to the sumclass.
  * 
  * @author Leo Woerteler
+ * @author Joschi
  */
 public abstract class CstSKParser extends SKParser<Thunk> {
 
@@ -103,4 +104,21 @@ public abstract class CstSKParser extends SKParser<Thunk> {
         return List.EMPTY.thunk;
     }
 
+    @Override
+    protected Thunk startTuple() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected void nextInTuple(final Thunk body, final Thunk builder) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected Thunk endTuple(final Thunk builder) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

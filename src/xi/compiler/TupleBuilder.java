@@ -3,23 +3,23 @@ package xi.compiler;
 import java.util.LinkedList;
 
 /**
- * Builds a fully functional Tupel.
+ * Builds a fully functional tuple.
  * 
  * @author Joschi
  * 
  */
-public class TupelBuilder {
+public class TupleBuilder {
 
     /** The list containing the Expressions. */
     private final LinkedList<Expr> list;
 
     /**
-     * Creates a TupelBuilder containing the expression {@code e}.
+     * Creates a tuple builder containing the expression {@code e}.
      * 
      * @param e
      *            The first expression.
      */
-    public TupelBuilder(final Expr e) {
+    public TupleBuilder(final Expr e) {
         list = new LinkedList<Expr>();
         list.add(e);
     }
@@ -29,9 +29,9 @@ public class TupelBuilder {
      * 
      * @param e
      *            The first expression.
-     * @return This TupelBuilder.
+     * @return This TupleBuilder.
      */
-    public TupelBuilder addFirst(final Expr e) {
+    public TupleBuilder addFirst(final Expr e) {
         list.addFirst(e);
         return this;
     }

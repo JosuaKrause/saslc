@@ -8,20 +8,20 @@ import java.util.Set;
 import xi.sk.SKVisitor;
 
 /**
- * Represents a tupel of expressions.
+ * Represents a tuple of expressions.
  * 
  * @author Joschi
  * 
  */
-public class Tupel extends Expr {
+public class Tuple extends Expr {
 
     /**
-     * Creates a tupel containing the expression given by {@code t}.
+     * Creates a tuple containing the expression given by {@code t}.
      * 
      * @param t
      *            The following expressions.
      */
-    public Tupel(final TupelBuilder t) {
+    public Tuple(final TupleBuilder t) {
         super(t.getExpr());
     }
 
@@ -83,10 +83,10 @@ public class Tupel extends Expr {
 
     @Override
     public boolean equals(final Object other) {
-        if (!(other instanceof Tupel)) {
+        if (!(other instanceof Tuple)) {
             return false;
         }
-        final Tupel o = (Tupel) other;
+        final Tuple o = (Tuple) other;
         if (o.expr.length != expr.length) {
             return false;
         }
@@ -128,7 +128,17 @@ public class Tupel extends Expr {
 
     @Override
     public void traverse(final SKVisitor v) {
-        // TODO think of traversing method...
+        boolean first = true;
+        v.tuple(true);
+        for (final Expr e : expr) {
+            if (first) {
+                first = false;
+            } else {
+                v.nextInTuple();
+            }
+            e.traverse(v);
+        }
+        v.tuple(false);
     }
 
 }

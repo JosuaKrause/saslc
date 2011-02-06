@@ -142,9 +142,34 @@ public abstract class SKParser<T> {
     protected abstract T reference(final String name);
 
     /**
+     * @return Creates a new tuple builder.
+     */
+    protected abstract T startTuple();
+
+    /**
+     * Adds the next body to the tuple builder.
+     * 
+     * @param body
+     *            The body.
+     * @param builder
+     *            The tuple builder.
+     */
+    protected abstract void nextInTuple(T body, T builder);
+
+    /**
+     * Makes a real tuple out of a tuple builder.
+     * 
+     * @param builder
+     *            The tuple builder.
+     * @return The fully functional tuple.
+     */
+    protected abstract T endTuple(T builder);
+
+    /**
      * An SKVisitor that uses a stack to reproduce the SK tree.
      * 
      * @author Leo Woerteler
+     * @author Joschi
      */
     private final class ParserSKVisitor implements SKVisitor {
 
@@ -211,6 +236,26 @@ public abstract class SKParser<T> {
         @Override
         public void var(final String fv) {
             stack.push(SKParser.this.reference(fv));
+        }
+
+        @Override
+        public void nextInTuple() {
+            final T body = stack.pop();
+            SKParser.this.nextInTuple(body, stack.peek());
+        }
+
+        @Override
+        public void tuple(final boolean start) {
+            T tupel;
+            if (start) {
+                tupel = SKParser.this.startTuple();
+            } else {
+                final T body = stack.pop();
+                final T builder = stack.pop();
+                SKParser.this.nextInTuple(body, builder);
+                tupel = SKParser.this.endTuple(builder);
+            }
+            stack.push(tupel);
         }
 
     }

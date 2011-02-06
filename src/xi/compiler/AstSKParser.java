@@ -10,6 +10,7 @@ import xi.sk.SKPrim;
  * An SK parser that writes the parsed definition into the given map.
  * 
  * @author Leo Woerteler
+ * @author Joschi
  */
 public class AstSKParser extends SKParser<Expr> {
 
@@ -77,6 +78,24 @@ public class AstSKParser extends SKParser<Expr> {
     @Override
     protected Expr string(final String str) {
         return Str.fromString(str);
+    }
+
+    @Override
+    protected Expr startTuple() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected void nextInTuple(final Expr body, final Expr builder) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected Expr endTuple(final Expr builder) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
