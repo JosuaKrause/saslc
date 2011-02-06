@@ -16,45 +16,13 @@ import xi.sk.SKVisitor;
 public class Tupel extends Expr {
 
     /**
-     * Creates a tupel containing only one expression.
+     * Creates a tupel containing the expression given by {@code t}.
      * 
-     * @param e
-     *            The expression.
-     */
-    public Tupel(final Expr e) {
-        super(e);
-    }
-
-    /**
-     * Creates a tupel containing the expression {@code e} and all expressions
-     * given by {@code t}.
-     * 
-     * @param e
-     *            The first expression.
      * @param t
      *            The following expressions.
      */
-    public Tupel(final Expr e, final Tupel t) {
-        super(t.combined(e));
-    }
-
-    /**
-     * Combines the expressions of the tupel with a new one, which is prepended.
-     * 
-     * @param e
-     *            The first expression.
-     * @return All expressions combined.
-     */
-    private Expr[] combined(final Expr e) {
-        // TODO: maybe use LinkedLists...
-        final int newLength = expr.length + 1;
-        int i = 0;
-        final Expr[] res = new Expr[newLength];
-        res[i++] = e;
-        for (final Expr exp : expr) {
-            res[i++] = exp;
-        }
-        return res;
+    public Tupel(final TupelBuilder t) {
+        super(t.getExpr());
     }
 
     @Override
@@ -75,12 +43,14 @@ public class Tupel extends Expr {
 
     @Override
     boolean match(final Expr[] pat, final int l, final int r) {
-        // TODO: implement correct matching...
-        if (r - l == 1) {
-            pat[l] = this;
-            return true;
+        if (r - l != 1) {
+            return false;
         }
-        return false;
+        if (pat[l] != null) {
+            return pat[l].equals(this);
+        }
+        pat[l] = this;
+        return true;
     }
 
     @Override
