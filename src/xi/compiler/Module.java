@@ -1,6 +1,5 @@
 package xi.compiler;
 
-import static xi.compiler.BuiltIn.Y;
 import static xi.util.StringUtils.NL;
 
 import java.util.Map;
@@ -120,12 +119,12 @@ public class Module extends Node {
         final Module res = new Module(isTopLevel, true);
         for (final Entry<Name, Expr> e : defs.entrySet()) {
             final Name name = e.getKey();
-            Expr nw = e.getValue();
+            final Expr nw = e.getValue();
 
             // eliminate simple recursion
-            if (nw.hasFree(name)) {
-                nw = Y.app(new Lambda(name.toString(), nw));
-            }
+            // if (nw.hasFree(name)) {
+            // nw = Y.app(new Lambda(name.toString(), nw));
+            // }
             res.addDefinition(name, nw.unLambda());
         }
         return res;
