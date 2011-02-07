@@ -121,6 +121,7 @@ public class Thunk implements SKTree {
                 // implicit BigInt -> Integer conversion with loss of precision
                 final int pos = app.node.getRight().wHNF().getNum().intValue();
                 final Thunk res = curr.node.getAtTuple(pos);
+                curr = app;
                 curr.node = Function.Def.indirect(res);
             } else {
                 ++reductions;
