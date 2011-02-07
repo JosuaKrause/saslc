@@ -40,7 +40,7 @@ public class TupleBuilder {
      * @return This TupleBuilder.
      */
     public TupleBuilder addLast(final Expr e) {
-        list.addFirst(e);
+        list.addLast(e);
         return this;
     }
 
