@@ -148,7 +148,8 @@ comb        ::= comb:c simple:s               {: RESULT = App.create(c, s); :}
 simple      ::= NAME:n                        {: RESULT = Name.valueOf(n); :}
               | constant:c                    {: RESULT = c; :}
               | BRACE_L lambdaexpr:l BRACE_R  {: RESULT = l; :}
-              | PAR_L expr:e COMMA tuple:t    {: RESULT = new Tuple(t.addFirst(e)); :}
+              | PAR_L expr:e COMMA tuple:t    {: Tuple tup = new Tuple(t.addFirst(e));
+                                                 RESULT = new Lambda(tup.getIDString(), tup); :}
               | PAR_L expr:e PAR_R            {: RESULT = e; :}
               ;
 tuple       ::= expr:e COMMA tuple:t          {: RESULT = t.addFirst(e); :}

@@ -15,6 +15,12 @@ import xi.sk.SKVisitor;
  */
 public class Tuple extends Expr {
 
+    /** The highest id so far. */
+    private static int ID_COUNTER = 0;
+
+    /** The tuple id. */
+    private int id;
+
     /**
      * Creates a tuple containing the expression given by {@code t}.
      * 
@@ -23,10 +29,17 @@ public class Tuple extends Expr {
      */
     public Tuple(final TupleBuilder t) {
         super(t.getExpr());
+        synchronized (Tuple.class) {
+            id = ID_COUNTER++;
+        }
     }
 
     @Override
     protected void freeVars(final Deque<Name> bound, final Set<Name> free) {
+        final Name id = getIDName();
+        if (!bound.contains(id)) {
+            free.add(id);
+        }
         for (final Expr e : expr) {
             e.freeVars(bound, free);
         }
@@ -55,6 +68,9 @@ public class Tuple extends Expr {
 
     @Override
     public int numOfUses(final Name n) {
+        if (n.equals(getIDName())) {
+            return 42; // larger than 1
+        }
         final int count = 0;
         for (final Expr e : expr) {
             e.numOfUses(n);
@@ -69,6 +85,9 @@ public class Tuple extends Expr {
             while (i-- > 0) {
                 expr[i] = expr[i].unLambda();
             }
+            return this;
+        }
+        if (n.equals(getIDName())) {
             return this;
         }
         if (!hasFree(n)) {
@@ -124,6 +143,32 @@ public class Tuple extends Expr {
         }
         sb.append(')');
         return sb.toString();
+    }
+
+    /** The String cache. */
+    private String cache = null;
+
+    /** The Name cache. */
+    private Name name = null;
+
+    /**
+     * @return The identification String.
+     */
+    public String getIDString() {
+        if (cache == null) {
+            cache = "$tuple$" + id;
+        }
+        return cache;
+    }
+
+    /**
+     * @return The identification Name.
+     */
+    public Name getIDName() {
+        if (name == null) {
+            name = Name.valueOf(getIDString());
+        }
+        return name;
     }
 
     @Override
