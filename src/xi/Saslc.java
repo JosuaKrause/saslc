@@ -10,6 +10,7 @@ import xi.lexer.Lexer;
 import xi.optimizer.OptLevel;
 import xi.parser.Parser;
 import xi.sk.SKWriter;
+import xi.util.BitFieldParser;
 import xi.util.IOUtils;
 import xi.util.Logging;
 

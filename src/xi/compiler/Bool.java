@@ -13,12 +13,12 @@ public final class Bool extends Value {
     /**
      * The value for <code>true</code>.
      */
-    private static final Bool TRUE = new Bool();
+    public static final Bool TRUE = new Bool();
 
     /**
      * The value for <code>false</code>.
      */
-    private static final Bool FALSE = new Bool();
+    public static final Bool FALSE = new Bool();
 
     /**
      * @param b

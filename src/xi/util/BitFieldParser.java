@@ -1,7 +1,7 @@
 /**
  * 
  */
-package xi;
+package xi.util;
 
 import com.martiansoftware.jsap.ParseException;
 import com.martiansoftware.jsap.StringParser;

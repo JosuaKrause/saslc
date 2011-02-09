@@ -4,7 +4,6 @@ import static xi.compiler.BuiltIn.B;
 import static xi.compiler.BuiltIn.B_STAR;
 import static xi.compiler.BuiltIn.C;
 import static xi.compiler.BuiltIn.C_PRIME;
-import static xi.compiler.BuiltIn.I;
 import static xi.compiler.BuiltIn.K;
 import static xi.compiler.BuiltIn.S;
 import static xi.compiler.BuiltIn.S_PRIME;
@@ -13,8 +12,8 @@ import java.util.Deque;
 import java.util.Set;
 
 import xi.optimizer.OptLevel;
+import xi.optimizer.Optimizer;
 import xi.sk.SKVisitor;
-import xi.util.Logging;
 
 /**
  * SASL function application.
@@ -27,9 +26,6 @@ public final class App extends Expr {
 
     /** Pattern for matching applications of B. */
     private static final Expr[] B_PAT = { B, null, null };
-
-    /** Pattern for matching applications of C. */
-    private static final Expr[] C_PAT = { C, null, null };
 
     /**
      * Creates an application-node for the given expressions.
@@ -91,12 +87,8 @@ public final class App extends Expr {
         if (n == null) {
             final Expr l = left.unLambda(), r = right.unLambda();
 
-            // C I x f => f x
-            final Expr[] c = l.match(C_PAT);
-            if (c != null && c[1] == I) {
-                Logging.getLogger(getClass()).fine(
-                        "Optimizing: " + this + "  ==>  " + r + " " + c[2]);
-                return App.create(r, c[2]);
+            if (OptLevel.PATTERN_OPT.isSet()) {
+                return Optimizer.optApp(l, r);
             }
 
             return App.create(l, r);

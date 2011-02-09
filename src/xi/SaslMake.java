@@ -5,6 +5,7 @@ import java.util.logging.Level;
 
 import xi.linker.Make;
 import xi.optimizer.OptLevel;
+import xi.util.BitFieldParser;
 import xi.util.Logging;
 
 import com.martiansoftware.jsap.FlaggedOption;

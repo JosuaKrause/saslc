@@ -1,3 +1,7 @@
 
-main = insertionSort {x y -> x < y} "tes";
-
+main
+  = let
+      C f g x = f x g,
+      I x = x
+    in C I [1] hd
+  ;
